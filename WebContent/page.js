@@ -49,7 +49,7 @@ $(document).ready(function () {
     );
 
     function buildPoi(poi, isCreate) {
-        if(poi && poi.position) {
+        if (poi && poi.position) {
             poi.longitude = poi.position[0];
             poi.latitude = poi.position[1];
         }
@@ -70,6 +70,8 @@ $(document).ready(function () {
             qq.maps.event.addListener(marker, 'click', function () {
                 bindPoiInfo(poi, marker);
                 $('#poiModal').modal({ "backdrop": "static", "focus": true });
+                if (!poi.name) {
+                }
             });
             //at android,move poi has bug
             // qq.maps.event.addListener(marker, 'dragend', function (event) {
@@ -85,6 +87,7 @@ $(document).ready(function () {
         $("#key").val(poi.key);
         $("#poiName").val(poi.name);
         $("#poiAddress").val(poi.address);
+        $("#poiDetailUrl").val(poi.detailUrl);
         if (poi.latitude && poi.longitude) {
             $("#poiLatitude").val(poi.latitude);
             $("#poiLongitude").val(poi.longitude);
@@ -236,6 +239,11 @@ $(document).ready(function () {
             }, 3000);
         }
     });
+
+    //modal显示后focus名称栏（空时）
+    $('#poiModal').on('shown.bs.modal', function (e) {
+        !$("#poiName").val() && $("#poiName").focus();
+    })
 
 
 });
