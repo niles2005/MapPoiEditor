@@ -49,6 +49,10 @@ $(document).ready(function () {
     );
 
     function buildPoi(poi, isCreate) {
+        if(poi && poi.position) {
+            poi.longitude = poi.position[0];
+            poi.latitude = poi.position[1];
+        }
         if (poi && poi.latitude && poi.longitude) {
             pois.push(poi);
             var center = new qq.maps.LatLng(poi.latitude, poi.longitude);
