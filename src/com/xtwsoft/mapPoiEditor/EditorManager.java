@@ -103,6 +103,7 @@ public class EditorManager {
 		}
 		if(thePoi.getBooleanValue("_new")) {
 			m_poisArray.add(thePoi);
+			thePoi.remove("_new");
 		}
 		return null;
 	}
@@ -114,7 +115,7 @@ public class EditorManager {
 				writer.write(m_dataJson.toJSONString());
 				writer.flush();
 				writer.close();
-				System.err.println("save datas at :" + new Date());
+//				System.err.println("save datas at :" + new Date());
 			}
 		} catch(Exception ex) {
 			ex.printStackTrace();
@@ -128,7 +129,7 @@ public class EditorManager {
 			String guid = Guid.build16Guid();
 			JSONObject poi = new JSONObject();
 			poi.put("id", guid);
-			poi.put("_new", true);//表示是新创建，但还没有加入datas
+			poi.put("_new", true);//临时属性，表示是地图上新创建，但还没有加入datas的点，此点还有如名称等属性没有完善。
 			m_poiHash.put(guid, poi);
 			return poi;
 		} else if("remove".equals(name)) {
