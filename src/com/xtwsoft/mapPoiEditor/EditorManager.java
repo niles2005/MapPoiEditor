@@ -73,9 +73,9 @@ public class EditorManager {
 				for(int i=0;i<m_poisArray.size();i++) {
 					JSONObject poi = m_poisArray.getJSONObject(i);
 					if(poi != null) {
-						String id = poi.getString("id");
-						if(id != null) {
-							m_poiHash.put(id, poi);
+						String key = poi.getString("key");
+						if(key != null) {
+							m_poiHash.put(key, poi);
 						}
 					}
 				}
@@ -88,18 +88,18 @@ public class EditorManager {
 	}
 	
 	public String updatePoi(JSONObject poi) {
-		String id = poi.getString("id");
-		if(id == null) {
-			return "update poi don't has id property!";
+		String key = poi.getString("key");
+		if(key == null) {
+			return "update poi don't has key property!";
 		}
-		JSONObject thePoi = m_poiHash.get(id);
+		JSONObject thePoi = m_poiHash.get(key);
 		if(thePoi == null) {
-			return "can't find poi with id :" + id + "!";
+			return "can't find poi with key :" + key + "!";
 		}
 		Iterator iters = poi.keySet().iterator();
 		while(iters.hasNext()) {
-			String key = (String)iters.next();
-			thePoi.put(key, poi.get(key));
+			String strKey = (String)iters.next();
+			thePoi.put(strKey, poi.get(strKey));
 		}
 		if(thePoi.getBooleanValue("_new")) {
 			m_poisArray.add(thePoi);
@@ -128,13 +128,13 @@ public class EditorManager {
 		} else if("createPoi".equals(name)) {
 			String guid = Guid.build16Guid();
 			JSONObject poi = new JSONObject();
-			poi.put("id", guid);
+			poi.put("key", guid);
 			poi.put("_new", true);//临时属性，表示是地图上新创建，但还没有加入datas的点，此点还有如名称等属性没有完善。
 			m_poiHash.put(guid, poi);
 			return poi;
 		} else if("remove".equals(name)) {
-			String id = request.getParameter("id");
-			JSONObject poi = m_poiHash.remove(id);
+			String key = request.getParameter("key");
+			JSONObject poi = m_poiHash.remove(key);
 			if(poi != null) {
 				m_poisArray.remove(poi);
 			}

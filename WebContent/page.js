@@ -82,7 +82,7 @@ $(document).ready(function () {
     function bindPoiInfo(poi, marker) {
         currentPoi = poi;
         currentMarker = marker;
-        $("#ID").val(poi.id);
+        $("#key").val(poi.key);
         $("#poiName").val(poi.name);
         $("#poiAddress").val(poi.address);
         if (poi.latitude && poi.longitude) {
@@ -176,7 +176,7 @@ $(document).ready(function () {
 
     $("#confirmOK").click(function () {
         $('#confirmModal').modal('hide');
-        $.getJSON("service?name=remove&id=" + currentPoi.id + "&v=" + new Date().getTime(), function (ret) {
+        $.getJSON("service?name=remove&key=" + currentPoi.key + "&v=" + new Date().getTime(), function (ret) {
             if (ret.retCode == 0) {
                 currentMarker.setMap(null);
                 currentMarker = null;
