@@ -13,7 +13,7 @@ $(document).ready(function () {
         mapObj,
         'click',
         function (event) {
-            if($("#clickCreatePoi").get(0).checked) {
+            if ($("#clickCreatePoi").get(0).checked) {
                 createPoi(event.latLng);
             }
         }
@@ -24,7 +24,8 @@ $(document).ready(function () {
             if (ret.retCode >= 0) {
                 var poi = ret.data;
                 if (poi) {
-                    poi.position = [latLng.getLng().toFixed(6), latLng.getLat().toFixed(6)];
+                    poi.latitude = latLng.getLat().toFixed(6);
+                    poi.longitude = latLng.getLng().toFixed(6);
                     buildPoi(poi, true);
                 }
             }
@@ -48,9 +49,9 @@ $(document).ready(function () {
     );
 
     function buildPoi(poi, isCreate) {
-        if (poi && poi.position) {
+        if (poi && poi.latitude && poi.longitude) {
             pois.push(poi);
-            var center = new qq.maps.LatLng(poi.position[1], poi.position[0]);
+            var center = new qq.maps.LatLng(poi.latitude, poi.longitude);
             var marker = new qq.maps.Marker({
                 position: center,
                 map: mapObj,
@@ -68,7 +69,8 @@ $(document).ready(function () {
             });
             //at android,move poi has bug
             // qq.maps.event.addListener(marker, 'dragend', function (event) {
-            //     poi.position = [event.latLng.lng.toFixed(6), event.latLng.lat.toFixed(6)];
+            //     poi.latitude = event.latLng.lat.toFixed(6);
+            //     poi.longitude = event.latLng.lng.toFixed(6);
             // });
         }
     }
@@ -79,9 +81,9 @@ $(document).ready(function () {
         $("#ID").val(poi.id);
         $("#poiName").val(poi.name);
         $("#poiAddress").val(poi.address);
-        if (poi.position) {
-            $("#poiLatitude").val(poi.position[1]);
-            $("#poiLongitude").val(poi.position[0]);
+        if (poi.latitude && poi.longitude) {
+            $("#poiLatitude").val(poi.latitude);
+            $("#poiLongitude").val(poi.longitude);
         }
     }
 
@@ -135,9 +137,11 @@ $(document).ready(function () {
 
         currentPoi.name = name;
         currentPoi.address = address;
-        currentPoi.position = [lon, lat];
+        currentPoi.latitude = lat;
+        currentPoi.longitude = lon;
         currentPoi.detailUrl = poiDetailUrl;
 
+        currentMarker.setTitle(name);
         currentMarker.setIcon(defaultMarkerIcon);
     }
 
@@ -218,16 +222,16 @@ $(document).ready(function () {
     }
 
 
-    $("#saveAllButton").click(function() {
+    $("#saveAllButton").click(function () {
         $.getJSON("service?name=saveall&v=" + new Date().getTime());
-        if($("#saveAllButton").attr("data-original-title")) {
+        if ($("#saveAllButton").attr("data-original-title")) {
             $("#saveAllButton").tooltip("show")
-            setTimeout(function(){
+            setTimeout(function () {
                 $("#saveAllButton").tooltip("hide");
                 $("#saveAllButton").removeAttr("data-original-title");
-            },3000);
+            }, 3000);
         }
     });
 
-    
+
 });
