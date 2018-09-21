@@ -20,7 +20,7 @@ $(document).ready(function () {
     );
 
     function createPoi(latLng) {
-        $.getJSON("/service?name=createPoi&v=" + new Date().getTime(), function (ret) {
+        $.getJSON("service?name=createPoi&v=" + new Date().getTime(), function (ret) {
             if (ret.retCode >= 0) {
                 var poi = ret.data;
                 if (poi) {
@@ -141,7 +141,7 @@ $(document).ready(function () {
         currentMarker.setIcon(defaultMarkerIcon);
     }
 
-    $.getJSON("/service?name=datas&v=" + new Date().getTime(), function (ret) {
+    $.getJSON("service?name=datas&v=" + new Date().getTime(), function (ret) {
         if (ret.retCode >= 0 && ret.data) {
             var pois = ret.data.pois;
             if (pois) {
@@ -168,7 +168,7 @@ $(document).ready(function () {
 
     $("#confirmOK").click(function () {
         $('#confirmModal').modal('hide');
-        $.getJSON("/service?name=remove&id=" + currentPoi.id + "&v=" + new Date().getTime(), function (ret) {
+        $.getJSON("service?name=remove&id=" + currentPoi.id + "&v=" + new Date().getTime(), function (ret) {
             if (ret.retCode == 0) {
                 currentMarker.setMap(null);
                 currentMarker = null;
@@ -199,7 +199,7 @@ $(document).ready(function () {
     function savePoi(poi, callback) {
         $.ajax({
             type: "POST",
-            url: "/service?name=update",
+            url: "service?name=update",
             dataType: "json",
             data: JSON.stringify(poi),
             contentType: 'text/plain; charset=UTF-8',
@@ -219,7 +219,7 @@ $(document).ready(function () {
 
 
     $("#saveAllButton").click(function() {
-        $.getJSON("/service?name=saveall&v=" + new Date().getTime());
+        $.getJSON("service?name=saveall&v=" + new Date().getTime());
         if($("#saveAllButton").attr("data-original-title")) {
             $("#saveAllButton").tooltip("show")
             setTimeout(function(){
