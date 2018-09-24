@@ -1,4 +1,4 @@
-package com.xtwsoft.mapPoiEditor;
+package com.xtwsoft.poieditor;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -10,9 +10,9 @@ import java.util.Iterator;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.xtwsoft.mapPoiEditor.utils.Guid;
-import com.xtwsoft.mapPoiEditor.utils.LoopTask;
-import com.xtwsoft.mapPoiEditor.utils.Utils;
+import com.xtwsoft.poieditor.utils.Guid;
+import com.xtwsoft.poieditor.utils.LoopTask;
+import com.xtwsoft.poieditor.utils.Utils;
 import com.xtwsoft.server.ServerConfig;
 import com.xtwsoft.server.ServiceManager;
 
@@ -25,33 +25,31 @@ import com.xtwsoft.server.ServiceManager;
  * @author NieLei
  *
  */
-public class EditorManager {
-	private File m_datasPath = null;
-	private static EditorManager m_instance = null;
+public class POIManager {
+	private static POIManager m_instance = null;
 	private File m_dataJsonFile = null;
 	private JSONObject m_dataJson = null;
-	private JSONArray m_poisArray = null;
-	private Hashtable<String,JSONObject> m_poiHash = new Hashtable<String,JSONObject>();
+	private JSONArray m_poiJsonArray = null;//json 
+	private Hashtable<String,POI> m_poiHash = new Hashtable<String,POI>();
 	
-	public static EditorManager getInstance() {
+	public static POIManager getInstance() {
 		return m_instance;
 	}
 
 	public static void initInstance() {
 		if(m_instance == null) {
-			m_instance = new EditorManager();
+			m_instance = new POIManager();
 		}
 	}
 	
 	
-	private EditorManager() {
-		m_datasPath = ServerConfig.getInstance().getDatasPath();
+	private POIManager() {
 		init();
 		registerServices();
 	}
 	
 	private void init() {
-		m_dataJsonFile = new File(m_datasPath,"datas.json");
+		m_dataJsonFile = new File(ServerConfig.getInstance().getDatasPath(),"datas.json");
 		try {
 			if(m_dataJsonFile.exists() && m_dataJsonFile.isFile()) {
 				JSON theJson = Utils.loadJSON(m_dataJsonFile);
@@ -70,18 +68,16 @@ public class EditorManager {
 				m_dataJson = json;
 			}
 			if(m_dataJson != null) {
-				m_poisArray = m_dataJson.getJSONArray("pois");
-				if(m_poisArray == null) {
-					m_poisArray = new JSONArray();
-					m_dataJson.put("pois", m_poisArray);
+				m_poiJsonArray = m_dataJson.getJSONArray("pois");
+				if(m_poiJsonArray == null) {
+					m_poiJsonArray = new JSONArray();
+					m_dataJson.put("pois", m_poiJsonArray);
 				}
-				for(int i=0;i<m_poisArray.size();i++) {
-					JSONObject poi = m_poisArray.getJSONObject(i);
-					if(poi != null) {
-						String key = poi.getString("key");
-						if(key != null) {
-							m_poiHash.put(key, poi);
-						}
+				for(int i=0;i<m_poiJsonArray.size();i++) {
+					JSONObject json = m_poiJsonArray.getJSONObject(i);
+					POI poi = new POI(json);
+					if(poi.hasKey()) {
+						m_poiHash.put(poi.getKey(), poi);
 					}
 				}
 			}
@@ -92,26 +88,36 @@ public class EditorManager {
 		}
 	}
 	
-	public String updatePoi(JSONObject poi) {
-		String key = poi.getString("key");
+	public String updatePoi(JSONObject json) {
+		String key = json.getString("key");
 		if(key == null) {
 			return "update poi don't has key property!";
 		}
-		JSONObject thePoi = m_poiHash.get(key);
-		if(thePoi == null) {
+		POI poi = m_poiHash.get(key);
+		if(poi == null) {
 			return "can't find poi with key :" + key + "!";
 		}
-		Iterator iters = poi.keySet().iterator();
-		while(iters.hasNext()) {
-			String strKey = (String)iters.next();
-			thePoi.put(strKey, poi.get(strKey));
-		}
-		if(thePoi.getBooleanValue("_new")) {
-			m_poisArray.add(thePoi);
-			thePoi.remove("_new");
+		poi.update(json);
+		if(poi.hasNewFlag()) {
+			m_poiJsonArray.add(poi.getJson());
+			poi.removeNewFlag();
 		}
 		return null;
 	}
+	
+	public String updatePoiDetail(JSONObject json) {
+		String key = json.getString("key");
+		if(key == null) {
+			return "update poi don't has key property!";
+		}
+		POI poi = m_poiHash.get(key);
+		if(poi == null) {
+			return "can't find poi with key :" + key + "!";
+		}
+		poi.updateDetail(json);
+		return null;
+	}
+	
 	
 	public void saveDatasToFile() {
 		try {
@@ -132,20 +138,17 @@ public class EditorManager {
 	}
 	
 	public boolean removePOI(String key) {
-		JSONObject poi = m_poiHash.remove(key);
+		POI poi = m_poiHash.remove(key);
 		if(poi != null) {
-			m_poisArray.remove(poi);
+			m_poiJsonArray.remove(poi.getJson());
 		}
 		return true;
 	}
 	
 	public JSONObject createPOI() {
-		String guid = Guid.build16Guid();
-		JSONObject poi = new JSONObject();
-		poi.put("key", guid);
-		poi.put("_new", true);//临时属性，表示是地图上新创建，但还没有加入datas的点，此点还有如名称等属性没有完善。
-		m_poiHash.put(guid, poi);
-		return poi;
+		POI poi = new POI();
+		m_poiHash.put(poi.getKey(), poi);
+		return poi.getJson();
 	}
 	
 	/**
@@ -158,5 +161,6 @@ public class EditorManager {
 		serviceManager.addService(new RemovePOIService());
 		serviceManager.addService(new UpdatePOIService());
 		serviceManager.addService(new SaveAllService());
+		serviceManager.addService(new UpdateDetailService());
 	}
 }

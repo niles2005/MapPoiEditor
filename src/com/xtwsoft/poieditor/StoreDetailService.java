@@ -1,4 +1,4 @@
-package com.xtwsoft.mapPoiEditor;
+package com.xtwsoft.poieditor;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -10,12 +10,12 @@ import com.xtwsoft.server.ServiceReturn;
  * @author NieLei
  *
  */
-public class DatasService extends Service {
-	public DatasService() {
-		super("datas");
+public class StoreDetailService extends Service {
+	public StoreDetailService() {
+		super("storedetail");
 	}
 	
 	public void work(ServiceReturn ret,HttpServletRequest request) {
-		ret.setSuccess(EditorManager.getInstance().getDatas());
+		ret.setSuccess(POIManager.getInstance().getDatas());
 	}
 }

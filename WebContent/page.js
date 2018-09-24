@@ -207,6 +207,33 @@ $(document).ready(function () {
         }
     });
 
+    $("#detailSave").click(function () {
+        let poiDetailUrl = $.trim($("#poiDetailUrl").val());
+        if(!poiDetailUrl.startsWith("http")) {
+            return;
+        }
+        let tempPOI = {"key":currentPoi.key,"detailUrl":poiDetailUrl};
+        $.ajax({
+            type: "POST",
+            url: "service?name=updatedetail",
+            dataType: "json",
+            data: JSON.stringify(tempPOI),
+            contentType: 'text/plain; charset=UTF-8',
+            cache: false,
+            success: function (ret) {
+                if (ret.retCode === 0) {
+                    currentPoi.detailUrl = poiDetailUrl;
+                    //加载images
+                } else {
+                    if (ret.message) {
+                        alert(ret.message)
+                    }
+                }
+            }
+        });
+
+    });
+
     function savePoi(poi, callback) {
         $.ajax({
             type: "POST",

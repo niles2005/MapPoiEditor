@@ -2,7 +2,7 @@ package com.xtwsoft.server;
 
 import java.io.File;
 
-import com.xtwsoft.mapPoiEditor.EditorManager;
+import com.xtwsoft.poieditor.POIManager;
 
 public class ServerConfig {
 	private static ServerConfig m_instance = null;
@@ -10,6 +10,7 @@ public class ServerConfig {
 	private File m_appPath = null;
 	private File m_WEBINFPath = null;
 	private File m_datasPath = null;
+	private File m_poisPath = null;
 	
 	private ServerConfig(String appName,File appPath) {
 		if("/".equals(appName)) {
@@ -25,7 +26,10 @@ public class ServerConfig {
 			if(!m_datasPath.exists()) {
 				m_datasPath.mkdir();
 			}
-
+			m_poisPath = new File(appPath, "p");
+			if(!m_poisPath.exists()) {
+				m_poisPath.mkdir();
+			}
 		} else {
 			System.err.println("WEB-INF path not found!");
 		}
@@ -33,6 +37,10 @@ public class ServerConfig {
 	
 	public File getWEBINFPath() {
 		return m_WEBINFPath;
+	}
+	
+	public File getPOISPath() {
+		return m_poisPath;
 	}
 	
 	public static ServerConfig getInstance() {

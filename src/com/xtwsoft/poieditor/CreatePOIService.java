@@ -1,4 +1,4 @@
-package com.xtwsoft.mapPoiEditor;
+package com.xtwsoft.poieditor;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -17,7 +17,7 @@ public class CreatePOIService extends Service {
 	}
 	
 	public void work(ServiceReturn ret,HttpServletRequest request) {
-		JSONObject poi = EditorManager.getInstance().createPOI();
+		JSONObject poi = POIManager.getInstance().createPOI();
 		ret.setSuccess(poi);
 	}
 }

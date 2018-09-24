@@ -1,4 +1,4 @@
-package com.xtwsoft.mapPoiEditor;
+package com.xtwsoft.poieditor;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -16,7 +16,7 @@ public class SaveAllService extends Service {
 	}
 	
 	public void work(ServiceReturn ret,HttpServletRequest request) {
-		EditorManager.getInstance().saveDatasToFile();
+		POIManager.getInstance().saveDatasToFile();
 		ret.setSuccess("save all data success!");
 	}
 }

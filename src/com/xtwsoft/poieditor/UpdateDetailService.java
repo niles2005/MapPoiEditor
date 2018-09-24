@@ -1,4 +1,4 @@
-package com.xtwsoft.mapPoiEditor;
+package com.xtwsoft.poieditor;
 
 import java.io.BufferedReader;
 
@@ -10,13 +10,13 @@ import com.xtwsoft.server.Service;
 import com.xtwsoft.server.ServiceReturn;
 
 /**
- * 更新POI对象，此对象为客户端post数据。
+ * 更新POI的detailUrl，此对象为客户端post数据。
  * @author NieLei
  *
  */
-public class UpdatePOIService extends Service {
-	public UpdatePOIService() {
-		super("updatepoi");
+public class UpdateDetailService extends Service {
+	public UpdateDetailService() {
+		super("updatedetail");
 	}
 	
 	public void work(ServiceReturn ret,HttpServletRequest request) {
@@ -24,11 +24,11 @@ public class UpdatePOIService extends Service {
 			String strContent = getPostContent(request);
 			JSONObject json = JSON.parseObject(strContent);			
 			if(json != null) {
-				String err = EditorManager.getInstance().updatePoi(json);
+				String err = POIManager.getInstance().updatePoi(json);
 				if(err != null) {
 					ret.setError(err);
 				} else {//success
-					ret.setSuccess("update POI success!");
+					ret.setSuccess("update POI detail  success!");
 				}
 			}
 		} catch(Exception ex) {

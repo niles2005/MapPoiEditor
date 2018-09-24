@@ -1,4 +1,4 @@
-package com.xtwsoft.mapPoiEditor;
+package com.xtwsoft.poieditor;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -17,7 +17,7 @@ public class RemovePOIService extends Service {
 	
 	public void work(ServiceReturn ret,HttpServletRequest request) {
 		String key = request.getParameter("key");
-		boolean success = EditorManager.getInstance().removePOI(key);
+		boolean success = POIManager.getInstance().removePOI(key);
 		ret.setSuccess("remove POI(" + key + ") " + (success? " success": "failed"));
 	}
 }
