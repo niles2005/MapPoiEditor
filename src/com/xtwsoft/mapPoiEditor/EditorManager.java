@@ -4,11 +4,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.util.Date;
 import java.util.Hashtable;
 import java.util.Iterator;
-
-import javax.servlet.http.HttpServletRequest;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -16,7 +13,18 @@ import com.alibaba.fastjson.JSONObject;
 import com.xtwsoft.mapPoiEditor.utils.Guid;
 import com.xtwsoft.mapPoiEditor.utils.LoopTask;
 import com.xtwsoft.mapPoiEditor.utils.Utils;
+import com.xtwsoft.server.ServerConfig;
+import com.xtwsoft.server.ServiceManager;
 
+/**
+ * 用户处理逻辑，需实现为单例模式。
+ * 在使用中需注意2点：
+ * 1.将本对象加入ServiceServlet的init()最后。不能加在ServerConfig或ServiceManager里。
+ * 2.需将新加的服务注册到本对象。见registerServices()。
+ * 
+ * @author NieLei
+ *
+ */
 public class EditorManager {
 	private File m_datasPath = null;
 	private static EditorManager m_instance = null;
@@ -29,20 +37,17 @@ public class EditorManager {
 		return m_instance;
 	}
 
-	public static void initInstance(File datasPath) {
+	public static void initInstance() {
 		if(m_instance == null) {
-			m_instance = new EditorManager(datasPath);
+			m_instance = new EditorManager();
 		}
 	}
 	
 	
-	private EditorManager(File datasPath) {
-		m_datasPath = datasPath;
+	private EditorManager() {
+		m_datasPath = ServerConfig.getInstance().getDatasPath();
 		init();
-	}
-	
-	public JSONObject loadDatas() {
-		return m_dataJson;
+		registerServices();
 	}
 	
 	private void init() {
@@ -122,27 +127,36 @@ public class EditorManager {
 		}
 	}
 	
-	public JSONObject doWork(String name,HttpServletRequest request) {
-		if("datas".equals(name)) {
-			return this.m_dataJson;
-		} else if("createPoi".equals(name)) {
-			String guid = Guid.build16Guid();
-			JSONObject poi = new JSONObject();
-			poi.put("key", guid);
-			poi.put("_new", true);//临时属性，表示是地图上新创建，但还没有加入datas的点，此点还有如名称等属性没有完善。
-			m_poiHash.put(guid, poi);
-			return poi;
-		} else if("remove".equals(name)) {
-			String key = request.getParameter("key");
-			JSONObject poi = m_poiHash.remove(key);
-			if(poi != null) {
-				m_poisArray.remove(poi);
-			}
-			return new JSONObject();
-		} else if("saveall".equals(name)) {
-			this.saveDatasToFile();
-			return new JSONObject();
+	public JSONObject getDatas() {
+		return m_dataJson;
+	}
+	
+	public boolean removePOI(String key) {
+		JSONObject poi = m_poiHash.remove(key);
+		if(poi != null) {
+			m_poisArray.remove(poi);
 		}
-		return null;
+		return true;
+	}
+	
+	public JSONObject createPOI() {
+		String guid = Guid.build16Guid();
+		JSONObject poi = new JSONObject();
+		poi.put("key", guid);
+		poi.put("_new", true);//临时属性，表示是地图上新创建，但还没有加入datas的点，此点还有如名称等属性没有完善。
+		m_poiHash.put(guid, poi);
+		return poi;
+	}
+	
+	/**
+	 * 注册服务。在使用中可以按服务名找到对应的服务。
+	 */
+	public void registerServices() {
+		ServiceManager serviceManager = ServiceManager.getInstance();
+		serviceManager.addService(new DatasService());
+		serviceManager.addService(new CreatePOIService());
+		serviceManager.addService(new RemovePOIService());
+		serviceManager.addService(new UpdatePOIService());
+		serviceManager.addService(new SaveAllService());
 	}
 }
