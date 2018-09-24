@@ -20,7 +20,7 @@ $(document).ready(function () {
     );
 
     function createPoi(latLng) {
-        $.getJSON("service?name=createPoi&v=" + new Date().getTime(), function (ret) {
+        $.getJSON("service?name=createpoi&v=" + new Date().getTime(), function (ret) {
             if (ret.retCode >= 0) {
                 var poi = ret.data;
                 if (poi) {
@@ -179,7 +179,7 @@ $(document).ready(function () {
 
     $("#confirmOK").click(function () {
         $('#confirmModal').modal('hide');
-        $.getJSON("service?name=remove&key=" + currentPoi.key + "&v=" + new Date().getTime(), function (ret) {
+        $.getJSON("service?name=removepoi&key=" + currentPoi.key + "&v=" + new Date().getTime(), function (ret) {
             if (ret.retCode == 0) {
                 currentMarker.setMap(null);
                 currentMarker = null;
@@ -210,7 +210,7 @@ $(document).ready(function () {
     function savePoi(poi, callback) {
         $.ajax({
             type: "POST",
-            url: "service?name=update",
+            url: "service?name=updatepoi",
             dataType: "json",
             data: JSON.stringify(poi),
             contentType: 'text/plain; charset=UTF-8',
