@@ -1,22 +1,19 @@
 package com.xtwsoft.poieditor;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
 
 import com.alibaba.fastjson.JSONObject;
-import com.xtwsoft.html2wxml.Html2Wxml;
 import com.xtwsoft.poieditor.utils.Guid;
+import com.xtwsoft.poieditor.utils.SimplifyHtml;
 import com.xtwsoft.server.ServerConfig;
 
 public class POI {
 	private JSONObject m_json = null;
 	private String m_key = null;
 	private File m_detailPath = null;
-	private String m_wxmlSum = null;
+	private String m_fileSum = null;
 	private ArrayList<File> m_imageFileList = null;
 	
 	public POI() {
@@ -76,37 +73,37 @@ public class POI {
 		buildDetail(true);
 	}
 	
-	//根据detailUrl处理详情，转换为wxml格式，同时下载文中图片，声音等
+	//限于小程序的访问权限，根据detailUrl处理详情，转存为本地html文件，去除js。
 	//每次保存后按 处理后内容产生一个md5sum，用以判断是否已经处理。
 	//再次处理后可以先比较此 md5sum，如果一致，则不保存，并不进行下载图片，声音等操作。
 	//POI编辑页面点 "下载&处理"时，会强制调用此方法。isForce:true
-	//POI编辑页面点 "保存 "时，如果没有m_wxmlSum,会调用一次，后续保存，在m_wxmlSum存在时不执行此方法。isForce: false
+	//POI编辑页面点 "保存 "时，如果没有m_fileSum,会调用一次，后续保存，在m_fileSum存在时不执行此方法。isForce: false
 	private void buildDetail(boolean isForce) {
 		try {
 			if(!m_detailPath.exists()) {
 				m_detailPath.mkdir();
 			}
-			if(m_wxmlSum == null) {
+			if(m_fileSum == null) {
 				String strDetailUrl = m_json.getString("detailUrl");
 				if(strDetailUrl != null) {
-					Html2Wxml builder = new Html2Wxml(strDetailUrl);
+					SimplifyHtml builder = new SimplifyHtml(strDetailUrl);
 					m_json.put("imagesSize", builder.getImagesSize());
-					File destFile = new File(m_detailPath,m_key + ".wxml");
+					File destFile = new File(m_detailPath,m_key + ".html");
 					m_imageFileList = builder.storeImage(m_detailPath,m_key);
-					m_wxmlSum = builder.storeWxml(destFile);
+					m_fileSum = builder.store(destFile);
 				}
 			} else {
 				if(isForce) {
 					String strDetailUrl = m_json.getString("detailUrl");
 					if(strDetailUrl != null) {
-						Html2Wxml builder = new Html2Wxml(strDetailUrl);
+						SimplifyHtml builder = new SimplifyHtml(strDetailUrl);
 						String wxmlSum = builder.buildMD5Sum();
-						if(!m_wxmlSum.equals(wxmlSum)) {//重新执行校验不等，重新下载图片等数据
+						if(!m_fileSum.equals(wxmlSum)) {//重新执行校验不等，重新下载图片等数据
 							m_json.put("imagesSize", builder.getImagesSize());
-							File destFile = new File(m_detailPath,m_key + ".wxml");
-							builder.storeWxml(destFile);
+							File destFile = new File(m_detailPath,m_key + ".html");
+							builder.store(destFile);
 							m_imageFileList = builder.storeImage(m_detailPath,m_key);
-							m_wxmlSum = wxmlSum;
+							m_fileSum = wxmlSum;
 						}
 					}
 				}
