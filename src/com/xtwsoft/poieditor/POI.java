@@ -90,7 +90,7 @@ public class POI {
 				String strDetailUrl = m_json.getString("detailUrl");
 				if(strDetailUrl != null) {
 					Html2Wxml builder = new Html2Wxml(strDetailUrl);
-					
+					m_json.put("imagesSize", builder.getImagesSize());
 					File destFile = new File(m_detailPath,m_key + ".wxml");
 					m_imageFileList = builder.storeImage(m_detailPath,m_key);
 					m_wxmlSum = builder.storeWxml(destFile);
@@ -102,6 +102,7 @@ public class POI {
 						Html2Wxml builder = new Html2Wxml(strDetailUrl);
 						String wxmlSum = builder.buildMD5Sum();
 						if(!m_wxmlSum.equals(wxmlSum)) {//重新执行校验不等，重新下载图片等数据
+							m_json.put("imagesSize", builder.getImagesSize());
 							File destFile = new File(m_detailPath,m_key + ".wxml");
 							builder.storeWxml(destFile);
 							m_imageFileList = builder.storeImage(m_detailPath,m_key);
@@ -114,4 +115,9 @@ public class POI {
 			ex.printStackTrace();
 		}
 	}
+	
+	public Integer getImagesSize() {
+		return m_json.getInteger("imagesSize");
+	}
+	
 }

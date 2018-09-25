@@ -24,11 +24,17 @@ public class UpdateDetailService extends Service {
 			String strContent = getPostContent(request);
 			JSONObject json = JSON.parseObject(strContent);			
 			if(json != null) {
-				String err = POIManager.getInstance().updatePoi(json);
+				String err = POIManager.getInstance().updatePoiDetail(json);
 				if(err != null) {
 					ret.setError(err);
 				} else {//success
-					ret.setSuccess("update POI detail  success!");
+					POI poi = POIManager.getInstance().getPOI(json.getString("key"));
+					Integer size = poi.getImagesSize();
+					if(size != null) {
+						JSONObject data = new JSONObject();
+						data.put("imagesSize", size);
+						ret.setSuccess(data);
+					}
 				}
 			}
 		} catch(Exception ex) {

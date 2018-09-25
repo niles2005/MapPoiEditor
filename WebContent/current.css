@@ -118,3 +118,32 @@ img{
     left: 5px; 
     top: 5px;
 }
+
+.browser {
+    width: 100%;
+    height: 80px;
+    overflow-x: auto;
+    background-color: lightgray;
+}
+.browser-item {
+    display: table-cell;
+    border-top: solid 3px gray;
+    border-left: solid 3px gray;
+    border-right: solid 3px gray;
+    position: relative;
+    width:150px;
+}
+.browser-item> img {
+    width: 100px;
+    height: 100%;
+}
+.browser-item> .mask {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 100%;    
+}
+
+.browser-item> .mask.selected {
+    background-color: rgba(200, 200, 10, 0.5);
+}

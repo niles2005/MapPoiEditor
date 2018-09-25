@@ -28,7 +28,13 @@ public class UpdatePOIService extends Service {
 				if(err != null) {
 					ret.setError(err);
 				} else {//success
-					ret.setSuccess("update POI success!");
+					POI poi = POIManager.getInstance().getPOI(json.getString("key"));
+					Integer size = poi.getImagesSize();
+					if(size != null) {
+						JSONObject data = new JSONObject();
+						data.put("imagesSize", size);
+						ret.setSuccess(data);
+					}
 				}
 			}
 		} catch(Exception ex) {

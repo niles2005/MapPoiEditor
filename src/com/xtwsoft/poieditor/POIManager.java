@@ -88,6 +88,10 @@ public class POIManager {
 		}
 	}
 	
+	public POI getPOI(String key) {
+		return m_poiHash.get(key);
+	}
+	
 	public String updatePoi(JSONObject json) {
 		String key = json.getString("key");
 		if(key == null) {
@@ -162,5 +166,6 @@ public class POIManager {
 		serviceManager.addService(new UpdatePOIService());
 		serviceManager.addService(new SaveAllService());
 		serviceManager.addService(new UpdateDetailService());
+		serviceManager.addService(new LoadImagesService());
 	}
 }

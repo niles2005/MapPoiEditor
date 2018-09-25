@@ -215,8 +215,9 @@ public class Html2Wxml {
 		}
 		return fileList;
 	}
-
-	public static void main(String[] args) {
-		new Html2Wxml("https://mp.weixin.qq.com/s/97Nte7W6JVT-OiRlQPFM7Q");
+	
+	public int getImagesSize() {
+		return m_viewImageList.size();
 	}
+
 }

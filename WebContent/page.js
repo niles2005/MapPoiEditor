@@ -70,8 +70,6 @@ $(document).ready(function () {
             qq.maps.event.addListener(marker, 'click', function () {
                 bindPoiInfo(poi, marker);
                 $('#poiModal').modal({ "backdrop": "static", "focus": true });
-                if (!poi.name) {
-                }
             });
             //at android,move poi has bug
             // qq.maps.event.addListener(marker, 'dragend', function (event) {
@@ -91,6 +89,28 @@ $(document).ready(function () {
         if (poi.latitude && poi.longitude) {
             $("#poiLatitude").val(poi.latitude);
             $("#poiLongitude").val(poi.longitude);
+        }
+        updatePOIImagesSize(poi);
+    }
+
+    function updatePOIImagesSize(poi) {
+        $("#poiImages").empty();
+        if(poi.imagesSize) {
+            for(let i=1;i<=poi.imagesSize;i++) {
+                let ss = '<div class="browser-item">' + 
+                    '<img src="p//' + poi.key + '//' + poi.key + '_' + i + '"/>' +
+                    '<div class="mask" imageIndex="' + i + '"></div>' +
+                    '</div>';
+                let jBrowserItem = $(ss);
+                if(poi.imageIndex == i) {
+                    jBrowserItem.find(".mask").addClass("selected");
+                }
+                $("#poiImages").append(jBrowserItem);
+                jBrowserItem.click(function() {
+                    $("#poiImages").find(".mask.selected").removeClass("selected");
+                    jBrowserItem.find(".mask").addClass("selected");
+                });
+            }
         }
     }
 
@@ -142,11 +162,13 @@ $(document).ready(function () {
 
         let poiDetailUrl = $.trim($("#poiDetailUrl").val());
 
+        let imageIndex = $("#poiImages").find(".mask.selected").attr("imageIndex");
         currentPoi.name = name;
         currentPoi.address = address;
         currentPoi.latitude = lat;
         currentPoi.longitude = lon;
         currentPoi.detailUrl = poiDetailUrl;
+        currentPoi.imageIndex = imageIndex;
 
         currentMarker.setTitle(name);
         currentMarker.setIcon(defaultMarkerIcon);
@@ -223,6 +245,10 @@ $(document).ready(function () {
             success: function (ret) {
                 if (ret.retCode === 0) {
                     currentPoi.detailUrl = poiDetailUrl;
+                    if(ret.data && ret.data.imagesSize) {
+                        currentPoi.imagesSize = ret.data.imagesSize;
+                        updatePOIImagesSize(currentPoi);                        
+                    }
                     //加载images
                 } else {
                     if (ret.message) {
@@ -244,6 +270,9 @@ $(document).ready(function () {
             cache: false,
             success: function (ret) {
                 if (ret.retCode === 0) {
+                    if(ret.data && ret.data.imagesSize) {
+                        currentPoi.imagesSize = ret.data.imagesSize;
+                    }
                     callback();
                 } else {
                     if (ret.message) {
