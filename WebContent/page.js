@@ -299,6 +299,7 @@ $(document).ready(function () {
     //modal显示后focus名称栏（空时）
     $('#poiModal').on('shown.bs.modal', function (e) {
         !$("#poiName").val() && $("#poiName").focus();
+        $("#poiImages").find(".mask.selected").scrollintoview();
     })
 
 
