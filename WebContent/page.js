@@ -90,15 +90,15 @@ $(document).ready(function () {
             $("#poiLatitude").val(poi.latitude);
             $("#poiLongitude").val(poi.longitude);
         }
-        updatePOIImagesSize(poi);
+        updatePOIImagesNum(poi);
     }
 
-    function updatePOIImagesSize(poi) {
+    function updatePOIImagesNum(poi) {
         $("#poiImages").empty();
-        if(poi.imagesSize) {
-            for(let i=1;i<=poi.imagesSize;i++) {
+        if(poi.imagesNum) {
+            for(let i=0;i<poi.imagesNum;i++) {
                 let ss = '<div class="browser-item">' + 
-                    '<img src="p//' + poi.key + '//' + poi.key + '_' + i + '"/>' +
+                    '<img src="p/' + poi.key + '/' + poi.key + '_' + i + '"/>' +
                     '<div class="mask" imageIndex="' + i + '"></div>' +
                     '</div>';
                 let jBrowserItem = $(ss);
@@ -245,9 +245,9 @@ $(document).ready(function () {
             success: function (ret) {
                 if (ret.retCode === 0) {
                     currentPoi.detailUrl = poiDetailUrl;
-                    if(ret.data && ret.data.imagesSize) {
-                        currentPoi.imagesSize = ret.data.imagesSize;
-                        updatePOIImagesSize(currentPoi);                        
+                    if(ret.data && ret.data.imagesNum) {
+                        currentPoi.imagesNum = ret.data.imagesNum;
+                        updatePOIImagesNum(currentPoi);                        
                     }
                     //加载images
                 } else {
@@ -270,8 +270,8 @@ $(document).ready(function () {
             cache: false,
             success: function (ret) {
                 if (ret.retCode === 0) {
-                    if(ret.data && ret.data.imagesSize) {
-                        currentPoi.imagesSize = ret.data.imagesSize;
+                    if(ret.data && ret.data.imagesNum) {
+                        currentPoi.imagesNum = ret.data.imagesNum;
                     }
                     callback();
                 } else {

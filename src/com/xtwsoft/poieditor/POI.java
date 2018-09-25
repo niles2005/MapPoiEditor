@@ -87,9 +87,9 @@ public class POI {
 				String strDetailUrl = m_json.getString("detailUrl");
 				if(strDetailUrl != null) {
 					SimplifyHtml builder = new SimplifyHtml(strDetailUrl);
-					m_json.put("imagesSize", builder.getImagesSize());
+					m_json.put("imagesNum", builder.getImagesNum());
 					File destFile = new File(m_detailPath,m_key + ".html");
-					m_imageFileList = builder.storeImage(m_detailPath,m_key);
+					m_imageFileList = builder.storeImages(m_detailPath,m_key);
 					m_fileSum = builder.store(destFile);
 				}
 			} else {
@@ -99,10 +99,10 @@ public class POI {
 						SimplifyHtml builder = new SimplifyHtml(strDetailUrl);
 						String wxmlSum = builder.buildMD5Sum();
 						if(!m_fileSum.equals(wxmlSum)) {//重新执行校验不等，重新下载图片等数据
-							m_json.put("imagesSize", builder.getImagesSize());
+							m_json.put("imagesNum", builder.getImagesNum());
 							File destFile = new File(m_detailPath,m_key + ".html");
 							builder.store(destFile);
-							m_imageFileList = builder.storeImage(m_detailPath,m_key);
+							m_imageFileList = builder.storeImages(m_detailPath,m_key);
 							m_fileSum = wxmlSum;
 						}
 					}
@@ -113,8 +113,8 @@ public class POI {
 		}
 	}
 	
-	public Integer getImagesSize() {
-		return m_json.getInteger("imagesSize");
+	public Integer getImagesNum() {
+		return m_json.getInteger("imagesNum");
 	}
 	
 }
