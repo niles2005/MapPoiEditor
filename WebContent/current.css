@@ -145,5 +145,5 @@ img{
 }
 
 .browser-item> .mask.selected {
-    background-color: #d33f3f85;
+    background-color: rgba(200, 10, 10, 0.5);
 }
