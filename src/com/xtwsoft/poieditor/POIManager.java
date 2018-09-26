@@ -4,13 +4,12 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.util.Comparator;
 import java.util.Hashtable;
-import java.util.Iterator;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.xtwsoft.poieditor.utils.Guid;
 import com.xtwsoft.poieditor.utils.LoopTask;
 import com.xtwsoft.poieditor.utils.Utils;
 import com.xtwsoft.server.ServerConfig;
@@ -31,6 +30,7 @@ public class POIManager {
 	private JSONObject m_dataJson = null;
 	private JSONArray m_poiJsonArray = null;//json 
 	private Hashtable<String,POI> m_poiHash = new Hashtable<String,POI>();
+	private POISorter m_sorter = new POISorter();
 	
 	public static POIManager getInstance() {
 		return m_instance;
@@ -81,7 +81,6 @@ public class POIManager {
 					}
 				}
 			}
-			
 			LoopTask.startTimer();			
 		} catch(Exception ex) {
 			ex.printStackTrace();
@@ -122,9 +121,11 @@ public class POIManager {
 		return null;
 	}
 	
+
 	
 	public void saveDatasToFile() {
 		try {
+			m_sorter.sortPois(m_poiJsonArray);
 			if(m_dataJson != null) {
 				PrintWriter writer = new PrintWriter(new OutputStreamWriter(new FileOutputStream(m_dataJsonFile),"UTF-8"));
 				writer.write(m_dataJson.toJSONString());
