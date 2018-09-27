@@ -12,6 +12,7 @@ import java.util.TimerTask;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.xtwsoft.poieditor.utils.MD5Sum;
 import com.xtwsoft.poieditor.utils.Utils;
 import com.xtwsoft.server.ServerConfig;
 import com.xtwsoft.server.ServiceManager;
@@ -126,14 +127,21 @@ public class POIManager extends TimerTask {
 		return null;
 	}
 
+	private String m_storeDataSum = null;
 	public void saveDatasToFile() {
 		try {
 			if (m_dataJson != null) {
-				PrintWriter writer = new PrintWriter(new OutputStreamWriter(
-						new FileOutputStream(m_dataJsonFile), "UTF-8"));
-				writer.write(m_dataJson.toJSONString());
-				writer.flush();
-				writer.close();
+				String str = m_dataJson.toJSONString();
+				String sum = MD5Sum.encode32MD5(str);
+				//避免每次重复存盘，先做checkSum比较。
+				if(!sum.equals(m_storeDataSum)) {
+					PrintWriter writer = new PrintWriter(new OutputStreamWriter(
+							new FileOutputStream(m_dataJsonFile), "UTF-8"));
+					writer.write(str);
+					writer.flush();
+					writer.close();
+					m_storeDataSum = sum;
+				}
 				// System.err.println("save datas at :" + new Date());
 			}
 		} catch (Exception ex) {
