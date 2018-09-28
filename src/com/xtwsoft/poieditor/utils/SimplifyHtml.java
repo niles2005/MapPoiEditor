@@ -2,6 +2,7 @@ package com.xtwsoft.poieditor.utils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
@@ -54,6 +55,21 @@ public class SimplifyHtml {
 				elements.get(0).siblingElements().remove();
 			}
 			
+			elements = m_doc.select("#img-content");
+			if(elements.size() == 1) {
+				elements.get(0).siblingElements().remove();
+			}
+			
+			elements = m_doc.select("#img-content>div");
+			for(Element element:elements) {
+				String theId = element.attr("id");
+				if(theId != null && theId.endsWith("content")) {
+					
+				} else {
+					element.remove();
+				}
+			}
+			
 			
 			Elements images = m_doc.select("img");
 			for (Element image : images) {
@@ -82,14 +98,21 @@ public class SimplifyHtml {
 		return MD5Sum.encode32MD5(strContent);
 	}
 
-	public ArrayList<File> storeImages(File path, String name) {
+	public ArrayList<File> storeImages(File path, String name,int updateVersion) {
 		ArrayList<File> fileList = new ArrayList<File>();
-		for (int i = m_imageList.size() -1; i>= 0;i--) {
-			File imageFile = new File(path, name + "_" + i);
-			if(storeImageFile(m_imageList.get(i), imageFile)) {
-				m_imageList.remove(i);
+		ArrayList<Element> removeList = new ArrayList<Element>();
+		int index = 0;
+		for(Element image:m_imageList) {
+			File imageFile = new File(path, name + "_" + updateVersion + "_" + index);
+			if(storeImageFile(image, imageFile)) {
+				removeList.add(image);
+			} else {
+				fileList.add(imageFile);
+				index++;
 			}
-			fileList.add(imageFile);
+		}
+		for(Element image:removeList) {
+			m_imageList.remove(image);
 		}
 		return fileList;
 	}
@@ -100,16 +123,36 @@ public class SimplifyHtml {
 			String imageSrc = image.attr("data-src");
 			URL url = new URL(imageSrc);
 			BufferedInputStream bis = new BufferedInputStream(url.openStream());
-			byte[] buff = new byte[4096];
-			int num = bis.read(buff);
-			String sum = MD5Sum.getByteArrayMD5Sum(buff);
-			if(m_removeImageSumSet.contains(sum)) {//是目标文件
-				image.parent().remove();
-				return true;
-			}
 			
+			byte[] buff = new byte[4096];
+			//使用int num = bis.read(buff)方式，num可能不是4096
+			int ch = bis.read();
+			int index = 0;
+			while(ch != -1) {
+				buff[index] = (byte)ch;
+				index++;
+				if(index >= 4096) {
+					break;
+				}
+				ch = bis.read();
+			}
+			if(index == 4096) {
+				String sum = MD5Sum.getByteArrayMD5Sum(buff);
+				if(m_removeImageSumSet.contains(sum)) {//是目标文件
+					image.parent().remove();
+					try{
+						bis.close();
+					} catch(Exception ex) {
+					}
+					return true;
+				}
+			}
+
 			BufferedOutputStream bos = new BufferedOutputStream(
 					new FileOutputStream(file));
+			bos.write(buff,0,index);
+			bos.flush();
+			int num = bis.read(buff);
 			while (num > 0) {
 				bos.write(buff,0,num);
 				num = bis.read(buff);
@@ -130,11 +173,11 @@ public class SimplifyHtml {
 	public static void main(String[] args) {
 		try {
 			SimplifyHtml builder = new SimplifyHtml(
-					"https://mp.weixin.qq.com/s/ythi8yC54GHaQN7xv_6tIA");
+					"https://mp.weixin.qq.com/s/vplqc8frSsrOP5nLkn6Zvw");
 			String key = "tttttttttt";
 			File testPath = new File(key);
 			testPath.mkdir();
-			builder.storeImages(testPath, key);
+			builder.storeImages(testPath, key,1);
 			builder.store(new File(testPath, key + ".html"));
 		} catch (Exception ex) {
 			ex.printStackTrace();
