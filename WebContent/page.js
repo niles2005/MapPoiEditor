@@ -69,6 +69,7 @@ $(document).ready(function () {
             }
             qq.maps.event.addListener(marker, 'click', function () {
                 bindPoiInfo(poi, marker);
+				$("#detailSave").removeAttr("disabled");
                 $('#poiModal').modal({ "backdrop": "static", "focus": true });
             });
             //at android,move poi has bug
@@ -93,12 +94,13 @@ $(document).ready(function () {
         updatePOIImagesNum(poi);
     }
 
-    function updatePOIImagesNum(poi) {
+    function updatePOIImagesNum(poi,forceReload) {
         $("#poiImages").empty();
         if(poi.imagesNum) {
+            let ver = poi.updateVersion || "";
             for(let i=0;i<poi.imagesNum;i++) {
                 let ss = '<div class="browser-item">' + 
-                    '<img src="p/' + poi.key + '/' + poi.key + '_' + i + '"/>' +
+                    '<img src="p/' + poi.key + '/' + poi.key + '_' + ver + '_' + i + '"/>' +
                     '<div class="mask" imageIndex="' + i + '"></div>' +
                     '</div>';
                 let jBrowserItem = $(ss);
@@ -234,6 +236,7 @@ $(document).ready(function () {
         if(!poiDetailUrl.startsWith("http")) {
             return;
         }
+        $("#detailSave").attr("disabled",true);
         let tempPOI = {"key":currentPoi.key,"detailUrl":poiDetailUrl};
         $.ajax({
             type: "POST",
@@ -243,10 +246,12 @@ $(document).ready(function () {
             contentType: 'text/plain; charset=UTF-8',
             cache: false,
             success: function (ret) {
+				$("#detailSave").removeAttr("disabled");
                 if (ret.retCode === 0) {
                     currentPoi.detailUrl = poiDetailUrl;
                     if(ret.data && ret.data.imagesNum) {
                         currentPoi.imagesNum = ret.data.imagesNum;
+                        currentPoi.updateVersion = ret.data.updateVersion;
                         updatePOIImagesNum(currentPoi);                        
                     }
                     //加载images
