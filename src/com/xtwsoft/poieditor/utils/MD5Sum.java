@@ -18,8 +18,7 @@ public class MD5Sum {
 	 * @return the MD5 checksum
 	 */
 	public static String md5Sum() {
-		byte[] digest;
-		digest = md.digest();
+		byte[] digest = md.digest();
 		StringBuffer hexString = new StringBuffer();
 
 		for (int i = 0; i < digest.length; i++) {
@@ -106,18 +105,13 @@ public class MD5Sum {
 
 	public static String getByteArrayMD5Sum(byte[] byteArray) {
 		try {
-			String sum = null;
-
 			if (md == null)
 				md = MessageDigest.getInstance("MD5");
 
 			md.reset();
 			md.update(byteArray, 0, byteArray.length);
 
-			if (sum == null)
-				sum = md5Sum();
-
-			return sum;
+			return md5Sum();
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
@@ -136,7 +130,6 @@ public class MD5Sum {
 	public static String encode32MD5(String str) {
 		try {
 			byte[] byteArray = ("" + str).getBytes();
-			String sum = null;
 
 			if (md == null)
 				md = MessageDigest.getInstance("MD5");
@@ -144,10 +137,7 @@ public class MD5Sum {
 			md.reset();
 			md.update(byteArray, 0, byteArray.length);
 
-			if (sum == null)
-				sum = md5Sum();
-
-			return sum;
+			return md5Sum();
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
