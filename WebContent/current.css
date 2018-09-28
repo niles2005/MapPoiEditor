@@ -131,7 +131,6 @@ img{
     border-left: solid 3px gray;
     border-right: solid 3px gray;
     position: relative;
-    width:150px;
 }
 .browser-item> img {
     width: 100px;
