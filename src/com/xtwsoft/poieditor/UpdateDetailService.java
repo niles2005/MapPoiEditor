@@ -33,6 +33,7 @@ public class UpdateDetailService extends Service {
 					if(num != null) {
 						JSONObject data = new JSONObject();
 						data.put("imagesNum", num);
+						data.put("updateVersion", poi.getUpdateVersion());
 						ret.setSuccess(data);
 					}
 				}
