@@ -86,24 +86,51 @@ public class POI {
 			if(m_fileSum == null) {
 				String strDetailUrl = m_json.getString("detailUrl");
 				if(strDetailUrl != null) {
+					removeOldFiles();
+
+
+					//重置imagesNum
+					m_json.put("imagesNum", 0);
+					
+					//版本+1，防止客户端在更新详情后，因图片缓存无法刷新
+					Integer ver = (Integer)m_json.get("updateVersion");
+					if(ver == null) {
+						ver = 1;
+					} else {
+						ver++;
+					}
 					SimplifyHtml builder = new SimplifyHtml(strDetailUrl);
-					m_json.put("imagesNum", builder.getImagesNum());
-					File destFile = new File(m_detailPath,m_key + ".html");
-					m_imageFileList = builder.storeImages(m_detailPath,m_key);
+					File destFile = new File(m_detailPath,m_key + "_" + ver +".html");
+					m_imageFileList = builder.storeImages(m_detailPath,m_key,ver);
 					m_fileSum = builder.store(destFile);
+					m_json.put("imagesNum", builder.getImagesNum());
+					m_json.put("updateVersion", ver);
 				}
 			} else {
 				if(isForce) {
 					String strDetailUrl = m_json.getString("detailUrl");
 					if(strDetailUrl != null) {
 						SimplifyHtml builder = new SimplifyHtml(strDetailUrl);
-						String wxmlSum = builder.buildMD5Sum();
-						if(!m_fileSum.equals(wxmlSum)) {//重新执行校验不等，重新下载图片等数据
-							m_json.put("imagesNum", builder.getImagesNum());
+						String fileSum = builder.buildMD5Sum();
+						if(!m_fileSum.equals(fileSum)) {//重新执行校验不等，重新下载图片等数据
+							//删除老的文件及图片
+							removeOldFiles();
+
+							m_json.put("imagesNum", 0);
+							
+							//版本+1，防止客户端在更新详情后，因图片缓存无法刷新
+							Integer ver = (Integer)m_json.get("updateVersion");
+							if(ver == null) {
+								ver = 1;
+							} else {
+								ver++;
+							}
 							File destFile = new File(m_detailPath,m_key + ".html");
 							builder.store(destFile);
-							m_imageFileList = builder.storeImages(m_detailPath,m_key);
-							m_fileSum = wxmlSum;
+							m_imageFileList = builder.storeImages(m_detailPath,m_key,ver);
+							m_fileSum = fileSum;
+							m_json.put("imagesNum", builder.getImagesNum());
+							m_json.put("updateVersion", ver);
 						}
 					}
 				}
@@ -113,8 +140,34 @@ public class POI {
 		}
 	}
 	
+	//更新版本前先删除老的html和图片
+	private void removeOldFiles() {
+		Integer ver = (Integer)m_json.get("updateVersion");
+		String verPart = "";
+		if(ver != null) {
+			verPart = "_" + ver;
+		}
+		
+		File oldFile = new File(m_detailPath,m_key + verPart +".html");
+		if(oldFile.exists()) {
+			oldFile.delete();
+		}
+		Integer imagesNum = m_json.getInteger("imagesNum");
+		if(imagesNum != null) {
+			for(int i=0;i<imagesNum;i++) {
+				File imageFile = new File(m_detailPath, m_key + verPart + "_" + i);
+				if(imageFile.exists()) {
+					imageFile.delete();
+				}
+			}
+		}
+	}
+	
 	public Integer getImagesNum() {
 		return m_json.getInteger("imagesNum");
 	}
 	
+	public Integer getUpdateVersion() {
+		return m_json.getInteger("updateVersion");
+	}
 }
