@@ -33,6 +33,9 @@ public class POIManager extends TimerTask {
 	private Hashtable<String, POI> m_poiHash = new Hashtable<String, POI>();
 	private POISorter m_sorter = new POISorter();
 
+	//用于标志POI是否增删改，如变动，需重新排序，和存盘
+	private Boolean m_isChange = false;
+	
 	public static POIManager getInstance() {
 		return m_instance;
 	}
@@ -110,6 +113,7 @@ public class POIManager extends TimerTask {
 			m_poiJsonArray.add(poi.getJson());
 			poi.removeNewFlag();
 		}
+		m_isChange = true;
 		return null;
 	}
 
@@ -124,9 +128,11 @@ public class POIManager extends TimerTask {
 			return "can't find poi with key :" + key + "!";
 		}
 		poi.updateDetail(json);
+		m_isChange = true;
 		return null;
 	}
 
+	//避免无更新的存盘，保留上次存盘的checkSum
 	private String m_storeDataSum = null;
 	public void saveDatasToFile() {
 		try {
@@ -157,6 +163,7 @@ public class POIManager extends TimerTask {
 		POI poi = m_poiHash.remove(key);
 		if (poi != null) {
 			m_poiJsonArray.remove(poi.getJson());
+			m_isChange = true;
 		}
 		return true;
 	}
@@ -190,8 +197,11 @@ public class POIManager extends TimerTask {
 
 	// task work
 	public void run() {
-		m_sorter.sortPois(m_poiJsonArray);
-		POIManager.getInstance().saveDatasToFile();
+		if(m_isChange) {
+			m_isChange = false;
+			m_sorter.sortPois(m_poiJsonArray);
+			POIManager.getInstance().saveDatasToFile();
+		}
 	}
 
 }
