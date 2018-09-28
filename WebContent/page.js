@@ -5,6 +5,8 @@ $(document).ready(function () {
 
     var mapObj = new qq.maps.Map(document.getElementById("mapPanel"), {
         center: new qq.maps.LatLng(31.218914, 121.425362),
+		draggingCursor: "pointer",
+		draggableCursor: "crosshair",
         zoom: 17
     });
 
