@@ -17,7 +17,12 @@ public class CreatePOIService extends Service {
 	}
 	
 	public void work(ServiceReturn ret,HttpServletRequest request) {
-		JSONObject poi = POIManager.getInstance().createPOI();
-		ret.setSuccess(poi);
+		String typeKey = request.getParameter("typekey");
+		JSONObject poi = POIManager.getInstance().createPOI(typeKey);
+		if(poi != null) {
+			ret.setSuccess(poi);
+		} else {
+			ret.setError("create poi failed!");
+		}
 	}
 }

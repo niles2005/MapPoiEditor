@@ -14,9 +14,11 @@ public class POI {
 	private String m_key = null;
 	private File m_detailPath = null;
 	private String m_fileSum = null;
+	private POIType m_poiType = null;
 	private ArrayList<File> m_imageFileList = null;
 	
-	public POI() {
+	public POI(POIType poiType) {
+		m_poiType = poiType;
 		m_key = Guid.build16Guid();
 		JSONObject json = new JSONObject();
 		json.put("key", m_key);
@@ -28,10 +30,15 @@ public class POI {
 		m_detailPath = new File(ServerConfig.getInstance().getPOISPath(),m_key);
 	}
 	
-	public POI(JSONObject json) {
+	public POI(JSONObject json,POIType poiType) {
 		m_json = json;
+		m_poiType = poiType;
 		m_key = json.getString("key");
 		m_detailPath = new File(ServerConfig.getInstance().getPOISPath(),m_key);
+	}
+	
+	public POIType getPOIType() {
+		return m_poiType;
 	}
 	
 	public JSONObject getJson() {
@@ -47,21 +54,33 @@ public class POI {
 	}
 	
 	//创建后，只有key，还没有其他属性，还没有加入正式数组
-	public boolean hasNewFlag() {
+	private boolean hasNewFlag() {
 		return m_json.getBooleanValue("_new");
 	}
 	
-	public void removeNewFlag() {
+	//移除新创建的标志
+	private void removeNewFlag() {
 		m_json.remove("_new");
+	}
+	
+	public void remove() {
+		m_poiType.removePOI(this);
 	}
 	
 	public void update(JSONObject json) {
 		Iterator iters = json.keySet().iterator();
 		while(iters.hasNext()) {
-			String strKey = (String)iters.next();
-			m_json.put(strKey, json.get(strKey));
+			String k = (String)iters.next();
+			if(!k.startsWith("_")) {//避开临时属性，比如_new
+				m_json.put(k, json.get(k));
+			}
 		}
 		buildDetail(false);
+		if (hasNewFlag()) {
+			if(this.m_poiType.addNewPOI(this)) {
+				removeNewFlag();
+			}
+		}
 	}
 	
 	public void updateDetail(JSONObject json) {
@@ -80,58 +99,60 @@ public class POI {
 	//POI编辑页面点 "保存 "时，如果没有m_fileSum,会调用一次，后续保存，在m_fileSum存在时不执行此方法。isForce: false
 	private void buildDetail(boolean isForce) {
 		try {
+			String strDetailUrl = m_json.getString("detailUrl");
+			if(strDetailUrl != null) {
+				strDetailUrl = strDetailUrl.trim();
+			}
+			if(!strDetailUrl.startsWith("http")) {
+				m_json.put("imagesNum", 0);
+				return;
+			}
 			if(!m_detailPath.exists()) {
 				m_detailPath.mkdir();
 			}
 			if(m_fileSum == null) {
-				String strDetailUrl = m_json.getString("detailUrl");
-				if(strDetailUrl != null) {
-					removeOldFiles();
+				removeOldFiles();
 
 
-					//重置imagesNum
-					m_json.put("imagesNum", 0);
-					
-					//版本+1，防止客户端在更新详情后，因图片缓存无法刷新
-					Integer ver = (Integer)m_json.get("updateVersion");
-					if(ver == null) {
-						ver = 1;
-					} else {
-						ver++;
-					}
-					SimplifyHtml builder = new SimplifyHtml(strDetailUrl);
-					File destFile = new File(m_detailPath,m_key + "_" + ver +".html");
-					m_imageFileList = builder.storeImages(m_detailPath,m_key,ver);
-					m_fileSum = builder.store(destFile);
-					m_json.put("imagesNum", builder.getImagesNum());
-					m_json.put("updateVersion", ver);
+				//重置imagesNum
+				m_json.put("imagesNum", 0);
+				
+				//版本+1，防止客户端在更新详情后，因图片缓存无法刷新
+				Integer ver = (Integer)m_json.get("updateVersion");
+				if(ver == null) {
+					ver = 1;
+				} else {
+					ver++;
 				}
+				SimplifyHtml builder = new SimplifyHtml(strDetailUrl);
+				File destFile = new File(m_detailPath,m_key + "_" + ver +".html");
+				m_imageFileList = builder.storeImages(m_detailPath,m_key,ver);
+				m_fileSum = builder.store(destFile);
+				m_json.put("imagesNum", builder.getImagesNum());
+				m_json.put("updateVersion", ver);
 			} else {
 				if(isForce) {
-					String strDetailUrl = m_json.getString("detailUrl");
-					if(strDetailUrl != null) {
-						SimplifyHtml builder = new SimplifyHtml(strDetailUrl);
-						String fileSum = builder.buildMD5Sum();
-						if(!m_fileSum.equals(fileSum)) {//重新执行校验不等，重新下载图片等数据
-							//删除老的文件及图片
-							removeOldFiles();
+					SimplifyHtml builder = new SimplifyHtml(strDetailUrl);
+					String fileSum = builder.buildMD5Sum();
+					if(!m_fileSum.equals(fileSum)) {//重新执行校验不等，重新下载图片等数据
+						//删除老的文件及图片
+						removeOldFiles();
 
-							m_json.put("imagesNum", 0);
-							
-							//版本+1，防止客户端在更新详情后，因图片缓存无法刷新
-							Integer ver = (Integer)m_json.get("updateVersion");
-							if(ver == null) {
-								ver = 1;
-							} else {
-								ver++;
-							}
-							File destFile = new File(m_detailPath,m_key + ".html");
-							builder.store(destFile);
-							m_imageFileList = builder.storeImages(m_detailPath,m_key,ver);
-							m_fileSum = fileSum;
-							m_json.put("imagesNum", builder.getImagesNum());
-							m_json.put("updateVersion", ver);
+						m_json.put("imagesNum", 0);
+						
+						//版本+1，防止客户端在更新详情后，因图片缓存无法刷新
+						Integer ver = (Integer)m_json.get("updateVersion");
+						if(ver == null) {
+							ver = 1;
+						} else {
+							ver++;
 						}
+						File destFile = new File(m_detailPath,m_key + ".html");
+						builder.store(destFile);
+						m_imageFileList = builder.storeImages(m_detailPath,m_key,ver);
+						m_fileSum = fileSum;
+						m_json.put("imagesNum", builder.getImagesNum());
+						m_json.put("updateVersion", ver);
 					}
 				}
 			}

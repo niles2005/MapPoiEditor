@@ -1,12 +1,17 @@
 $(document).ready(function () {
+    var types;
+    var currentType;
     var currentPoi;
     var currentMarker;
-    var pois = [];
+    var poiMarkerStore = {};
 
     var mapObj = new qq.maps.Map(document.getElementById("mapPanel"), {
         center: new qq.maps.LatLng(31.218914, 121.425362),
-		draggingCursor: "pointer",
-		draggableCursor: "crosshair",
+        mapTypeControlOptions: {
+            position: qq.maps.ControlPosition.BOTTOM_RIGHT    //设置地图控件位置靠近顶部
+        },
+        draggingCursor: "pointer",
+        draggableCursor: "crosshair",
         zoom: 17
     });
 
@@ -22,7 +27,7 @@ $(document).ready(function () {
     );
 
     function createPoi(latLng) {
-        $.getJSON("service?name=createpoi&v=" + new Date().getTime(), function (ret) {
+        $.getJSON("service?name=createpoi&typekey=" + currentType.key + "&v=" + new Date().getTime(), function (ret) {
             if (ret.retCode >= 0) {
                 var poi = ret.data;
                 if (poi) {
@@ -50,67 +55,22 @@ $(document).ready(function () {
         anchor
     );
 
-    function buildPoi(poi, isCreate) {
-        if (poi && poi.position) {
-            poi.longitude = poi.position[0];
-            poi.latitude = poi.position[1];
-        }
-        if (poi && poi.latitude && poi.longitude) {
-            pois.push(poi);
-            var center = new qq.maps.LatLng(poi.latitude, poi.longitude);
-            var marker = new qq.maps.Marker({
-                position: center,
-                map: mapObj,
-                title: poi.name || "",
-                draggable: false,
-            });
-            if (isCreate) {
-                marker.setIcon(newMarkerIcon);
-            } else {
-                marker.setIcon(defaultMarkerIcon);
-            }
-            qq.maps.event.addListener(marker, 'click', function () {
-                bindPoiInfo(poi, marker);
-				$("#detailSave").removeAttr("disabled");
-                $('#poiModal').modal({ "backdrop": "static", "focus": true });
-            });
-            //at android,move poi has bug
-            // qq.maps.event.addListener(marker, 'dragend', function (event) {
-            //     poi.latitude = event.latLng.lat.toFixed(6);
-            //     poi.longitude = event.latLng.lng.toFixed(6);
-            // });
-        }
-    }
 
-    function bindPoiInfo(poi, marker) {
-        currentPoi = poi;
-        currentMarker = marker;
-        $("#key").val(poi.key);
-        $("#poiName").val(poi.name);
-        $("#poiAddress").val(poi.address);
-        $("#poiDetailUrl").val(poi.detailUrl);
-        if (poi.latitude && poi.longitude) {
-            $("#poiLatitude").val(poi.latitude);
-            $("#poiLongitude").val(poi.longitude);
-        }
-        updatePOIImagesNum(poi);
-    }
-
-    function updatePOIImagesNum(poi,forceReload) {
+    function updatePOIImagesNum(poi, forceReload) {
         $("#poiImages").empty();
-        if(poi.imagesNum) {
+        if (poi.imagesNum) {
             let ver = poi.updateVersion || "";
-            for(let i=0;i<poi.imagesNum;i++) {
-                let ss = '<div class="browser-item">' + 
+            for (let i = 0; i < poi.imagesNum; i++) {
+                let ss = '<div class="browser-item">' +
                     '<img src="p/' + poi.key + '/' + poi.key + '_' + ver + '_' + i + '"/>' +
                     '<div class="mask" imageIndex="' + i + '"></div>' +
                     '</div>';
                 let jBrowserItem = $(ss);
-                if(poi.imageIndex == i) {
+                if (poi.imageIndex == i) {
                     jBrowserItem.find(".mask").addClass("selected");
                 }
                 $("#poiImages").append(jBrowserItem);
-                jBrowserItem.click(function() {
+                jBrowserItem.click(function () {
                     $("#poiImages").find(".mask.selected").removeClass("selected");
                     jBrowserItem.find(".mask").addClass("selected");
                 });
@@ -180,14 +140,111 @@ $(document).ready(function () {
 
     $.getJSON("service?name=datas&v=" + new Date().getTime(), function (ret) {
         if (ret.retCode >= 0 && ret.data) {
-            var pois = ret.data.pois;
-            if (pois) {
-                for (let poi of pois) {
-                    buildPoi(poi)
-                }
-            }
+            buildTypes(ret.data.types);
         }
     });
+
+    function buildTypes(theTypes) {
+        types = theTypes;
+        for (let i=0;i<types.length;i++) {
+            let poiType = types[i];
+            if(!poiType.pois) {
+                poiType.pois = {};
+            }
+            let ss = '<label class="btn btn-sm btn-primary">' +
+                '<input type="radio" name="options" id="option1" autocomplete="off" checked>' +
+                poiType.name +
+                '</label>';
+            let jTypeItem = $(ss);
+            if (i === 0) {
+                jTypeItem.addClass("active");
+                selectType(poiType);
+            }
+            $("#typeNav").append(jTypeItem);
+            jTypeItem.click(function () {
+                selectType(poiType);
+            });
+            if (i === 0) {
+                jTypeItem.addClass("active");
+                selectType(poiType);
+            }
+        }
+    }
+
+    function selectType(theType) {
+        if(currentType !== theType) {
+            clearCurrentTypeMarkers();
+            currentType = theType;
+            if (currentType.pois) {
+                for (let poi of currentType.pois) {
+                    buildPoi(poi)
+                }
+            }        
+        }
+    }
+
+    function buildPoi(poi, isCreate) {
+        if (poi && poi.position) {
+            poi.longitude = poi.position[0];
+            poi.latitude = poi.position[1];
+        }
+        if (poi && poi.latitude && poi.longitude) {
+            if(isCreate) {
+                currentType.pois.push(poi);
+            }
+            let marker = poiMarkerStore[poi.key];
+            if(!marker) {
+                let center = new qq.maps.LatLng(poi.latitude, poi.longitude);
+                marker = new qq.maps.Marker({
+                    position: center,
+                    title: poi.name || "",
+                    draggable: false,
+                });
+                if (isCreate) {
+                    marker.setIcon(newMarkerIcon);
+                } else {
+                    marker.setIcon(defaultMarkerIcon);
+                }
+                poiMarkerStore[poi.key] = marker;
+            }
+            marker.setMap(mapObj);
+            qq.maps.event.addListener(marker, 'click', function () {
+                bindPoiInfo(poi, marker);
+                $("#detailSave").removeAttr("disabled");
+                $('#poiModal').modal({ "backdrop": "static", "focus": true });
+            });
+            //at android,move poi has bug
+            // qq.maps.event.addListener(marker, 'dragend', function (event) {
+            //     poi.latitude = event.latLng.lat.toFixed(6);
+            //     poi.longitude = event.latLng.lng.toFixed(6);
+            // });
+        }
+    }
+
+    function bindPoiInfo(poi, marker) {
+        currentPoi = poi;
+        currentMarker = marker;
+        $("#key").val(poi.key);
+        $("#poiName").val(poi.name);
+        $("#poiAddress").val(poi.address);
+        $("#poiDetailUrl").val(poi.detailUrl);
+        if (poi.latitude && poi.longitude) {
+            $("#poiLatitude").val(poi.latitude);
+            $("#poiLongitude").val(poi.longitude);
+        }
+        updatePOIImagesNum(poi);
+    }
+
+    function clearCurrentTypeMarkers() {
+        if (currentType && currentType.pois) {
+            for (let poi of currentType.pois) {
+                let marker = poiMarkerStore[poi.key];
+                if(marker) {
+                    marker.setMap(null);
+                }
+            }
+        }        
+    }    
 
     $("#poiImageInput").blur(function () {
         var str = $(this).val();
@@ -203,11 +260,25 @@ $(document).ready(function () {
         }
     })
 
-    $("#confirmOK").click(function () {
+    $("#poiDelete").click(function () {
+        $("#confirmTitle").text("确认");
+        $("#confirmText").text("确认删除当前点?");
+        $("#confirmModal").modal({ "backdrop": "static", "focus": true });
+
+    });
+
+    $("#deleteConfirmOK").click(function () {
         $('#confirmModal').modal('hide');
         $.getJSON("service?name=removepoi&key=" + currentPoi.key + "&v=" + new Date().getTime(), function (ret) {
             if (ret.retCode == 0) {
                 currentMarker.setMap(null);
+                for(let i=currentType.pois.length -1;i >=0;i--) {
+                    if(currentType.pois[i] === currentPoi) {
+                        currentType.pois.splice(i,1);
+                        break;
+                    }
+                }
+                delete poiMarkerStore[currentPoi.key];
                 currentMarker = null;
                 currentPoi = null;
                 $('#poiModal').modal('hide');
@@ -215,13 +286,6 @@ $(document).ready(function () {
                 alert(ret.message)
             }
         });
-    });
-
-    $("#poiDelete").click(function () {
-        $("#confirmTitle").text("确认");
-        $("#confirmText").text("确认删除当前点?");
-        $("#confirmModal").modal({ "backdrop": "static", "focus": true });
-
     });
 
     $("#poiSave").click(function () {
@@ -235,11 +299,11 @@ $(document).ready(function () {
 
     $("#detailSave").click(function () {
         let poiDetailUrl = $.trim($("#poiDetailUrl").val());
-        if(!poiDetailUrl.startsWith("http")) {
+        if (!poiDetailUrl.startsWith("http")) {
             return;
         }
-        $("#detailSave").attr("disabled",true);
-        let tempPOI = {"key":currentPoi.key,"detailUrl":poiDetailUrl};
+        $("#detailSave").attr("disabled", true);
+        let tempPOI = { "key": currentPoi.key, "detailUrl": poiDetailUrl };
         $.ajax({
             type: "POST",
             url: "service?name=updatedetail",
@@ -248,13 +312,13 @@ $(document).ready(function () {
             contentType: 'text/plain; charset=UTF-8',
             cache: false,
             success: function (ret) {
-				$("#detailSave").removeAttr("disabled");
+                $("#detailSave").removeAttr("disabled");
                 if (ret.retCode === 0) {
                     currentPoi.detailUrl = poiDetailUrl;
-                    if(ret.data && ret.data.imagesNum) {
+                    if (ret.data && ret.data.imagesNum) {
                         currentPoi.imagesNum = ret.data.imagesNum;
                         currentPoi.updateVersion = ret.data.updateVersion;
-                        updatePOIImagesNum(currentPoi);                        
+                        updatePOIImagesNum(currentPoi);
                     }
                     //加载images
                 } else {
@@ -277,7 +341,7 @@ $(document).ready(function () {
             cache: false,
             success: function (ret) {
                 if (ret.retCode === 0) {
-                    if(ret.data && ret.data.imagesNum) {
+                    if (ret.data && ret.data.imagesNum) {
                         currentPoi.imagesNum = ret.data.imagesNum;
                     }
                     callback();

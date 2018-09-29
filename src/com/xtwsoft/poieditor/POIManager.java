@@ -4,8 +4,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.util.Date;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -28,10 +28,12 @@ import com.xtwsoft.server.ServiceManager;
 public class POIManager extends TimerTask {
 	private static POIManager m_instance = null;
 	private File m_dataJsonFile = null;
+	
 	private JSONObject m_dataJson = null;
-	private JSONArray m_poiJsonArray = null;// json
+	
+	private Hashtable<String, POIType> m_poiTypeHash = new Hashtable<String, POIType>();
+
 	private Hashtable<String, POI> m_poiHash = new Hashtable<String, POI>();
-	private POISorter m_sorter = new POISorter();
 
 	//用于标志POI是否增删改，如变动，需重新排序，和存盘
 	private Boolean m_isChange = false;
@@ -40,15 +42,15 @@ public class POIManager extends TimerTask {
 		return m_instance;
 	}
 
+	private POIManager() {
+	}
+
 	public static void initInstance() {
 		if (m_instance == null) {
 			m_instance = new POIManager();
+			m_instance.init();
+			m_instance.registerServices();
 		}
-	}
-
-	private POIManager() {
-		init();
-		registerServices();
 	}
 
 	private void init() {
@@ -63,42 +65,35 @@ public class POIManager extends TimerTask {
 
 				if (m_dataJson == null) {// 格式不对，重写
 					JSONObject json = new JSONObject();
-					json.put("pois", new JSONArray());
+					json.put("types", new JSONArray());
 					Utils.writeJSON(json, m_dataJsonFile);
 					m_dataJson = json;
 				}
 			} else {
 				JSONObject json = new JSONObject();
+				json.put("types", new JSONArray());
 				Utils.writeJSON(json, m_dataJsonFile);
 				m_dataJson = json;
 			}
 			if (m_dataJson != null) {
-				m_poiJsonArray = m_dataJson.getJSONArray("pois");
-				if (m_poiJsonArray == null) {
-					m_poiJsonArray = new JSONArray();
-					m_dataJson.put("pois", m_poiJsonArray);
+				JSONArray typeArray = m_dataJson.getJSONArray("types");
+				for(int i=0;i<typeArray.size();i++) {
+					JSONObject typeJson = typeArray.getJSONObject(i);
+					POIType poiType = new POIType(typeJson);
+					m_poiTypeHash.put(poiType.getKey(), poiType);
 				}
-				for (int i = 0; i < m_poiJsonArray.size(); i++) {
-					JSONObject json = m_poiJsonArray.getJSONObject(i);
-					POI poi = new POI(json);
-					if (poi.hasKey()) {
-						m_poiHash.put(poi.getKey(), poi);
-					}
-				}
-				// 加载数据后先进行一次排序
-				m_sorter.sortPois(m_poiJsonArray);
-
 				startTaskTimer();
 			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
 	}
-
+	
 	public POI getPOI(String key) {
 		return m_poiHash.get(key);
 	}
 
+	//客户端更新POI
 	public String updatePoi(JSONObject json) {
 		String key = json.getString("key");
 		if (key == null) {
@@ -109,14 +104,11 @@ public class POIManager extends TimerTask {
 			return "can't find poi with key :" + key + "!";
 		}
 		poi.update(json);
-		if (poi.hasNewFlag()) {
-			m_poiJsonArray.add(poi.getJson());
-			poi.removeNewFlag();
-		}
 		m_isChange = true;
 		return null;
 	}
 
+	//客户端下载处理POI详情
 	//用户点”下载&处理“时做的详情更新，会强制加载详情数据。
 	public String updatePoiDetail(JSONObject json) {
 		String key = json.getString("key");
@@ -130,6 +122,44 @@ public class POIManager extends TimerTask {
 		poi.updateDetail(json);
 		m_isChange = true;
 		return null;
+	}
+
+
+	//客户端删除POI
+	public boolean removePOI(String key) {
+		POI poi = m_poiHash.remove(key);
+		if (poi != null) {
+			poi.remove();
+			m_isChange = true;
+		}
+		return true;
+	}
+
+	//客户端创建POI
+	public JSONObject createPOI(String typeKey) {
+		POIType poiType = m_poiTypeHash.get(typeKey);
+		if(poiType != null) {
+			POI poi = new POI(poiType);
+			m_poiHash.put(poi.getKey(), poi);
+			JSONObject json = new JSONObject();
+			json.put("key", poi.getKey());
+			return json;
+		}
+		return null;
+	}
+	
+	//客户端创建POIType
+	public JSONObject createPOIType(String name) {
+		POIType poiType = new POIType(name);
+		m_poiTypeHash.put(poiType.getKey(), poiType);
+		return poiType.getJson();
+	}
+	
+	//POIType 存储POI
+	protected void storePOI(POI poi) {
+		if(poi != null) {
+			m_poiHash.put(poi.getKey(), poi);
+		}
 	}
 
 	//避免无更新的存盘，保留上次存盘的checkSum
@@ -158,22 +188,7 @@ public class POIManager extends TimerTask {
 	public JSONObject getDatas() {
 		return m_dataJson;
 	}
-
-	public boolean removePOI(String key) {
-		POI poi = m_poiHash.remove(key);
-		if (poi != null) {
-			m_poiJsonArray.remove(poi.getJson());
-			m_isChange = true;
-		}
-		return true;
-	}
-
-	public JSONObject createPOI() {
-		POI poi = new POI();
-		m_poiHash.put(poi.getKey(), poi);
-		return poi.getJson();
-	}
-
+	
 	/**
 	 * 注册服务。在使用中可以按服务名找到对应的服务。
 	 */
@@ -181,6 +196,7 @@ public class POIManager extends TimerTask {
 		ServiceManager serviceManager = ServiceManager.getInstance();
 		serviceManager.addService(new DatasService());
 		serviceManager.addService(new CreatePOIService());
+		serviceManager.addService(new CreatePOITypeService());
 		serviceManager.addService(new RemovePOIService());
 		serviceManager.addService(new UpdatePOIService());
 		serviceManager.addService(new SaveAllService());
@@ -199,7 +215,12 @@ public class POIManager extends TimerTask {
 	public void run() {
 		if(m_isChange) {
 			m_isChange = false;
-			m_sorter.sortPois(m_poiJsonArray);
+			
+			Iterator iters = m_poiTypeHash.values().iterator();
+			while(iters.hasNext()) {
+				POIType poiType = (POIType)iters.next();
+				poiType.sort();
+			}
 			POIManager.getInstance().saveDatasToFile();
 		}
 	}

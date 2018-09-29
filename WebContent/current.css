@@ -99,11 +99,26 @@ img{
     height: 38px;
 }
 
+.typeNav {
+    z-index: 10; 
+    position: absolute;
+    left: 5px; 
+    top: 5px;
+    overflow-x: auto;
+    width: 95%;
+}
+.saveAllButton {
+    z-index: 0; 
+    position: absolute;
+    left: 5px; 
+    top: 55px;
+}
+
 .clickCreatePoiDiv {
     z-index: 0; 
     position: absolute; 
     left: 5px; 
-    top: 55px;
+    top: 105px;
     background: #28a745;
     line-height: 25px;
     border: 8px solid #28a745;
@@ -112,12 +127,7 @@ img{
     color:white;
 }
 
-.saveAllButton {
-    z-index: 0; 
-    position: absolute;
-    left: 5px; 
-    top: 5px;
-}
+
 
 .browser {
     width: 100%;

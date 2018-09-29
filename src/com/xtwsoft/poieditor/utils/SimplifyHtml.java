@@ -26,17 +26,20 @@ import org.jsoup.select.Elements;
 public class SimplifyHtml {
 	private Document m_doc;
 	private ArrayList<Element> m_imageList = new ArrayList<Element>();
-	private HashSet<String> m_removeImageSumSet = new HashSet<String>(); 
+	private static HashSet<String> m_removeImageSumSet = new HashSet<String>(); 
 
+	static {
+		m_removeImageSumSet.add("e8614640bd4741036fc8be9b97c7379d");//头部  关注
+		m_removeImageSumSet.add("93c597d2f51c98e903b988fbbb17d8c2");//头部  关注
+		
+		m_removeImageSumSet.add("9cbae971509d714bfd0d9cc12b5ab0ce");//尾部 二维码
+		m_removeImageSumSet.add("d09c2bdc7d1381e3e3935a8986d6d8f4");//尾部 二维码
+		m_removeImageSumSet.add("ea3c5525975cf97f42b278f29de15355");//尾部 二维码
+		m_removeImageSumSet.add("23099586f25a8292115c7f3e98bd9be9");//尾部 二维码
+	}
+	
 	public SimplifyHtml(String strUrl) {
 		try {
-			m_removeImageSumSet.add("e8614640bd4741036fc8be9b97c7379d");//头部  关注
-			m_removeImageSumSet.add("93c597d2f51c98e903b988fbbb17d8c2");//头部  关注
-			
-			m_removeImageSumSet.add("9cbae971509d714bfd0d9cc12b5ab0ce");//尾部 二维码
-			m_removeImageSumSet.add("d09c2bdc7d1381e3e3935a8986d6d8f4");//尾部 二维码
-			m_removeImageSumSet.add("ea3c5525975cf97f42b278f29de15355");//尾部 二维码
-			m_removeImageSumSet.add("23099586f25a8292115c7f3e98bd9be9");//尾部 二维码
 			
 			// 在tomcat中运行，需jdk8之上，并配置SSL，否则会报错"Could not generate DH keypair"
 			m_doc = Jsoup.connect(strUrl).get();
