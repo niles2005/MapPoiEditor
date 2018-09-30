@@ -4,7 +4,7 @@ $(document).ready(function () {
     var currentPoi;
     var currentMarker;
     var poiMarkerStore = {};
-    var jConfirmModel = $('#confirmModal');
+    var $confirmModal = $('#confirmModal');
 
     var mapObj = new qq.maps.Map(document.getElementById("mapPanel"), {
         center: new qq.maps.LatLng(31.218914, 121.425362),
@@ -16,6 +16,10 @@ $(document).ready(function () {
         zoom: 17
     });
 
+    $('body').on('shown.bs.modal', '.modal', function (e) {
+        $(this).find(".open-focus").focus();
+        $(this).find(".open-scroll .mask.selected").scrollintoview();
+    })
 
     qq.maps.event.addListener(
         mapObj,
@@ -86,13 +90,13 @@ $(document).ready(function () {
                 '<input type="radio" name="options" id="option1" autocomplete="off" checked>' +
                 poiType.name +
                 '</label>';
-            let jTypeItem = $(ss);
-            $("#typeNav").append(jTypeItem);
-            jTypeItem.click(function () {
+            let $typeItem = $(ss);
+            $("#typeNav").append($typeItem);
+            $typeItem.click(function () {
                 selectType(poiType);
             });
             if (currentType == poiType) {
-                jTypeItem.addClass("active");
+                $typeItem.addClass("active");
             }
             selectDefaultType();
         }
@@ -196,35 +200,35 @@ $(document).ready(function () {
                     '<img src="p/' + poi.key + '/' + poi.key + '_' + ver + '_' + i + '"/>' +
                     '<div class="mask" imageIndex="' + i + '"></div>' +
                     '</div>';
-                let jBrowserItem = $(ss);
+                let $browserItem = $(ss);
                 if (poi.imageIndex == i) {
-                    jBrowserItem.find(".mask").addClass("selected");
+                    $browserItem.find(".mask").addClass("selected");
                 }
-                $("#poiImages").append(jBrowserItem);
-                jBrowserItem.click(function () {
+                $("#poiImages").append($browserItem);
+                $browserItem.click(function () {
                     $("#poiImages").find(".mask.selected").removeClass("selected");
-                    jBrowserItem.find(".mask").addClass("selected");
+                    $browserItem.find(".mask").addClass("selected");
                 });
             }
         }
     }
 
     //检查是否hasError,是时显示错误tip，否则清除错误tip（改在问题后）
-    function checkError(jItem, hasError, err) {
+    function checkError($item, hasError, err) {
         if (hasError) {
-            jItem.addClass("hasErrorTip");
-            jItem.attr("data-original-title", err);
-            jItem.tooltip({
+            $item.addClass("hasErrorTip");
+            $item.attr("data-original-title", err);
+            $item.tooltip({
                 placement: "top",
                 trigger: "focus"
             })
-            jItem.focus();
+            $item.focus();
             return err;
         } else {
             //移除遗留的错误tooltip
-            if (jItem.hasClass("hasErrorTip")) {
-                jItem.removeAttr("data-original-title");
-                jItem.removeClass("hasErrorTip");
+            if ($item.hasClass("hasErrorTip")) {
+                $item.removeAttr("data-original-title");
+                $item.removeClass("hasErrorTip");
             }
         }
     }
@@ -233,25 +237,25 @@ $(document).ready(function () {
         if (!currentPoi) {
             return;
         }
-        let jItem = $("#poiName");
-        let name = $.trim(jItem.val());
-        if (checkError(jItem, !name, "名称不能为空！")) {
+        let $item = $("#poiName");
+        let name = $.trim($item.val());
+        if (checkError($item, !name, "名称不能为空！")) {
             return true;
         }
 
-        jItem = $("#poiAddress");
-        let address = $.trim(jItem.val());
+        $item = $("#poiAddress");
+        let address = $.trim($item.val());
 
 
-        jItem = $("#poiLongitude");
-        let lon = parseFloat(jItem.val());
-        if (checkError(jItem, isNaN(lon), "经度数据错误，请重新设置!")) {
+        $item = $("#poiLongitude");
+        let lon = parseFloat($item.val());
+        if (checkError($item, isNaN(lon), "经度数据错误，请重新设置!")) {
             return true;
         }
 
-        jItem = $("#poiLatitude");
-        let lat = parseFloat(jItem.val());
-        if (checkError(jItem, isNaN(lat), "纬度数据错误，请重新设置!")) {
+        $item = $("#poiLatitude");
+        let lat = parseFloat($item.val());
+        if (checkError($item, isNaN(lat), "纬度数据错误，请重新设置!")) {
             return true;
         }
 
@@ -273,21 +277,19 @@ $(document).ready(function () {
     $("#poiImageInput").blur(function () {
         var str = $(this).val();
         $("#poiImage").attr("src", str);
-        console.log($("#poiImage").attr("src"))
     })
 
     $("#poiImageInput").keypress(function (event) {
         if (event.keyCode === 13) {//Enter
             var str = $(this).val();
             $("#poiImage").attr("src", str);
-            console.log($("#poiImage").attr("src"))
         }
     })
 
     $("#poiDelete").click(function () {
         $("#confirmText").text("确认删除当前点?");
-        jConfirmModel._callback = doPoiDelete;
-        jConfirmModel.modal({ "backdrop": "static", "focus": true });
+        $confirmModal._callback = doPoiDelete;
+        $confirmModal.modal({ "backdrop": "static", "focus": true });
     });
 
     function doPoiDelete() {
@@ -311,9 +313,9 @@ $(document).ready(function () {
     }
 
     $("#deleteConfirmOK").click(function () {
-        jConfirmModel.modal('hide');
-        if (jConfirmModel._callback) {
-            jConfirmModel._callback();
+        $confirmModal.modal('hide');
+        if ($confirmModal._callback) {
+            $confirmModal._callback();
         }
     });
 
@@ -396,13 +398,6 @@ $(document).ready(function () {
         }
     });
 
-    //modal显示后focus名称栏（空时）
-    $('#poiModal').on('shown.bs.modal', function (e) {
-        !$("#poiName").val() && $("#poiName").focus();
-        $("#poiImages").find(".mask.selected").scrollintoview();
-    })
-
-
     $("#pageConfig").click(function () {
         $("#appTitle").val(datas.title);
         $("#appName").val(datas.name);
@@ -417,10 +412,10 @@ $(document).ready(function () {
                 "<td><img class='listImage' src='images/house.jpg'></td>" +
                 "<td><button class='btn btn-sm btn-outline-info'>配置</button></td>" +
                 "</tr>";
-            let jTableRow = $(row);
-            $("#typesTable tbody").append(jTableRow);
-            jTableRow.click(function () {
-                jTableRow.addClass("table-success").siblings().removeClass("table-success")
+            let $tableRow = $(row);
+            $("#typesTable tbody").append($tableRow);
+            $tableRow.click(function () {
+                $tableRow.addClass("table-success").siblings().removeClass("table-success")
             })
         }
         if (currentType) {
@@ -431,14 +426,14 @@ $(document).ready(function () {
     });
 
     function storeAppInfo() {
-        let jItem = $("#appTitle");
-        let title = $.trim(jItem.val());
-        if (checkError(jItem, !title, "标题不能为空！")) {
+        let $item = $("#appTitle");
+        let title = $.trim($item.val());
+        if (checkError($item, !title, "标题不能为空！")) {
             return true;
         }
-        jItem = $("#appName");
-        let name = $.trim(jItem.val());
-        if (checkError(jItem, !name, "路名不能为空！")) {
+        $item = $("#appName");
+        let name = $.trim($item.val());
+        if (checkError($item, !name, "路名不能为空！")) {
             return true;
         }
 
@@ -517,23 +512,24 @@ $(document).ready(function () {
     });
 
     $("#moveUp,#moveDown").click(function () {
-        let jSelectTableRow = $("#typesTable .table-success");
-        if (jSelectTableRow.length == 1) {
+        let $selectTableRow = $("#typesTable .table-success");
+        if ($selectTableRow.length == 1) {
             if ($(this).is('#moveUp')) {
-                jSelectTableRow.insertBefore(jSelectTableRow.prev());
+                $selectTableRow.insertBefore($selectTableRow.prev());
             } else {
-                jSelectTableRow.insertAfter(jSelectTableRow.next());
+                $selectTableRow.insertAfter($selectTableRow.next());
             }
         }
     });
 
     //新增类型
     $("#newTypeButton").click(function () {
-        let jItem = $("#newTypeName");
-        let newTypeName = $.trim(jItem.val());
-        if (checkError(jItem, !newTypeName, "类型名称不能为空！")) {
+        let $item = $("#newTypeName");
+        let newTypeName = $.trim($item.val());
+        if (checkError($item, !newTypeName, "类型名称不能为空！")) {
             return true;
         }
+
         $.getJSON("service?name=createpoitype&typename=" + newTypeName + "&v=" + new Date().getTime(), function (ret) {
             if (ret.retCode >= 0) {
                 let newType = ret.data;
@@ -548,31 +544,29 @@ $(document).ready(function () {
                     "<td><img class='listImage' src='images/house.jpg'></td>" +
                     "<td><button class='btn btn-sm btn-outline-info'>配置</button></td>" +
                     "</tr>";
-                let jTableRow = $(row);
-                $("#typesTable tbody").append(jTableRow);
-                jTableRow.click(function () {
-                    jTableRow.addClass("table-success").siblings().removeClass("table-success")
+                let $tableRow = $(row);
+                $("#typesTable tbody").append($tableRow);
+                $tableRow.click(function () {
+                    $tableRow.addClass("table-success").siblings().removeClass("table-success")
                 })
-
                 $('#newTypeModal').modal('hide');
-                $("#newTypeName").empty();
+                $("#newTypeName").val("");
             }
         });
 
     });
 
     function doPoiTypeDelete() {
-        let jSelectTableRow = $("#typesTable .table-success");
-        if (jSelectTableRow.length == 1) {
-            jSelectTableRow.addClass("deleted");
+        let $selectTableRow = $("#typesTable .table-success");
+        if ($selectTableRow.length == 1) {
+            $selectTableRow.addClass("deleted");
         }
     }
 
     $("#deletePoiType").click(function () {
         $("#confirmText").text("确认删除当前类型?");
-        jConfirmModel._callback = doPoiTypeDelete;
-        jConfirmModel.modal({ "backdrop": "static", "focus": true });
-
+        $confirmModal._callback = doPoiTypeDelete;
+        $confirmModal.modal({ "backdrop": "static", "focus": true });
     });
-
 });
+

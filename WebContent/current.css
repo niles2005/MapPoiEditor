@@ -52,6 +52,12 @@ a:hover,a:focus {
 img{
 	border:none;
 }
+/* 解决bootstrap打开双层modal时，关闭上层modal，会使下层modal丢失滚动栏问题 */
+.my-modal-open .modal {
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
 
 .container {
     width: 100%;
@@ -103,21 +109,21 @@ img{
     z-index: 10; 
     position: absolute;
     left: 5px; 
-    top: 5px;
+    top: 55px;
 }
 
 .typeNav {
     z-index: 10; 
     position: absolute;
-    left: 45px; 
+    left: 0; 
     top: 5px;
     overflow-x: auto;
-    width: 95%;
+    width: 100%;
 }
 .saveAllButton {
     z-index: 0; 
     position: absolute;
-    left: 5px; 
+    left: 45px; 
     top: 55px;
 }
 
@@ -128,7 +134,7 @@ img{
     top: 105px;
     background: #28a745;
     line-height: 25px;
-    border: 8px solid #28a745;
+    border: 4px solid #28a745;
     border-radius: 5px;
     font-size: 0.8rem;
     color:white;
@@ -185,3 +191,4 @@ img{
 #typesTable tbody tr.deleted td {
     border: 1px solid red;
 }
+
