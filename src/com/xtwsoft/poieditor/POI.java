@@ -125,8 +125,8 @@ public class POI {
 					ver++;
 				}
 				SimplifyHtml builder = new SimplifyHtml(strDetailUrl);
-				File destFile = new File(m_detailPath,m_key + "_" + ver +".html");
-				m_imageFileList = builder.storeImages(m_detailPath,m_key,ver);
+				File destFile = new File(m_detailPath,m_key +".html");
+				m_imageFileList = builder.storeImages(m_detailPath,m_key);
 				m_fileSum = builder.store(destFile);
 				m_json.put("imagesNum", builder.getImagesNum());
 				m_json.put("updateVersion", ver);
@@ -149,7 +149,7 @@ public class POI {
 						}
 						File destFile = new File(m_detailPath,m_key + ".html");
 						builder.store(destFile);
-						m_imageFileList = builder.storeImages(m_detailPath,m_key,ver);
+						m_imageFileList = builder.storeImages(m_detailPath,m_key);
 						m_fileSum = fileSum;
 						m_json.put("imagesNum", builder.getImagesNum());
 						m_json.put("updateVersion", ver);

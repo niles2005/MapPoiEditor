@@ -15,6 +15,11 @@ public class POIType {
 		m_key = "T" + Guid.build16Guid();
 		json.put("key", m_key);
 		json.put("name", name);
+		//临时标识，表示是地图上新创建，创建时仅加入m_poiHash，
+		//补上名称等属性后加入m_poiJsonArray，并删除临时标识
+		json.put("_new", true);
+		
+		m_poisArray = new JSONArray();
 		json.put("pois", m_poisArray);
 		m_typeJson = json;
 	}
@@ -50,6 +55,17 @@ public class POIType {
 		return m_typeJson;
 	}
 	
+	//创建后，只有key，还没有其他属性，还没有加入正式数组
+	public boolean hasNewFlag() {
+		return m_typeJson.getBooleanValue("_new");
+	}
+	
+	//移除新创建的标志
+	public void removeNewFlag() {
+		m_typeJson.remove("_new");
+	}
+	
+		
 	public boolean addNewPOI(POI poi) {
 		if(poi.getPOIType() == this) {
 			m_poisArray.add(poi.getJson());

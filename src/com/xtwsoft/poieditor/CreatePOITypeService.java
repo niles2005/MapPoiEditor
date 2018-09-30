@@ -17,7 +17,7 @@ public class CreatePOITypeService extends Service {
 	}
 	
 	public void work(ServiceReturn ret,HttpServletRequest request) {
-		String typeName = request.getParameter("name");
+		String typeName = request.getParameter("typename");
 		JSONObject poiType = POIManager.getInstance().createPOIType(typeName);
 		if(poiType != null) {
 			ret.setSuccess(poiType);

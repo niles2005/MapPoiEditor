@@ -99,10 +99,17 @@ img{
     height: 38px;
 }
 
-.typeNav {
+.pageConfig {
     z-index: 10; 
     position: absolute;
     left: 5px; 
+    top: 5px;
+}
+
+.typeNav {
+    z-index: 10; 
+    position: absolute;
+    left: 45px; 
     top: 5px;
     overflow-x: auto;
     width: 95%;
@@ -155,4 +162,26 @@ img{
 
 .browser-item> .mask.selected {
     background-color: rgba(200, 10, 10, 0.5);
+}
+
+.table thead th {
+    white-space: nowrap;
+    border: 0;
+}
+
+.mapIcon {
+    width:2em;
+    height: 3.5em;
+}
+
+.listImage {
+    width:3.5em;
+    height:3.5em;
+}
+
+#typesTable tbody td {
+    white-space: nowrap;
+}
+#typesTable tbody tr.deleted td {
+    border: 1px solid red;
 }

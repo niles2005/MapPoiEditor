@@ -101,12 +101,12 @@ public class SimplifyHtml {
 		return MD5Sum.encode32MD5(strContent);
 	}
 
-	public ArrayList<File> storeImages(File path, String name,int updateVersion) {
+	public ArrayList<File> storeImages(File path, String name) {
 		ArrayList<File> fileList = new ArrayList<File>();
 		ArrayList<Element> removeList = new ArrayList<Element>();
 		int index = 0;
 		for(Element image:m_imageList) {
-			File imageFile = new File(path, name + "_" + updateVersion + "_" + index);
+			File imageFile = new File(path, name + "_" + index);
 			if(storeImageFile(image, imageFile)) {
 				removeList.add(image);
 			} else {
@@ -180,7 +180,7 @@ public class SimplifyHtml {
 			String key = "tttttttttt";
 			File testPath = new File(key);
 			testPath.mkdir();
-			builder.storeImages(testPath, key,1);
+			builder.storeImages(testPath, key);
 			builder.store(new File(testPath, key + ".html"));
 		} catch (Exception ex) {
 			ex.printStackTrace();

@@ -92,7 +92,45 @@ public class POIManager extends TimerTask {
 	public POI getPOI(String key) {
 		return m_poiHash.get(key);
 	}
+	
+	public void removePOIType(POIType poiType) {
+		if(poiType != null) {
+			m_dataJson.getJSONArray("types").remove(poiType.getJson());
+			m_poiTypeHash.remove(poiType);
+		}
+	}
 
+	//客户端更新POI
+	public String updateApp(JSONObject json) {
+		m_dataJson.put("title", json.get("title"));
+		m_dataJson.put("name", json.get("name"));
+		JSONArray types = m_dataJson.getJSONArray("types");
+		JSONArray typesKeyArray = json.getJSONArray("typesKey");
+		for(int i=0;i<typesKeyArray.size();i++) {
+			String theKey = typesKeyArray.getString(i);
+			if(theKey != null) {
+				boolean isDelete = theKey.startsWith("x");
+				if(isDelete) {
+					theKey = theKey.substring(1);
+				}
+				POIType theType = m_poiTypeHash.get(theKey);
+				if(theType != null) {
+					if(isDelete) {
+						removePOIType(theType);
+					} else {
+						if(theType.hasNewFlag()) {
+							types.add(theType.getJson());
+							theType.removeNewFlag();
+						}
+					}
+				}
+			}
+		}
+		types.sort(new POITypesComparator(typesKeyArray));
+		m_isChange = true;
+		return null;
+	}
+	
 	//客户端更新POI
 	public String updatePoi(JSONObject json) {
 		String key = json.getString("key");
@@ -148,9 +186,9 @@ public class POIManager extends TimerTask {
 		return null;
 	}
 	
-	//客户端创建POIType
-	public JSONObject createPOIType(String name) {
-		POIType poiType = new POIType(name);
+	//客户端创建POIType,新创建时只加到m_poiTypeHash，设置_new标志，等正式提交时加入datas.types
+	public JSONObject createPOIType(String typename) {
+		POIType poiType = new POIType(typename);
 		m_poiTypeHash.put(poiType.getKey(), poiType);
 		return poiType.getJson();
 	}
@@ -202,6 +240,7 @@ public class POIManager extends TimerTask {
 		serviceManager.addService(new SaveAllService());
 		serviceManager.addService(new UpdateDetailService());
 		serviceManager.addService(new LoadImagesService());
+		serviceManager.addService(new UpdateAppService());
 	}
 
 	// 5min 5 * 60 * 1000 = 300000
