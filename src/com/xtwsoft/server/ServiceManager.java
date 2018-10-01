@@ -9,6 +9,16 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.xtwsoft.poieditor.services.CreatePOIService;
+import com.xtwsoft.poieditor.services.CreatePOITypeService;
+import com.xtwsoft.poieditor.services.DatasService;
+import com.xtwsoft.poieditor.services.ImagesService;
+import com.xtwsoft.poieditor.services.RemovePOIService;
+import com.xtwsoft.poieditor.services.SaveAllService;
+import com.xtwsoft.poieditor.services.UpdateAppService;
+import com.xtwsoft.poieditor.services.UpdateDetailService;
+import com.xtwsoft.poieditor.services.UpdatePOIService;
+
 /**
  * 
  *	标准化的后台服务处理，通过注册的方式加入服务，新的项目只要实现需要的服务模块。
@@ -26,7 +36,9 @@ public class ServiceManager {
 	public static void initInstance() {
 		if(m_instance == null) {
 			m_instance = new ServiceManager();
+			m_instance.registerServices();
 		}
+		
 	}
 	
 	private ServiceManager() {
@@ -60,4 +72,22 @@ public class ServiceManager {
 		}
 		sos.write(ret.toString().getBytes("UTF-8"));
 	}
+	
+	/**
+	 * 注册服务。在使用中可以按服务名找到对应的服务。
+	 */
+	public void registerServices() {
+		ServiceManager serviceManager = ServiceManager.getInstance();
+		serviceManager.addService(new DatasService());
+		serviceManager.addService(new CreatePOIService());
+		serviceManager.addService(new CreatePOITypeService());
+		serviceManager.addService(new RemovePOIService());
+		serviceManager.addService(new UpdatePOIService());
+		serviceManager.addService(new SaveAllService());
+		serviceManager.addService(new UpdateDetailService());
+		serviceManager.addService(new UpdateAppService());
+		
+		serviceManager.addService(new ImagesService());
+	}
+	
 }

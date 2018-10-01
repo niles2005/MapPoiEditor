@@ -1,4 +1,4 @@
-package com.xtwsoft.poieditor;
+package com.xtwsoft.poieditor.services;
 
 import java.io.BufferedReader;
 
@@ -6,17 +6,19 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.xtwsoft.poieditor.POI;
+import com.xtwsoft.poieditor.POIManager;
 import com.xtwsoft.server.Service;
 import com.xtwsoft.server.ServiceReturn;
 
 /**
- * 更新POI对象，此对象为客户端post数据。
+ * 更新POI的detailUrl，此对象为客户端post数据。
  * @author NieLei
  *
  */
-public class UpdatePOIService extends Service {
-	public UpdatePOIService() {
-		super("updatepoi");
+public class UpdateDetailService extends Service {
+	public UpdateDetailService() {
+		super("updatedetail");
 	}
 	
 	public void work(ServiceReturn ret,HttpServletRequest request) {
@@ -24,7 +26,7 @@ public class UpdatePOIService extends Service {
 			String strContent = getPostContent(request);
 			JSONObject json = JSON.parseObject(strContent);			
 			if(json != null) {
-				String err = POIManager.getInstance().updatePoi(json);
+				String err = POIManager.getInstance().updatePoiDetail(json);
 				if(err != null) {
 					ret.setError(err);
 				} else {//success
@@ -33,6 +35,7 @@ public class UpdatePOIService extends Service {
 					if(num != null) {
 						JSONObject data = new JSONObject();
 						data.put("imagesNum", num);
+						data.put("updateVersion", poi.getUpdateVersion());
 						ret.setSuccess(data);
 					}
 				}

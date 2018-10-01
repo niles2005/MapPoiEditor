@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.xtwsoft.poieditor.ImagesManager;
 import com.xtwsoft.poieditor.POIManager;
 
 @WebServlet(name = "/ServiceServlet", urlPatterns = { "/service" }, loadOnStartup=1)
@@ -25,8 +26,9 @@ public class ServiceServlet extends HttpServlet {
         	String contextPath = servletContext.getContextPath();
         	String realPath = servletContext.getRealPath("");
         	ServerConfig.initInstance(contextPath,realPath);
-        	ServiceManager.initInstance();
 			POIManager.initInstance();
+			ImagesManager.initInstance();
+        	ServiceManager.initInstance();
         }
         catch (Exception ex) {
             ex.printStackTrace();

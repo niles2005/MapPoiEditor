@@ -1,7 +1,8 @@
-package com.xtwsoft.poieditor;
+package com.xtwsoft.poieditor.services;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.xtwsoft.poieditor.POIManager;
 import com.xtwsoft.server.Service;
 import com.xtwsoft.server.ServiceReturn;
 
