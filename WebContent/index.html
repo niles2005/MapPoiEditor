@@ -118,6 +118,13 @@
                             </div>
                         </div>
                         <div class="form-group row">
+                            <label for="coverImages" class="col-sm-2 col-form-label">封面图片</label>
+                            <div class="input-group col-sm-10 mb-3">
+                                <div tabindex="-1" class="input-group-prepend browser open-scroll" id="coverImages">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
                             <label for="introUrl" class="col-sm-2 col-form-label">类型</label>
                             <div class="col-sm-10 table-responsive ">
                                 <table id="typesTable" class="table table-hover" style="margin-bottom:0;">
@@ -165,25 +172,41 @@
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="newTypeModalLabel">新增地图类型</h5>
+                        <h5 class="modal-title" id="newTypeModalLabel"></h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="modal-body">
-                        <div class="form-group">
-                            <label for="newTypeName" class="col-form-label">类型名称</label>
-                            <input type="text" class="form-control open-focus" id="newTypeName">
+                        <div class="form-group row">
+                            <label for="newTypeName" class="col-sm-2 col-form-label">类型名称</label>
+                            <div class="col-sm-10 input-group">
+                                <input type="text" class="form-control open-focus" id="newTypeName">
+                            </div>
                         </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
-                        <button type="button" class="btn btn-primary" id="newTypeButton">确定</button>
+                        <div class="form-group row">
+                            <label for="markerImages" class="col-sm-2 col-form-label">地图图标</label>
+                            <div class="input-group col-sm-10 mb-3">
+                                <div tabindex="-1" class="input-group-prepend browser open-scroll" id="markerImages">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="pictureImages" class="col-sm-2 col-form-label">列表图片</label>
+                            <div class="input-group col-sm-10 mb-3">
+                                <div tabindex="-1" class="input-group-prepend browser open-scroll" id="pictureImages">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                            <button type="button" class="btn btn-primary" id="newTypeButton">确定</button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
+        </div>
 
 
 

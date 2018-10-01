@@ -3,9 +3,10 @@ $(document).ready(function () {
     var currentType;
     var currentPoi;
     var currentMarker;
+    var configType;//app 配置中编辑的poiType
     var poiMarkerStore = {};
     var $confirmModal = $('#confirmModal');
-
+    console.dir($confirmModal)
     var mapObj = new qq.maps.Map(document.getElementById("mapPanel"), {
         center: new qq.maps.LatLng(31.218914, 121.425362),
         mapTypeControlOptions: {
@@ -166,6 +167,8 @@ $(document).ready(function () {
         }
     }
 
+    //==========================  poi config start ========================
+
     function bindPoiInfo(poi, marker) {
         currentPoi = poi;
         currentMarker = marker;
@@ -209,26 +212,6 @@ $(document).ready(function () {
                     $("#poiImages").find(".mask.selected").removeClass("selected");
                     $browserItem.find(".mask").addClass("selected");
                 });
-            }
-        }
-    }
-
-    //检查是否hasError,是时显示错误tip，否则清除错误tip（改在问题后）
-    function checkError($item, hasError, err) {
-        if (hasError) {
-            $item.addClass("hasErrorTip");
-            $item.attr("data-original-title", err);
-            $item.tooltip({
-                placement: "top",
-                trigger: "focus"
-            })
-            $item.focus();
-            return err;
-        } else {
-            //移除遗留的错误tooltip
-            if ($item.hasClass("hasErrorTip")) {
-                $item.removeAttr("data-original-title");
-                $item.removeClass("hasErrorTip");
             }
         }
     }
@@ -385,6 +368,7 @@ $(document).ready(function () {
             }
         });
     }
+    //==========================  poi config end ========================
 
 
     $("#saveAllButton").click(function () {
@@ -398,6 +382,8 @@ $(document).ready(function () {
         }
     });
 
+    //==========================  app config start ========================
+
     $("#pageConfig").click(function () {
         $("#appTitle").val(datas.title);
         $("#appName").val(datas.name);
@@ -407,9 +393,9 @@ $(document).ready(function () {
             let poiType = datas.types[i];
             let row = "<tr id=" + poiType.key + ">" +
                 "<td>" + poiType.name + "</td>" +
-                "<td><img class='mapIcon' src='images/文化场馆.png'></td>" +
-                "<td><img class='mapIcon' src='images/文化场馆1.png'></td>" +
-                "<td><img class='listImage' src='images/house.jpg'></td>" +
+                "<td><img class='mapIcon' src='" + poiType.markerPath + "/" + poiType.markerImage + "'></td>" +
+                "<td><img class='mapIcon' src='" + poiType.markerPath + "/focus" + poiType.markerImage + "'></td>" +
+                "<td><img class='listImage' src='" + poiType.picturePath + "/" + poiType.pictureImage + "'></td>" +
                 "<td><button class='btn btn-sm btn-outline-info'>配置</button></td>" +
                 "</tr>";
             let $tableRow = $(row);
@@ -417,10 +403,18 @@ $(document).ready(function () {
             $tableRow.click(function () {
                 $tableRow.addClass("table-success").siblings().removeClass("table-success")
             })
+            $tableRow.find("button").click(function() {
+                configType = poiType;
+                $("#newTypeModalLabel").text("更新地图类型");
+                $("#newTypeName").val(poiType.name);
+                loadPOITypeConfigImages(poiType.markerImage,poiType.pictureImage);
+                $("#newTypeModal").modal({ "backdrop": "static", "focus": true });
+            });
         }
         if (currentType) {
             $("#typesTable #" + currentType.key).addClass("table-success");
         }
+        loadCoverImages(datas.coverImage)
 
         $('#configModal').modal({ "backdrop": "static", "focus": true });
     });
@@ -437,8 +431,15 @@ $(document).ready(function () {
             return true;
         }
 
+        $item = $("#coverImages");
+        let coverImage = $item.find(".mask.selected").attr("name");
+        if (checkError($item, !coverImage, "请选择封面图片！")) {
+            return true;
+        }
+
         datas.title = title;
         datas.name = name;
+        datas.coverImage = coverImage;
     }
 
     function sortTypesNav(newTypesKeyArray) {
@@ -462,6 +463,7 @@ $(document).ready(function () {
         let appInfo = {
             "title": datas.title,
             "name": datas.name,
+            "coverImage": datas.coverImage,
             "typesKey": typesKeyArray
         }
 
@@ -522,6 +524,7 @@ $(document).ready(function () {
         }
     });
 
+    
     //新增类型
     $("#newTypeButton").click(function () {
         let $item = $("#newTypeName");
@@ -530,29 +533,79 @@ $(document).ready(function () {
             return true;
         }
 
-        $.getJSON("service?name=createpoitype&typename=" + newTypeName + "&v=" + new Date().getTime(), function (ret) {
-            if (ret.retCode >= 0) {
-                let newType = ret.data;
-                newType.pois = [];
-                newType._create = true;
-                datas.types.push(newType);
-                let row = "<tr id=" + newType.key + " style='color:red;'>" +
-                    "<td>" + newType.name +
-                    "</td>" +
-                    "<td><img class='mapIcon' src='images/文化场馆.png'></td>" +
-                    "<td><img class='mapIcon' src='images/文化场馆1.png'></td>" +
-                    "<td><img class='listImage' src='images/house.jpg'></td>" +
-                    "<td><button class='btn btn-sm btn-outline-info'>配置</button></td>" +
-                    "</tr>";
-                let $tableRow = $(row);
-                $("#typesTable tbody").append($tableRow);
-                $tableRow.click(function () {
-                    $tableRow.addClass("table-success").siblings().removeClass("table-success")
-                })
-                $('#newTypeModal').modal('hide');
-                $("#newTypeName").val("");
+        $item = $("#markerImages");
+        let markerPath = $item.find(".mask.selected").attr("path");
+        let markerImage = $item.find(".mask.selected").attr("name");
+        if (checkError($item, !markerImage, "请选择地图图标！")) {
+            return true;
+        }
+
+        $item = $("#pictureImages");
+        let picturePath = $item.find(".mask.selected").attr("path");
+        let pictureImage = $item.find(".mask.selected").attr("name");
+        if (checkError($item, !pictureImage, "请选择列表图片！")) {
+            return true;
+        }
+        if(configType) {//update
+            configType.name = newTypeName;
+            configType.markerPath = markerPath;
+            configType.markerImage = markerImage;
+            configType.picturePath = picturePath;
+            configType.pictureImage = pictureImage;
+
+            $('#newTypeModal').modal('hide');
+            $("#newTypeName").val("");
+            $("#markerImages").empty();
+            $("#pictureImages").empty();
+
+            let $tds = $("#typesTable #" + configType.key).find("td");
+            if($tds.length === 5) {
+                $tds.eq(0).text(configType.name)
+                $tds.eq(1).find(">img").attr("src",configType.markerPath + "/" + configType.markerImage)
+                $tds.eq(2).find(">img").attr("src",configType.markerPath + "/focus" + configType.markerImage)
+                $tds.eq(3).find(">img").attr("src",configType.picturePath + "/" + configType.pictureImage)
             }
-        });
+        } else {//new
+            $.getJSON("service?name=createpoitype&typename=" + newTypeName + "&v=" + new Date().getTime(), function (ret) {
+                if (ret.retCode >= 0) {
+                    let newType = ret.data;
+                    newType.pois = [];
+                    newType._create = true;
+                    newType.markerPath = markerPath;
+                    newType.markerImage = markerImage;
+                    newType.picturePath = picturePath;
+                    newType.pictureImage = pictureImage;
+                    datas.types.push(newType);
+                    let row = "<tr id=" + newType.key + " style='color:red;'>" +
+                        "<td>" + newType.name +
+                        "</td>" +
+                        "<td><img class='mapIcon' src='" + markerPath + "/" + markerImage + "'></td>" +
+                        "<td><img class='mapIcon' src='" + markerPath + "/focus" + markerImage + "'></td>" +
+                        "<td><img class='listImage' src='" + picturePath + "/" + pictureImage + "'></td>" +
+                        "<td><button class='btn btn-sm btn-outline-info'>配置</button></td>" +
+                        "</tr>";
+                    let $tableRow = $(row);
+                    $("#typesTable tbody").append($tableRow);
+                    $tableRow.click(function () {
+                        $tableRow.addClass("table-success").siblings().removeClass("table-success")
+                    })
+                    $tableRow.find("button").click(function() {
+                        configType = newType;
+
+                        $("#newTypeModalLabel").text("更新地图类型");
+                        $("#newTypeName").val(newType.name);
+                        loadPOITypeConfigImages(newType.markerImage,newType.pictureImage);
+                        $("#newTypeModal").modal({ "backdrop": "static", "focus": true });
+                    });
+        
+                    $('#newTypeModal').modal('hide');
+                    $("#newTypeName").val("");
+                    $("#markerImages").empty();
+                    $("#pictureImages").empty();
+                }
+            });
+        }
+
 
     });
 
@@ -568,5 +621,121 @@ $(document).ready(function () {
         $confirmModal._callback = doPoiTypeDelete;
         $confirmModal.modal({ "backdrop": "static", "focus": true });
     });
+
+    $("#newPoiType").click(function() {
+        configType = null;
+        $("#newTypeModalLabel").text("新增地图类型");
+        $("#newTypeName").val("");
+        loadPOITypeConfigImages();
+    });
+    //==========================  app config end ========================
+
+
+    function loadCoverImages(imageName) {
+        let $coverImages = $("#coverImages");
+        $coverImages.empty();
+        $.getJSON("service?name=images&group=cover&v=" + new Date().getTime(), function (ret) {
+            if (ret.retCode >= 0 && ret.data) {
+                let path = ret.data.path;
+                let images = ret.data.images;
+                for(let image of images) {
+                    let ss = '<div class="browser-item">' +
+                        '<img src="' + path + '/' + image + '"/>' +
+                        '<div class="mask" name="' + image + '"></div>' +
+                        '</div>';
+                    let $browserItem = $(ss);
+                    $coverImages.append($browserItem);
+                    if (image == imageName) {
+                        $browserItem.find(".mask").addClass("selected");
+                    }
+
+                    $browserItem.click(function () {
+                        $coverImages.find(".mask.selected").removeClass("selected");
+                        $browserItem.find(".mask").addClass("selected");
+                    });
+                }
+            }
+        });
+    }
+
+    //处理POIType类型配置中（含marker和picture）,合并2次请求为1次
+    function loadPOITypeConfigImages(markerImageName,pictureImageName) {
+        let $markerImages = $("#markerImages");
+        let $pictureImages = $("#pictureImages");
+        $markerImages.empty();
+        $pictureImages.empty();
+        $.getJSON("service?name=images&group=poitype&v=" + new Date().getTime(), function (ret) {
+            if (ret.retCode >= 0 && ret.data) {
+                let marker = ret.data.marker;
+                let picture = ret.data.picture;
+
+                let markerPath = marker.path;
+                let markerImages = marker.images;
+                for(let image of markerImages) {
+                    let ss = '<div class="browser-item">' +
+                        '<img src="' + markerPath + '/' + image + '"/>' +
+                        '<div class="mask" path="' +  markerPath + '" name="' + image + '"></div>' +
+                        '</div>';
+                    let $browserItem = $(ss);
+                    $markerImages.append($browserItem);
+                    if (image == markerImageName) {
+                        $browserItem.find(".mask").addClass("selected");
+                    }
+
+                    $browserItem.click(function () {
+                        $markerImages.find(".mask.selected").removeClass("selected");
+                        $browserItem.find(".mask").addClass("selected");
+                    });
+                }
+
+                let picturePath = picture.path;
+                let pictureImages = picture.images;
+                for(let image of pictureImages) {
+                    let ss = '<div class="browser-item">' +
+                        '<img src="' + picturePath + '/' + image + '"/>' +
+                        '<div class="mask" path="' +  picturePath + '" name="' + image + '"></div>' +
+                        '</div>';
+                    let $browserItem = $(ss);
+                    $pictureImages.append($browserItem);
+                    if (image == pictureImageName) {
+                        $browserItem.find(".mask").addClass("selected");
+                    }
+
+                    $browserItem.click(function () {
+                        $pictureImages.find(".mask.selected").removeClass("selected");
+                        $browserItem.find(".mask").addClass("selected");
+                    });
+                }
+
+
+            }
+        });
+    }
+
+    //检查是否hasError,是时显示错误tip，否则清除错误tip（改在问题后）
+    function checkError($item, hasError, err) {
+        if (hasError) {
+            $item.addClass("hasErrorTip");
+            $item.attr("data-original-title", err);
+            $item.tooltip({
+                placement: "top",
+                trigger: "focus"
+            })
+            $item.focus();
+            return err;
+        } else {
+            //移除遗留的错误tooltip
+            if ($item.hasClass("hasErrorTip")) {
+                $item.removeAttr("data-original-title");
+                $item.removeClass("hasErrorTip");
+            }
+        }
+    }
+
+
+
+
+
+
 });
 
