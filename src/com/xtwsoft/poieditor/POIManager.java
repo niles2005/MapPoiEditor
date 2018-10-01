@@ -12,18 +12,9 @@ import java.util.TimerTask;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.xtwsoft.poieditor.services.CreatePOIService;
-import com.xtwsoft.poieditor.services.CreatePOITypeService;
-import com.xtwsoft.poieditor.services.DatasService;
-import com.xtwsoft.poieditor.services.RemovePOIService;
-import com.xtwsoft.poieditor.services.SaveAllService;
-import com.xtwsoft.poieditor.services.UpdateAppService;
-import com.xtwsoft.poieditor.services.UpdateDetailService;
-import com.xtwsoft.poieditor.services.UpdatePOIService;
 import com.xtwsoft.poieditor.utils.MD5Sum;
 import com.xtwsoft.poieditor.utils.Utils;
 import com.xtwsoft.server.ServerConfig;
-import com.xtwsoft.server.ServiceManager;
 
 /**
  * 用户处理逻辑，需实现为单例模式。 在使用中需注意2点：
@@ -115,6 +106,7 @@ public class POIManager extends TimerTask {
 	public String updateApp(JSONObject json) {
 		m_dataJson.put("title", json.get("title"));
 		m_dataJson.put("name", json.get("name"));
+		m_dataJson.put("coverImage", json.get("coverImage"));
 		JSONArray types = m_dataJson.getJSONArray("types");
 		JSONArray typesKeyArray = json.getJSONArray("typesKey");
 		for(int i=0;i<typesKeyArray.size();i++) {

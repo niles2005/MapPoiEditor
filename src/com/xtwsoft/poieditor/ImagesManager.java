@@ -3,16 +3,23 @@ package com.xtwsoft.poieditor;
 import java.io.File;
 
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.xtwsoft.server.ServerConfig;
 
 public class ImagesManager {
 	private static ImagesManager m_instance = null;
 	//封面
+	private JSONObject m_cover = new JSONObject();
 	private JSONArray m_coverImages = new JSONArray();
 	//地图图标
+	private JSONObject m_marker = new JSONObject();
 	private JSONArray m_markerImages = new JSONArray();
 	//列表中景点图
+	private JSONObject m_picture = new JSONObject();
 	private JSONArray m_pictureImages = new JSONArray();
+	
+	//合并poitype配置中的marker和picture为一次请求
+	private JSONObject m_poitype = new JSONObject();
 	
 	private ImagesManager() {
 	}
@@ -29,6 +36,17 @@ public class ImagesManager {
 	}
 	
 	private void init() {
+		m_poitype.put("marker", m_marker);
+		m_poitype.put("picture", m_picture);
+		
+		m_cover.put("path", "images/cover");
+		m_cover.put("images", m_coverImages);
+		
+		m_marker.put("path", "images/marker");
+		m_marker.put("images", m_markerImages);
+
+		m_picture.put("path", "images/picture");
+		m_picture.put("images", m_pictureImages);
 		File imagesPath = new File(ServerConfig.getInstance().getAppPath(),"images");
 		if(!imagesPath.exists()) {
 			imagesPath.mkdir();
@@ -74,13 +92,15 @@ public class ImagesManager {
 		}
 	}
 	
-	public JSONArray getImages(String name) {
+	public JSONObject getImages(String name) {
 		if("marker".equals(name)) {
-			return this.m_markerImages;
+			return this.m_marker;
 		} else if("picture".equals(name)) {
-			return this.m_pictureImages;
+			return this.m_picture;
 		} else if("cover".equals(name)) {
-			return this.m_coverImages;
+			return this.m_cover;
+		} else if("poitype".equals(name)) {//合并marker和picture两次请求为一次
+			return this.m_poitype;
 		}
 		return null;
 	}
