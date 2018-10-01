@@ -12,6 +12,14 @@ import java.util.TimerTask;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.xtwsoft.poieditor.services.CreatePOIService;
+import com.xtwsoft.poieditor.services.CreatePOITypeService;
+import com.xtwsoft.poieditor.services.DatasService;
+import com.xtwsoft.poieditor.services.RemovePOIService;
+import com.xtwsoft.poieditor.services.SaveAllService;
+import com.xtwsoft.poieditor.services.UpdateAppService;
+import com.xtwsoft.poieditor.services.UpdateDetailService;
+import com.xtwsoft.poieditor.services.UpdatePOIService;
 import com.xtwsoft.poieditor.utils.MD5Sum;
 import com.xtwsoft.poieditor.utils.Utils;
 import com.xtwsoft.server.ServerConfig;
@@ -49,7 +57,6 @@ public class POIManager extends TimerTask {
 		if (m_instance == null) {
 			m_instance = new POIManager();
 			m_instance.init();
-			m_instance.registerServices();
 		}
 	}
 
@@ -87,6 +94,10 @@ public class POIManager extends TimerTask {
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
+	}
+
+	public JSONObject getDatas() {
+		return m_dataJson;
 	}
 	
 	public POI getPOI(String key) {
@@ -223,25 +234,6 @@ public class POIManager extends TimerTask {
 		}
 	}
 
-	public JSONObject getDatas() {
-		return m_dataJson;
-	}
-	
-	/**
-	 * 注册服务。在使用中可以按服务名找到对应的服务。
-	 */
-	public void registerServices() {
-		ServiceManager serviceManager = ServiceManager.getInstance();
-		serviceManager.addService(new DatasService());
-		serviceManager.addService(new CreatePOIService());
-		serviceManager.addService(new CreatePOITypeService());
-		serviceManager.addService(new RemovePOIService());
-		serviceManager.addService(new UpdatePOIService());
-		serviceManager.addService(new SaveAllService());
-		serviceManager.addService(new UpdateDetailService());
-		serviceManager.addService(new LoadImagesService());
-		serviceManager.addService(new UpdateAppService());
-	}
 
 	// 5min 5 * 60 * 1000 = 300000
 	private void startTaskTimer() {
