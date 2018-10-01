@@ -1,5 +1,6 @@
 /bin/
 
+/bak/
 .classpath
 .project
 datas.json
