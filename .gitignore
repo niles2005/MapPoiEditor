@@ -1,6 +1,7 @@
 /bin/
 
 /bak/
+/WebContent/p/
 .classpath
 .project
 datas.json
