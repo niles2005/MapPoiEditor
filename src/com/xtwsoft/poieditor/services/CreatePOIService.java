@@ -18,8 +18,8 @@ public class CreatePOIService extends Service {
 	}
 	
 	public void work(ServiceReturn ret,HttpServletRequest request) {
-		String typeKey = request.getParameter("typekey");
-		JSONObject poi = POIManager.getInstance().createPOI(typeKey);
+		String groupKey = request.getParameter("groupkey");
+		JSONObject poi = POIManager.getInstance().createPOI(groupKey);
 		if(poi != null) {
 			ret.setSuccess(poi);
 		} else {

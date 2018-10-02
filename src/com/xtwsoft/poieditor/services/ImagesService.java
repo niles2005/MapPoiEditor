@@ -18,7 +18,7 @@ public class ImagesService extends Service {
 	}
 	
 	public void work(ServiceReturn ret,HttpServletRequest request) {
-		String groupName = request.getParameter("group");
+		String groupName = request.getParameter("type");
 		JSONObject imageGroup = ImagesManager.getInstance().getImages(groupName);
 		if(imageGroup != null) {
 			ret.setSuccess(imageGroup);

@@ -30,7 +30,7 @@ public class POIManager extends TimerTask {
 	
 	private JSONObject m_dataJson = null;
 	
-	private Hashtable<String, POIType> m_poiTypeHash = new Hashtable<String, POIType>();
+	private Hashtable<String, POIGroup> m_poiGroupHash = new Hashtable<String, POIGroup>();
 
 	private Hashtable<String, POI> m_poiHash = new Hashtable<String, POI>();
 
@@ -63,26 +63,26 @@ public class POIManager extends TimerTask {
 
 				if (m_dataJson == null) {// 格式不对，重写
 					JSONObject json = new JSONObject();
-					json.put("types", new JSONArray());
+					json.put("groups", new JSONArray());
 					Utils.writeJSON(json, m_dataJsonFile);
 					m_dataJson = json;
 				}
 			} else {
 				JSONObject json = new JSONObject();
-				json.put("types", new JSONArray());
+				json.put("groups", new JSONArray());
 				Utils.writeJSON(json, m_dataJsonFile);
 				m_dataJson = json;
 			}
 			if (m_dataJson != null) {
-				JSONArray typeArray = m_dataJson.getJSONArray("types");
-				if(typeArray == null) {
-					typeArray = new JSONArray();
-					m_dataJson.put("types", typeArray);
+				JSONArray groupArray = m_dataJson.getJSONArray("groups");
+				if(groupArray == null) {
+					groupArray = new JSONArray();
+					m_dataJson.put("groups", groupArray);
 				} else {
-					for(int i=0;i<typeArray.size();i++) {
-						JSONObject typeJson = typeArray.getJSONObject(i);
-						POIType poiType = new POIType(typeJson);
-						m_poiTypeHash.put(poiType.getKey(), poiType);
+					for(int i=0;i<groupArray.size();i++) {
+						JSONObject groupJson = groupArray.getJSONObject(i);
+						POIGroup poiGroup = new POIGroup(groupJson);
+						m_poiGroupHash.put(poiGroup.getKey(), poiGroup);
 					}
 				}
 				startTaskTimer();
@@ -100,10 +100,10 @@ public class POIManager extends TimerTask {
 		return m_poiHash.get(key);
 	}
 	
-	public void removePOIType(POIType poiType) {
-		if(poiType != null) {
-			m_dataJson.getJSONArray("types").remove(poiType.getJson());
-			m_poiTypeHash.remove(poiType);
+	public void removePOIGroup(POIGroup poiGroup) {
+		if(poiGroup != null) {
+			m_dataJson.getJSONArray("groups").remove(poiGroup.getJson());
+			m_poiGroupHash.remove(poiGroup);
 		}
 	}
 
@@ -112,18 +112,18 @@ public class POIManager extends TimerTask {
 		m_dataJson.put("title", json.get("title"));
 		m_dataJson.put("name", json.get("name"));
 		m_dataJson.put("coverImage", json.get("coverImage"));
-		JSONArray updateTypes = json.getJSONArray("types");
-		for(int i=0;i<updateTypes.size();i++) {
-			JSONObject updateType = updateTypes.getJSONObject(i);
-			if(updateType != null) {
-				String key = updateType.getString("key");
-				POIType theType = m_poiTypeHash.get(key);
-				if(theType != null) {
-					theType.update(updateType);
+		JSONArray updateGroups = json.getJSONArray("groups");
+		for(int i=0;i<updateGroups.size();i++) {
+			JSONObject updateGroup = updateGroups.getJSONObject(i);
+			if(updateGroup != null) {
+				String key = updateGroup.getString("key");
+				POIGroup theGroup = m_poiGroupHash.get(key);
+				if(theGroup != null) {
+					theGroup.update(updateGroup);
 				}
 			}
 		}
-		this.m_dataJson.getJSONArray("types").sort(new POITypesComparator(updateTypes));
+		this.m_dataJson.getJSONArray("groups").sort(new POIGroupComparator(updateGroups));
 		m_isChange = true;
 		return null;
 	}
@@ -171,10 +171,10 @@ public class POIManager extends TimerTask {
 	}
 
 	//客户端创建POI
-	public JSONObject createPOI(String typeKey) {
-		POIType poiType = m_poiTypeHash.get(typeKey);
-		if(poiType != null) {
-			POI poi = new POI(poiType);
+	public JSONObject createPOI(String groupKey) {
+		POIGroup poiGroup = m_poiGroupHash.get(groupKey);
+		if(poiGroup != null) {
+			POI poi = new POI(poiGroup);
 			m_poiHash.put(poi.getKey(), poi);
 			JSONObject json = new JSONObject();
 			json.put("key", poi.getKey());
@@ -183,11 +183,11 @@ public class POIManager extends TimerTask {
 		return null;
 	}
 	
-	//客户端创建POIType,新创建时只加到m_poiTypeHash，设置_new标志，等正式提交时加入datas.types
-	public JSONObject createPOIType(String typename) {
-		POIType poiType = new POIType(typename);
-		m_poiTypeHash.put(poiType.getKey(), poiType);
-		return poiType.getJson();
+	//客户端创建POIGroup,新创建时只加到m_poiGroupHash，设置_new标志，等正式提交时加入datas.groups
+	public JSONObject createPOIGroup(String groupname) {
+		POIGroup poiGroup = new POIGroup(groupname);
+		m_poiGroupHash.put(poiGroup.getKey(), poiGroup);
+		return poiGroup.getJson();
 	}
 	
 	//存储POI
@@ -233,10 +233,10 @@ public class POIManager extends TimerTask {
 		if(m_isChange) {
 			m_isChange = false;
 			
-			Iterator iters = m_poiTypeHash.values().iterator();
+			Iterator iters = m_poiGroupHash.values().iterator();
 			while(iters.hasNext()) {
-				POIType poiType = (POIType)iters.next();
-				poiType.sortPOIs();
+				POIGroup poiGroup = (POIGroup)iters.next();
+				poiGroup.sortPOIs();
 			}
 			POIManager.getInstance().saveDatasToFile();
 		}

@@ -18,8 +18,8 @@ public class ImagesManager {
 	private JSONObject m_picture = new JSONObject();
 	private JSONArray m_pictureImages = new JSONArray();
 	
-	//合并poitype配置中的marker和picture为一次请求
-	private JSONObject m_poitype = new JSONObject();
+	//合并poiGroup配置中的marker和picture为一次请求
+	private JSONObject m_poiGroup = new JSONObject();
 	
 	private ImagesManager() {
 	}
@@ -36,8 +36,8 @@ public class ImagesManager {
 	}
 	
 	private void init() {
-		m_poitype.put("marker", m_marker);
-		m_poitype.put("picture", m_picture);
+		m_poiGroup.put("marker", m_marker);
+		m_poiGroup.put("picture", m_picture);
 		
 		m_cover.put("path", "images/cover/");
 		m_cover.put("images", m_coverImages);
@@ -99,8 +99,8 @@ public class ImagesManager {
 			return this.m_picture;
 		} else if("cover".equals(name)) {
 			return this.m_cover;
-		} else if("poitype".equals(name)) {//合并marker和picture两次请求为一次
-			return this.m_poitype;
+		} else if("group".equals(name)) {//合并marker和picture两次请求为一次
+			return this.m_poiGroup;
 		}
 		return null;
 	}

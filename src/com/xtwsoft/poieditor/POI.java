@@ -14,12 +14,12 @@ public class POI {
 	private String m_key = null;
 	private File m_detailPath = null;
 	private String m_fileSum = null;
-	private POIType m_poiType = null;
+	private POIGroup m_poiGroup = null;
 	private ArrayList<File> m_imageFileList = null;
 	private boolean m_isNew = false;
 	
-	public POI(POIType poiType) {
-		m_poiType = poiType;
+	public POI(POIGroup poiGroup) {
+		m_poiGroup = poiGroup;
 		m_key = Guid.build16Guid();
 		JSONObject json = new JSONObject();
 		json.put("key", m_key);
@@ -31,15 +31,15 @@ public class POI {
 		m_detailPath = new File(ServerConfig.getInstance().getPOISPath(),m_key);
 	}
 	
-	public POI(JSONObject json,POIType poiType) {
+	public POI(JSONObject json,POIGroup poiGroup) {
 		m_json = json;
-		m_poiType = poiType;
+		m_poiGroup = poiGroup;
 		m_key = json.getString("key");
 		m_detailPath = new File(ServerConfig.getInstance().getPOISPath(),m_key);
 	}
 	
-	public POIType getPOIType() {
-		return m_poiType;
+	public POIGroup getPOIGroup() {
+		return m_poiGroup;
 	}
 	
 	public JSONObject getJson() {
@@ -55,7 +55,7 @@ public class POI {
 	}
 	
 	public void remove() {
-		m_poiType.removePOI(this);
+		m_poiGroup.removePOI(this);
 	}
 	
 	public void update(JSONObject json) {
@@ -68,7 +68,7 @@ public class POI {
 		}
 		buildDetail(false);
 		if (m_isNew) {
-			if(this.m_poiType.addNewPOI(this)) {
+			if(this.m_poiGroup.addNewPOI(this)) {
 				m_isNew = false;
 			}
 		}

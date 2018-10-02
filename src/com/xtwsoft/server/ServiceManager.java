@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.xtwsoft.poieditor.services.CreatePOIService;
-import com.xtwsoft.poieditor.services.CreatePOITypeService;
+import com.xtwsoft.poieditor.services.CreatePOIGroupService;
 import com.xtwsoft.poieditor.services.DatasService;
 import com.xtwsoft.poieditor.services.ImagesService;
 import com.xtwsoft.poieditor.services.RemovePOIService;
@@ -80,7 +80,7 @@ public class ServiceManager {
 		ServiceManager serviceManager = ServiceManager.getInstance();
 		serviceManager.addService(new DatasService());
 		serviceManager.addService(new CreatePOIService());
-		serviceManager.addService(new CreatePOITypeService());
+		serviceManager.addService(new CreatePOIGroupService());
 		serviceManager.addService(new RemovePOIService());
 		serviceManager.addService(new UpdatePOIService());
 		serviceManager.addService(new SaveAllService());

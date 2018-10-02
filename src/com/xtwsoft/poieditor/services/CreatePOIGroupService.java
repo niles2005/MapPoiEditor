@@ -8,22 +8,22 @@ import com.xtwsoft.server.Service;
 import com.xtwsoft.server.ServiceReturn;
 
 /**
- * 新增POIType
+ * 新增POIGroup
  * @author NieLei
  *
  */
-public class CreatePOITypeService extends Service {
-	public CreatePOITypeService() {
-		super("createpoitype");
+public class CreatePOIGroupService extends Service {
+	public CreatePOIGroupService() {
+		super("createpoigroup");
 	}
 	
 	public void work(ServiceReturn ret,HttpServletRequest request) {
-		String typeName = request.getParameter("typename");
-		JSONObject poiType = POIManager.getInstance().createPOIType(typeName);
-		if(poiType != null) {
-			ret.setSuccess(poiType);
+		String groupName = request.getParameter("groupname");
+		JSONObject poiGroup = POIManager.getInstance().createPOIGroup(groupName);
+		if(poiGroup != null) {
+			ret.setSuccess(poiGroup);
 		} else {
-			ret.setError("create poiType failed!");
+			ret.setError("create poiGroup failed!");
 		}
 	}
 }
