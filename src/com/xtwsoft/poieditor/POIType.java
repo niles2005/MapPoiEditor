@@ -18,6 +18,7 @@ public class POIType {
 	
 	public POIType(String name) {
 		JSONObject json = new JSONObject();
+		//为区分POI的key，type加T前缀
 		m_key = "T" + Guid.build16Guid();
 		json.put("key", m_key);
 		json.put("name", name);
@@ -35,6 +36,7 @@ public class POIType {
 		m_typeJson = typeJson;
 		m_key = m_typeJson.getString("key");
 		if(m_key == null) {
+			//为区分POI的key，type加T前缀
 			m_key = "T" + Guid.build16Guid();
 			m_typeJson.put("key", m_key);
 		}
@@ -98,7 +100,7 @@ public class POIType {
 		}
 	}
 	
-	public void sort() {
+	public void sortPOIs() {
 		this.m_sorter.sortPois(m_poisArray);
 	}
 	

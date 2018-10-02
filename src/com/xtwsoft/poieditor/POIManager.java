@@ -185,7 +185,7 @@ public class POIManager extends TimerTask {
 		return poiType.getJson();
 	}
 	
-	//POIType 存储POI
+	//存储POI
 	protected void storePOI(POI poi) {
 		if(poi != null) {
 			m_poiHash.put(poi.getKey(), poi);
@@ -231,7 +231,7 @@ public class POIManager extends TimerTask {
 			Iterator iters = m_poiTypeHash.values().iterator();
 			while(iters.hasNext()) {
 				POIType poiType = (POIType)iters.next();
-				poiType.sort();
+				poiType.sortPOIs();
 			}
 			POIManager.getInstance().saveDatasToFile();
 		}
