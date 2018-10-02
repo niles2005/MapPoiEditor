@@ -75,10 +75,15 @@ public class POIManager extends TimerTask {
 			}
 			if (m_dataJson != null) {
 				JSONArray typeArray = m_dataJson.getJSONArray("types");
-				for(int i=0;i<typeArray.size();i++) {
-					JSONObject typeJson = typeArray.getJSONObject(i);
-					POIType poiType = new POIType(typeJson);
-					m_poiTypeHash.put(poiType.getKey(), poiType);
+				if(typeArray == null) {
+					typeArray = new JSONArray();
+					m_dataJson.put("types", typeArray);
+				} else {
+					for(int i=0;i<typeArray.size();i++) {
+						JSONObject typeJson = typeArray.getJSONObject(i);
+						POIType poiType = new POIType(typeJson);
+						m_poiTypeHash.put(poiType.getKey(), poiType);
+					}
 				}
 				startTaskTimer();
 			}
