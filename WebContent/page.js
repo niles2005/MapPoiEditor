@@ -6,6 +6,16 @@ $(document).ready(function () {
     var configType;//app 配置中编辑的poiType
     var poiMarkerStore = {};
     var $confirmModal = $('#confirmModal');
+
+    var mapIconSize = new qq.maps.Size(24, 34);
+
+    var createMarkerIcon = new qq.maps.MarkerImage("images/create.png",
+        null,
+        null,
+        null,
+        mapIconSize
+    );
+
     var mapObj = new qq.maps.Map(document.getElementById("mapPanel"), {
         center: new qq.maps.LatLng(31.218914, 121.425362),
         mapTypeControlOptions: {
@@ -39,28 +49,13 @@ $(document).ready(function () {
                     poi.latitude = latLng.getLat().toFixed(6);
                     poi.longitude = latLng.getLng().toFixed(6);
                     poi._create = true;
+                    currentType.pois.push(poi);
                     buildPoi(poi);
                 }
             }
         });
 
     }
-
-    var anchor = new qq.maps.Point(11, 33);
-    var size = new qq.maps.Size(24, 34);
-    var origin = new qq.maps.Point(0, 0);
-    var defaultMarkerIcon = new qq.maps.MarkerImage("images/marker.png",
-        size,
-        origin,
-        anchor
-    );
-
-    var newMarkerIcon = new qq.maps.MarkerImage("images/marker1.png",
-        size,
-        origin,
-        anchor
-    );
-
 
     $.getJSON("service?name=datas&v=" + new Date().getTime(), function (ret) {
         if (ret.retCode >= 0 && ret.data) {
@@ -128,15 +123,20 @@ $(document).ready(function () {
     function buildPoi(poi) {
         if (!poi) {
             return;
-        }
+        } 
         if (poi.position) {
             poi.longitude = poi.position[0];
             poi.latitude = poi.position[1];
         }
+
+        var defaultMarkerIcon = new qq.maps.MarkerImage(currentType.markerPath + currentType.markerImage,
+            null,
+            null,
+            null,
+            mapIconSize
+        );
+    
         if (poi.latitude && poi.longitude) {
-            if (poi._create) {
-                currentType.pois.push(poi);
-            }
             let marker = poiMarkerStore[poi.key];
             if (!marker) {
                 let center = new qq.maps.LatLng(poi.latitude, poi.longitude);
@@ -146,7 +146,7 @@ $(document).ready(function () {
                     draggable: false,
                 });
                 if (poi._create) {
-                    marker.setIcon(newMarkerIcon);
+                    marker.setIcon(createMarkerIcon);
                 } else {
                     marker.setIcon(defaultMarkerIcon);
                 }
@@ -252,6 +252,14 @@ $(document).ready(function () {
         currentPoi.imageIndex = imageIndex;
 
         currentMarker.setTitle(name);
+
+        var defaultMarkerIcon = new qq.maps.MarkerImage(currentType.markerPath + currentType.markerImage,
+            null,
+            null,
+            null,
+            mapIconSize
+        );
+
         currentMarker.setIcon(defaultMarkerIcon);
     }
 
@@ -354,7 +362,7 @@ $(document).ready(function () {
             cache: false,
             success: function (ret) {
                 if (ret.retCode === 0) {
-                    if (ret.data && ret.data.imagesNum) {
+                    if (ret.data && ret.data.imagesNum > 0) {
                         delete currentPoi._create;
                         currentPoi.imagesNum = ret.data.imagesNum;
                     }
