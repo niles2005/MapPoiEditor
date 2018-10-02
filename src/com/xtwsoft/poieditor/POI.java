@@ -16,6 +16,7 @@ public class POI {
 	private String m_fileSum = null;
 	private POIType m_poiType = null;
 	private ArrayList<File> m_imageFileList = null;
+	private boolean m_isNew = false;
 	
 	public POI(POIType poiType) {
 		m_poiType = poiType;
@@ -25,7 +26,7 @@ public class POI {
 		
 		//临时标识，表示是地图上新创建，创建时仅加入m_poiHash，
 		//补上名称等属性后加入m_poiJsonArray，并删除临时标识
-		json.put("_new", true);
+		m_isNew = true;
 		m_json = json;
 		m_detailPath = new File(ServerConfig.getInstance().getPOISPath(),m_key);
 	}
@@ -53,16 +54,6 @@ public class POI {
 		return m_key;
 	}
 	
-	//创建后，只有key，还没有其他属性，还没有加入正式数组
-	private boolean hasNewFlag() {
-		return m_json.getBooleanValue("_new");
-	}
-	
-	//移除新创建的标志
-	private void removeNewFlag() {
-		m_json.remove("_new");
-	}
-	
 	public void remove() {
 		m_poiType.removePOI(this);
 	}
@@ -76,9 +67,9 @@ public class POI {
 			}
 		}
 		buildDetail(false);
-		if (hasNewFlag()) {
+		if (m_isNew) {
 			if(this.m_poiType.addNewPOI(this)) {
-				removeNewFlag();
+				m_isNew = false;
 			}
 		}
 	}

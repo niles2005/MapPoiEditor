@@ -107,29 +107,18 @@ public class POIManager extends TimerTask {
 		m_dataJson.put("title", json.get("title"));
 		m_dataJson.put("name", json.get("name"));
 		m_dataJson.put("coverImage", json.get("coverImage"));
-		JSONArray types = m_dataJson.getJSONArray("types");
-		JSONArray typesKeyArray = json.getJSONArray("typesKey");
-		for(int i=0;i<typesKeyArray.size();i++) {
-			String theKey = typesKeyArray.getString(i);
-			if(theKey != null) {
-				boolean isDelete = theKey.startsWith("x");
-				if(isDelete) {
-					theKey = theKey.substring(1);
-				}
-				POIType theType = m_poiTypeHash.get(theKey);
+		JSONArray updateTypes = json.getJSONArray("types");
+		for(int i=0;i<updateTypes.size();i++) {
+			JSONObject updateType = updateTypes.getJSONObject(i);
+			if(updateType != null) {
+				String key = updateType.getString("key");
+				POIType theType = m_poiTypeHash.get(key);
 				if(theType != null) {
-					if(isDelete) {
-						removePOIType(theType);
-					} else {
-						if(theType.hasNewFlag()) {
-							types.add(theType.getJson());
-							theType.removeNewFlag();
-						}
-					}
+					theType.update(updateType);
 				}
 			}
 		}
-		types.sort(new POITypesComparator(typesKeyArray));
+		this.m_dataJson.getJSONArray("types").sort(new POITypesComparator(updateTypes));
 		m_isChange = true;
 		return null;
 	}

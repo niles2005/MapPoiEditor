@@ -39,13 +39,13 @@ public class ImagesManager {
 		m_poitype.put("marker", m_marker);
 		m_poitype.put("picture", m_picture);
 		
-		m_cover.put("path", "images/cover");
+		m_cover.put("path", "images/cover/");
 		m_cover.put("images", m_coverImages);
 		
-		m_marker.put("path", "images/marker");
+		m_marker.put("path", "images/marker/");
 		m_marker.put("images", m_markerImages);
 
-		m_picture.put("path", "images/picture");
+		m_picture.put("path", "images/picture/");
 		m_picture.put("images", m_pictureImages);
 		File imagesPath = new File(ServerConfig.getInstance().getAppPath(),"images");
 		if(!imagesPath.exists()) {

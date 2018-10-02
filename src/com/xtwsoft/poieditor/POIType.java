@@ -1,5 +1,7 @@
 package com.xtwsoft.poieditor;
 
+import java.util.Iterator;
+
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.xtwsoft.poieditor.utils.Guid;
@@ -10,14 +12,18 @@ public class POIType {
 	private JSONArray m_poisArray = null;
 	private POISorter m_sorter = new POISorter();
 	
+	//临时创建标识，表示是地图上新创建，创建时仅加入m_poiHash，
+	//补上名称等属性后加入datas.types，并删除临时标识
+	private boolean m_isNew = false;
+	
 	public POIType(String name) {
 		JSONObject json = new JSONObject();
 		m_key = "T" + Guid.build16Guid();
 		json.put("key", m_key);
 		json.put("name", name);
-		//临时标识，表示是地图上新创建，创建时仅加入m_poiHash，
-		//补上名称等属性后加入m_poiJsonArray，并删除临时标识
-		json.put("_new", true);
+		
+		//表示新创建，没有加入正式列表
+		m_isNew = true;
 		
 		m_poisArray = new JSONArray();
 		json.put("pois", m_poisArray);
@@ -55,14 +61,26 @@ public class POIType {
 		return m_typeJson;
 	}
 	
-	//创建后，只有key，还没有其他属性，还没有加入正式数组
-	public boolean hasNewFlag() {
-		return m_typeJson.getBooleanValue("_new");
-	}
-	
-	//移除新创建的标志
-	public void removeNewFlag() {
-		m_typeJson.remove("_new");
+	public void update(JSONObject updateType) {
+		Iterator iters = updateType.keySet().iterator();
+		while(iters.hasNext()) {
+			String str = (String)iters.next();
+			if(str.startsWith("_") || str.endsWith("key") || str.endsWith("pois")) {
+				
+			} else {
+				m_typeJson.put(str, updateType.get(str));
+			}
+		}
+		Boolean isDelete = updateType.getBoolean("_deleted");
+		if(isDelete != null && isDelete.booleanValue()) {
+			POIManager.getInstance().removePOIType(this);
+		} else {
+			if(this.m_isNew) {
+				JSONArray types = POIManager.getInstance().getDatas().getJSONArray("types");
+				types.add(this.getJson());
+				m_isNew = false;
+			}
+		}
 	}
 	
 		
@@ -79,13 +97,7 @@ public class POIType {
 			m_poisArray.remove(poi.getJson());
 		}
 	}
-
-//	private void initPoi(JSONObject poiJson,JSONObject poiType) {
-//		if (poi.hasKey()) {
-//			m_poiHash.put(poi.getKey(), poi);
-//		}
-//	}
-
+	
 	public void sort() {
 		this.m_sorter.sortPois(m_poisArray);
 	}

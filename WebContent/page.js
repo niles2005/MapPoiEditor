@@ -6,7 +6,6 @@ $(document).ready(function () {
     var configType;//app 配置中编辑的poiType
     var poiMarkerStore = {};
     var $confirmModal = $('#confirmModal');
-    console.dir($confirmModal)
     var mapObj = new qq.maps.Map(document.getElementById("mapPanel"), {
         center: new qq.maps.LatLng(31.218914, 121.425362),
         mapTypeControlOptions: {
@@ -392,10 +391,10 @@ $(document).ready(function () {
         for (let i = 0; i < datas.types.length; i++) {
             let poiType = datas.types[i];
             let row = "<tr id=" + poiType.key + ">" +
-                "<td>" + poiType.name + "</td>" +
-                "<td><img class='mapIcon' src='" + poiType.markerPath + "/" + poiType.markerImage + "'></td>" +
-                "<td><img class='mapIcon' src='" + poiType.markerPath + "/focus" + poiType.markerImage + "'></td>" +
-                "<td><img class='listImage' src='" + poiType.picturePath + "/" + poiType.pictureImage + "'></td>" +
+                "<td class='typeName'>" + poiType.name + "</td>" +
+                "<td><img class='mapIcon' src='" + poiType.markerPath + poiType.markerImage + "'>" +
+                    "<img class='mapIcon' src='" + poiType.markerPath + "focus" + poiType.markerImage + "'></td>" +
+                "<td><img class='listImage' src='" + poiType.picturePath + poiType.pictureImage + "'></td>" +
                 "<td><button class='btn btn-sm btn-outline-info'>配置</button></td>" +
                 "</tr>";
             let $tableRow = $(row);
@@ -451,20 +450,34 @@ $(document).ready(function () {
     }
 
     function saveAppInfo(callback) {
-        let typesKeyArray = [];
+        let  typeStore = {}
         for (type of datas.types) {
-            //通过table tr.deleted 判断记录是否已删除,提交加x标志
+            typeStore[type.key] = type;
+        }
+        let updateTypesArray = [];
+        let trs = $("#typesTable tbody tr");
+        for(let i=0;i<trs.length;i++) {
+            let key = trs.eq(i).attr("id");
+            let type = typeStore[key];
+            let updateType = {};
+            updateType.key = type.key;
+            updateType.name = type.name;
+            updateType.markerPath = type.markerPath;
+            updateType.markerImage = type.markerImage;
+            updateType.picturePath = type.picturePath;
+            updateType.pictureImage = type.pictureImage;
+             
+            //通过table tr.deleted 判断记录是否已删除
             if ($("#typesTable #" + type.key).hasClass("deleted")) {
-                typesKeyArray.push("x" + type.key);
-            } else {
-                typesKeyArray.push(type.key);
+                updateType._deleted = true;
             }
+            updateTypesArray.push(updateType)
         }
         let appInfo = {
             "title": datas.title,
             "name": datas.name,
             "coverImage": datas.coverImage,
-            "typesKey": typesKeyArray
+            "types": updateTypesArray
         }
 
 
@@ -479,7 +492,7 @@ $(document).ready(function () {
                 if (ret.retCode === 0) {
 
                     for (let i = datas.types.length - 1; i >= 0; i--) {
-                        //通过table tr.deleted 判断记录是否已删除,提交加x标志
+                        //通过table tr.deleted 判断记录是否已删除
                         if ($("#typesTable #" + datas.types[i].key).hasClass("deleted")) {
                             datas.types.splice(i, 1);
                         }
@@ -559,11 +572,11 @@ $(document).ready(function () {
             $("#pictureImages").empty();
 
             let $tds = $("#typesTable #" + configType.key).find("td");
-            if($tds.length === 5) {
-                $tds.eq(0).text(configType.name)
-                $tds.eq(1).find(">img").attr("src",configType.markerPath + "/" + configType.markerImage)
-                $tds.eq(2).find(">img").attr("src",configType.markerPath + "/focus" + configType.markerImage)
-                $tds.eq(3).find(">img").attr("src",configType.picturePath + "/" + configType.pictureImage)
+            if($tds.length >= 3) {
+                $tds.find(".typeName").text(configType.name)
+                $tds.find(">img.mapIcon").eq(0).attr("src",configType.markerPath + configType.markerImage)
+                $tds.find(">img.mapIcon").eq(1).attr("src",configType.markerPath + "focus" + configType.markerImage)
+                $tds.find(">img.listImage").attr("src",configType.picturePath + configType.pictureImage)
             }
         } else {//new
             $.getJSON("service?name=createpoitype&typename=" + newTypeName + "&v=" + new Date().getTime(), function (ret) {
@@ -577,11 +590,10 @@ $(document).ready(function () {
                     newType.pictureImage = pictureImage;
                     datas.types.push(newType);
                     let row = "<tr id=" + newType.key + " style='color:red;'>" +
-                        "<td>" + newType.name +
-                        "</td>" +
-                        "<td><img class='mapIcon' src='" + markerPath + "/" + markerImage + "'></td>" +
-                        "<td><img class='mapIcon' src='" + markerPath + "/focus" + markerImage + "'></td>" +
-                        "<td><img class='listImage' src='" + picturePath + "/" + pictureImage + "'></td>" +
+                        "<td class='typeName'>" + newType.name + "</td>" +
+                        "<td><img class='mapIcon' src='" + newType.markerPath + newType.markerImage + "'>" +
+                            "<img class='mapIcon' src='" + newType.markerPath + "focus" + newType.markerImage + "'></td>" +
+                        "<td><img class='listImage' src='" + newType.picturePath + newType.pictureImage + "'></td>" +
                         "<td><button class='btn btn-sm btn-outline-info'>配置</button></td>" +
                         "</tr>";
                     let $tableRow = $(row);
