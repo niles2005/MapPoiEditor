@@ -17,7 +17,7 @@
     <div class="container">
         <div id='mapPanel' class='works-part  mapPanel'>
         </div>
-        <div class="btn-group btn-group-toggle typeNav" id="typeNav" data-toggle="buttons">
+        <div class="btn-group btn-group-toggle groupNav" id="groupNav" data-toggle="buttons">
         </div>
         <button type="button" class="btn btn-sm btn-success pageConfig" id="pageConfig" aria-label="Left Align"
             data-toggle="tooltip" data-placement="bottom" title="配置">
@@ -127,10 +127,11 @@
                         <div class="form-group row">
                             <label for="introUrl" class="col-sm-2 col-form-label">类型</label>
                             <div class="col-sm-10 table-responsive ">
-                                <table id="typesTable" class="table table-hover" style="margin-bottom:0;">
+                                <table id="groupsTable" class="table table-hover" style="margin-bottom:0;">
                                     <thead>
                                         <tr>
                                             <th scope="col">名称</th>
+                                            <th scope="col">背景图层</th>
                                             <th scope="col">地图图标</th>
                                             <th scope="col">缺省图片</th>
                                             <th scope="col">配置</th>
@@ -152,8 +153,8 @@
                                         <path fill="#fff" stroke="transparent" stroke-width="10" d="m1.49805,149.64304l148.50121,-148.00241l148.50121,148.00241l-74.25061,0l0,148.71457l-148.5012,0l0,-148.71457z"></path>
                                     </svg> </button>
                                 </button>
-                                <button type="button" id="deletePoiType" title="删除类型" class="btn btn-danger">删除</button>
-                                <button type="button" id="newPoiType" data-toggle="modal" data-target="#newTypeModal"
+                                <button type="button" id="deletePoiGroup" title="删除类型" class="btn btn-danger">删除</button>
+                                <button type="button" id="newPoiGroup" data-toggle="modal" data-target="#newGroupModal"
                                     title="新增类型" class="btn btn-info">新增</button>
                             </div>
                         </div>
@@ -166,21 +167,27 @@
                 </div>
             </div>
         </div>
-        <div class="modal fade" id="newTypeModal" tabindex="-1" role="dialog" aria-labelledby="newTypeModalLabel"
+        <div class="modal fade" id="newGroupModal" tabindex="-1" role="dialog" aria-labelledby="newGroupModalLabel"
             aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="newTypeModalLabel"></h5>
+                        <h5 class="modal-title" id="newGroupModalLabel"></h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="modal-body">
                         <div class="form-group row">
-                            <label for="newTypeName" class="col-sm-2 col-form-label">类型名称</label>
+                            <label for="newGroupName" class="col-sm-2 col-form-label">类型名称</label>
                             <div class="col-sm-10 input-group">
-                                <input type="text" class="form-control open-focus" id="newTypeName">
+                                <input type="text" class="form-control open-focus" id="newGroupName">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="newGroupBg" class="col-sm-2 col-form-label">背景图层</label>
+                            <div class="col-sm-10 input-group">
+                                <button type="button" class="btn btn-sm btn-primary" id="newGroupBg">否</button>
                             </div>
                         </div>
                         <div class="form-group row">
@@ -199,7 +206,7 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
-                            <button type="button" class="btn btn-primary" id="newTypeButton">确定</button>
+                            <button type="button" class="btn btn-primary" id="groupSave">确定</button>
                         </div>
                     </div>
                 </div>

@@ -112,7 +112,7 @@ img{
     top: 55px;
 }
 
-.typeNav {
+.groupNav {
     z-index: 10; 
     position: absolute;
     left: 0; 
@@ -160,6 +160,11 @@ img{
     width: 100px;
     height: 100%;
 }
+.browser-item> img.markerIcon {
+    width: 50px;
+    height: 100%;
+}
+
 .browser-item> .mask {
     position: absolute;
     top: 0;
@@ -185,11 +190,16 @@ img{
     width:3.5em;
     height:3.5em;
 }
-
-#typesTable tbody td {
+#groupsTable {
+    text-align: center;
+}
+#groupsTable tbody td {
     white-space: nowrap;
 }
-#typesTable tbody tr.deleted td {
+#groupsTable tbody tr.deleted td {
     border: 1px solid red;
 }
 
+#newGroupBg {
+    padding: 0 50px;
+}
