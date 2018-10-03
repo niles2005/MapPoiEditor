@@ -1,9 +1,9 @@
 $(document).ready(function () {
     var datas;
-    var currentType;
+    var currentGroup;
     var currentPoi;
     var currentMarker;
-    var configType;//app 配置中编辑的poiType
+    var configGroup;//app 配置中编辑的poiGroup
     var poiMarkerStore = {};
     var $confirmModal = $('#confirmModal');
 
@@ -42,14 +42,14 @@ $(document).ready(function () {
     );
 
     function createPoi(latLng) {
-        $.getJSON("service?name=createpoi&typekey=" + currentType.key + "&v=" + new Date().getTime(), function (ret) {
+        $.getJSON("service?name=createpoi&groupkey=" + currentGroup.key + "&v=" + new Date().getTime(), function (ret) {
             if (ret.retCode >= 0) {
                 var poi = ret.data;
                 if (poi) {
                     poi.latitude = latLng.getLat().toFixed(6);
                     poi.longitude = latLng.getLng().toFixed(6);
                     poi._create = true;
-                    currentType.pois.push(poi);
+                    currentGroup.pois.push(poi);
                     buildPoi(poi);
                 }
             }
@@ -60,60 +60,60 @@ $(document).ready(function () {
     $.getJSON("service?name=datas&v=" + new Date().getTime(), function (ret) {
         if (ret.retCode >= 0 && ret.data) {
             datas = ret.data;
-            if (!datas.types) {
-                datas.types = [];
+            if (!datas.groups) {
+                datas.groups = [];
             }
-            buildTypes();
+            buildGroups();
         }
     });
 
-    function buildTypes() {
-        let types = datas.types;
-        if (types.length == 0) {
+    function buildGroups() {
+        let groups = datas.groups;
+        if (groups.length == 0) {
             return;
         }
-        $("#typeNav").empty();
-        for (let i = 0; i < types.length; i++) {
-            let poiType = types[i];
-            if (!poiType.key) {
+        $("#groupNav").empty();
+        for (let i = 0; i < groups.length; i++) {
+            let poiGroup = groups[i];
+            if (!poiGroup.key) {
                 continue;
             }
-            if (!poiType.pois) {
-                poiType.pois = {};
+            if (!poiGroup.pois) {
+                poiGroup.pois = {};
             }
-            let ss = '<label id="' + poiType.key + '" class="btn btn-sm btn-primary">' +
+            let ss = '<label id="' + poiGroup.key + '" class="btn btn-sm btn-primary">' +
                 '<input type="radio" name="options" id="option1" autocomplete="off" checked>' +
-                poiType.name +
+                poiGroup.name +
                 '</label>';
-            let $typeItem = $(ss);
-            $("#typeNav").append($typeItem);
-            $typeItem.click(function () {
-                selectType(poiType);
+            let $groupItem = $(ss);
+            $("#groupNav").append($groupItem);
+            $groupItem.click(function () {
+                selectGroup(poiGroup);
             });
-            if (currentType == poiType) {
-                $typeItem.addClass("active");
+            if (currentGroup == poiGroup) {
+                $groupItem.addClass("active");
             }
-            selectDefaultType();
+            selectDefaultGroup();
         }
     }
 
-    function selectDefaultType() {
-        //currentType为空或者已经删除
-        if (!currentType || datas.types.indexOf(currentType) < 0) {
-            if (datas.types.length > 0) {
-                $("#" + datas.types[0].key).addClass("active");
-                selectType(datas.types[0]);
+    function selectDefaultGroup() {
+        //currentGroup为空或者已经删除
+        if (!currentGroup || datas.groups.indexOf(currentGroup) < 0) {
+            if (datas.groups.length > 0) {
+                $("#" + datas.groups[0].key).addClass("active");
+                selectGroup(datas.groups[0]);
             }
         }
     }
 
 
-    function selectType(theType) {
-        if (currentType !== theType) {
-            clearCurrentTypeMarkers();
-            currentType = theType;
-            if (currentType.pois) {
-                for (let poi of currentType.pois) {
+    function selectGroup(theGroup) {
+        if (currentGroup !== theGroup) {
+            clearCurrentGroupMarkers();
+            currentGroup = theGroup;
+            if (currentGroup.pois) {
+                for (let poi of currentGroup.pois) {
                     buildPoi(poi)
                 }
             }
@@ -129,7 +129,7 @@ $(document).ready(function () {
             poi.latitude = poi.position[1];
         }
 
-        var defaultMarkerIcon = new qq.maps.MarkerImage(currentType.markerPath + currentType.markerImage,
+        var defaultMarkerIcon = new qq.maps.MarkerImage(currentGroup.markerPath + currentGroup.markerImage,
             null,
             null,
             null,
@@ -182,9 +182,9 @@ $(document).ready(function () {
         updatePOIImagesNum(poi);
     }
 
-    function clearCurrentTypeMarkers() {
-        if (currentType && currentType.pois) {
-            for (let poi of currentType.pois) {
+    function clearCurrentGroupMarkers() {
+        if (currentGroup && currentGroup.pois) {
+            for (let poi of currentGroup.pois) {
                 let marker = poiMarkerStore[poi.key];
                 if (marker) {
                     marker.setMap(null);
@@ -199,7 +199,7 @@ $(document).ready(function () {
             let ver = poi.updateVersion || "";
             for (let i = 0; i < poi.imagesNum; i++) {
                 let ss = '<div class="browser-item">' +
-                    '<img src="p/' + poi.key + '/' + poi.key + '_' + ver + '_' + i + '"/>' +
+                    '<img src="p/' + poi.key + '/' + poi.key + '_' + i + '?v=' + ver + '"/>' +
                     '<div class="mask" imageIndex="' + i + '"></div>' +
                     '</div>';
                 let $browserItem = $(ss);
@@ -253,7 +253,7 @@ $(document).ready(function () {
 
         currentMarker.setTitle(name);
 
-        var defaultMarkerIcon = new qq.maps.MarkerImage(currentType.markerPath + currentType.markerImage,
+        var defaultMarkerIcon = new qq.maps.MarkerImage(currentGroup.markerPath + currentGroup.markerImage,
             null,
             null,
             null,
@@ -286,9 +286,9 @@ $(document).ready(function () {
         $.getJSON("service?name=removepoi&key=" + currentPoi.key + "&v=" + new Date().getTime(), function (ret) {
             if (ret.retCode == 0) {
                 currentMarker.setMap(null);
-                for (let i = currentType.pois.length - 1; i >= 0; i--) {
-                    if (currentType.pois[i] === currentPoi) {
-                        currentType.pois.splice(i, 1);
+                for (let i = currentGroup.pois.length - 1; i >= 0; i--) {
+                    if (currentGroup.pois[i] === currentPoi) {
+                        currentGroup.pois.splice(i, 1);
                         break;
                     }
                 }
@@ -395,31 +395,34 @@ $(document).ready(function () {
         $("#appTitle").val(datas.title);
         $("#appName").val(datas.name);
 
-        $("#typesTable tbody").empty();
-        for (let i = 0; i < datas.types.length; i++) {
-            let poiType = datas.types[i];
-            let row = "<tr id=" + poiType.key + ">" +
-                "<td class='typeName'>" + poiType.name + "</td>" +
-                "<td><img class='mapIcon' src='" + poiType.markerPath + poiType.markerImage + "'>" +
-                    "<img class='mapIcon' src='" + poiType.markerPath + "focus" + poiType.markerImage + "'></td>" +
-                "<td><img class='listImage' src='" + poiType.picturePath + poiType.pictureImage + "'></td>" +
+        $("#groupsTable tbody").empty();
+        for (let i = 0; i < datas.groups.length; i++) {
+            let poiGroup = datas.groups[i];
+            let groupCheck = poiGroup.isBg?"是":"否";
+            let row = "<tr id=" + poiGroup.key + ">" +
+                "<td class='groupName'>" + poiGroup.name + "</td>" +
+                "<td class='groupBG'>" + groupCheck + "</td>" +
+                "<td><img class='mapIcon' src='" + poiGroup.markerPath + poiGroup.markerImage + "'>" +
+                    "<img class='mapIcon' src='" + poiGroup.markerPath + "focus" + poiGroup.markerImage + "'></td>" +
+                "<td><img class='listImage' src='" + poiGroup.picturePath + poiGroup.pictureImage + "'></td>" +
                 "<td><button class='btn btn-sm btn-outline-info'>配置</button></td>" +
                 "</tr>";
             let $tableRow = $(row);
-            $("#typesTable tbody").append($tableRow);
+            $("#groupsTable tbody").append($tableRow);
             $tableRow.click(function () {
                 $tableRow.addClass("table-success").siblings().removeClass("table-success")
             })
             $tableRow.find("button").click(function() {
-                configType = poiType;
-                $("#newTypeModalLabel").text("更新地图类型");
-                $("#newTypeName").val(poiType.name);
-                loadPOITypeConfigImages(poiType.markerImage,poiType.pictureImage);
-                $("#newTypeModal").modal({ "backdrop": "static", "focus": true });
+                configGroup = poiGroup;
+                $("#newGroupModalLabel").text("更新地图类型");
+                $("#newGroupName").val(poiGroup.name);
+                $("#newGroupBg").text(groupCheck);
+                loadPOIGroupConfigImages(poiGroup.markerImage,poiGroup.pictureImage);
+                $("#newGroupModal").modal({ "backdrop": "static", "focus": true });
             });
         }
-        if (currentType) {
-            $("#typesTable #" + currentType.key).addClass("table-success");
+        if (currentGroup) {
+            $("#groupsTable #" + currentGroup.key).addClass("table-success");
         }
         loadCoverImages(datas.coverImage)
 
@@ -449,43 +452,43 @@ $(document).ready(function () {
         datas.coverImage = coverImage;
     }
 
-    function sortTypesNav(newTypesKeyArray) {
-        let types = datas.types;
-        types.sort(function (a, b) {
-            return newTypesKeyArray.indexOf(a.key) - newTypesKeyArray.indexOf(b.key);
+    function sortGroupsNav(newGroupsKeyArray) {
+        let groups = datas.groups;
+        groups.sort(function (a, b) {
+            return newGroupsKeyArray.indexOf(a.key) - newGroupsKeyArray.indexOf(b.key);
         });
-        buildTypes();
+        buildGroups();
     }
 
     function saveAppInfo(callback) {
-        let  typeStore = {}
-        for (type of datas.types) {
-            typeStore[type.key] = type;
+        let  groupStore = {}
+        for (group of datas.groups) {
+            groupStore[group.key] = group;
         }
-        let updateTypesArray = [];
-        let trs = $("#typesTable tbody tr");
+        let updateGroupsArray = [];
+        let trs = $("#groupsTable tbody tr");
         for(let i=0;i<trs.length;i++) {
             let key = trs.eq(i).attr("id");
-            let type = typeStore[key];
-            let updateType = {};
-            updateType.key = type.key;
-            updateType.name = type.name;
-            updateType.markerPath = type.markerPath;
-            updateType.markerImage = type.markerImage;
-            updateType.picturePath = type.picturePath;
-            updateType.pictureImage = type.pictureImage;
+            let group = groupStore[key];
+            let updateGroup = {};
+            updateGroup.key = group.key;
+            updateGroup.name = group.name;
+            updateGroup.markerPath = group.markerPath;
+            updateGroup.markerImage = group.markerImage;
+            updateGroup.picturePath = group.picturePath;
+            updateGroup.pictureImage = group.pictureImage;
              
             //通过table tr.deleted 判断记录是否已删除
-            if ($("#typesTable #" + type.key).hasClass("deleted")) {
-                updateType._deleted = true;
+            if ($("#groupsTable #" + group.key).hasClass("deleted")) {
+                updateGroup._deleted = true;
             }
-            updateTypesArray.push(updateType)
+            updateGroupsArray.push(updateGroup)
         }
         let appInfo = {
             "title": datas.title,
             "name": datas.name,
             "coverImage": datas.coverImage,
-            "types": updateTypesArray
+            "groups": updateGroupsArray
         }
 
 
@@ -499,21 +502,21 @@ $(document).ready(function () {
             success: function (ret) {
                 if (ret.retCode === 0) {
 
-                    for (let i = datas.types.length - 1; i >= 0; i--) {
+                    for (let i = datas.groups.length - 1; i >= 0; i--) {
                         //通过table tr.deleted 判断记录是否已删除
-                        if ($("#typesTable #" + datas.types[i].key).hasClass("deleted")) {
-                            datas.types.splice(i, 1);
+                        if ($("#groupsTable #" + datas.groups[i].key).hasClass("deleted")) {
+                            datas.groups.splice(i, 1);
                         }
                     }
-                    let newTypesKeyArray = [];
-                    let jRows = $("#typesTable tbody").find(">tr");
+                    let newGroupsKeyArray = [];
+                    let jRows = $("#groupsTable tbody").find(">tr");
                     for (let i = 0; i < jRows.length; i++) {
                         if (!jRows.eq(i).hasClass("deleted")) {
-                            newTypesKeyArray.push(jRows.eq(i).attr("id"));
+                            newGroupsKeyArray.push(jRows.eq(i).attr("id"));
                         }
                     }
-                    sortTypesNav(newTypesKeyArray);
-                    selectDefaultType();
+                    sortGroupsNav(newGroupsKeyArray);
+                    selectDefaultGroup();
                     callback();
                 } else {
                     if (ret.message) {
@@ -535,7 +538,7 @@ $(document).ready(function () {
     });
 
     $("#moveUp,#moveDown").click(function () {
-        let $selectTableRow = $("#typesTable .table-success");
+        let $selectTableRow = $("#groupsTable .table-success");
         if ($selectTableRow.length == 1) {
             if ($(this).is('#moveUp')) {
                 $selectTableRow.insertBefore($selectTableRow.prev());
@@ -547,10 +550,10 @@ $(document).ready(function () {
 
     
     //新增类型
-    $("#newTypeButton").click(function () {
-        let $item = $("#newTypeName");
-        let newTypeName = $.trim($item.val());
-        if (checkError($item, !newTypeName, "类型名称不能为空！")) {
+    $("#groupSave").click(function () {
+        let $item = $("#newGroupName");
+        let newGroupName = $.trim($item.val());
+        if (checkError($item, !newGroupName, "类型名称不能为空！")) {
             return true;
         }
 
@@ -567,59 +570,69 @@ $(document).ready(function () {
         if (checkError($item, !pictureImage, "请选择列表图片！")) {
             return true;
         }
-        if(configType) {//update
-            configType.name = newTypeName;
-            configType.markerPath = markerPath;
-            configType.markerImage = markerImage;
-            configType.picturePath = picturePath;
-            configType.pictureImage = pictureImage;
+        $item = $("#newGroupBg");
+        let bgLabel = $.trim($item.text());
 
-            $('#newTypeModal').modal('hide');
-            $("#newTypeName").val("");
+
+        if(configGroup) {//update
+            configGroup.name = newGroupName;
+            configGroup.isBg = bgLabel === "是";
+            configGroup.markerPath = markerPath;
+            configGroup.markerImage = markerImage;
+            configGroup.picturePath = picturePath;
+            configGroup.pictureImage = pictureImage;
+
+            $('#newGroupModal').modal('hide');
+            $("#newGroupName").val("");
+            $("#newGroupBg").text("否");
             $("#markerImages").empty();
             $("#pictureImages").empty();
 
-            let $tds = $("#typesTable #" + configType.key).find("td");
-            if($tds.length >= 3) {
-                $tds.find(".typeName").text(configType.name)
-                $tds.find(">img.mapIcon").eq(0).attr("src",configType.markerPath + configType.markerImage)
-                $tds.find(">img.mapIcon").eq(1).attr("src",configType.markerPath + "focus" + configType.markerImage)
-                $tds.find(">img.listImage").attr("src",configType.picturePath + configType.pictureImage)
-            }
+            let $tr = $("#groupsTable #" + configGroup.key);
+            $tr.find(".groupName").text(configGroup.name)
+            $tr.find(".groupBG").text(bgLabel)
+            $tr.find(">img.mapIcon").eq(0).attr("src",configGroup.markerPath + configGroup.markerImage)
+            $tr.find(">img.mapIcon").eq(1).attr("src",configGroup.markerPath + "focus" + configGroup.markerImage)
+            $tr.find(">img.listImage").attr("src",configGroup.picturePath + configGroup.pictureImage)
         } else {//new
-            $.getJSON("service?name=createpoitype&typename=" + newTypeName + "&v=" + new Date().getTime(), function (ret) {
+            $.getJSON("service?name=createpoigroup&groupname=" + newGroupName + "&v=" + new Date().getTime(), function (ret) {
                 if (ret.retCode >= 0) {
-                    let newType = ret.data;
-                    newType.pois = [];
-                    newType._create = true;
-                    newType.markerPath = markerPath;
-                    newType.markerImage = markerImage;
-                    newType.picturePath = picturePath;
-                    newType.pictureImage = pictureImage;
-                    datas.types.push(newType);
-                    let row = "<tr id=" + newType.key + " style='color:red;'>" +
-                        "<td class='typeName'>" + newType.name + "</td>" +
-                        "<td><img class='mapIcon' src='" + newType.markerPath + newType.markerImage + "'>" +
-                            "<img class='mapIcon' src='" + newType.markerPath + "focus" + newType.markerImage + "'></td>" +
-                        "<td><img class='listImage' src='" + newType.picturePath + newType.pictureImage + "'></td>" +
+                    let newGroup = ret.data;
+                    newGroup.pois = [];
+                    newGroup._create = true;
+                    newGroup.isBg = bgLabel === "是";
+                    newGroup.markerPath = markerPath;
+                    newGroup.markerImage = markerImage;
+                    newGroup.picturePath = picturePath;
+                    newGroup.pictureImage = pictureImage;
+                    datas.groups.push(newGroup);
+                    let row = "<tr id=" + newGroup.key + " style='color:red;'>" +
+                    "<td class='groupName'>" + newGroup.name + "</td>" +
+                    "<td class='groupBG'>" + bgLabel + "</td>" +
+                    "<td><img class='mapIcon' src='" + newGroup.markerPath + newGroup.markerImage + "'>" +
+                            "<img class='mapIcon' src='" + newGroup.markerPath + "focus" + newGroup.markerImage + "'></td>" +
+                        "<td><img class='listImage' src='" + newGroup.picturePath + newGroup.pictureImage + "'></td>" +
                         "<td><button class='btn btn-sm btn-outline-info'>配置</button></td>" +
                         "</tr>";
                     let $tableRow = $(row);
-                    $("#typesTable tbody").append($tableRow);
+                    $("#groupsTable tbody").append($tableRow);
                     $tableRow.click(function () {
                         $tableRow.addClass("table-success").siblings().removeClass("table-success")
                     })
                     $tableRow.find("button").click(function() {
-                        configType = newType;
+                        configGroup = newGroup;
 
-                        $("#newTypeModalLabel").text("更新地图类型");
-                        $("#newTypeName").val(newType.name);
-                        loadPOITypeConfigImages(newType.markerImage,newType.pictureImage);
-                        $("#newTypeModal").modal({ "backdrop": "static", "focus": true });
+                        $("#newGroupModalLabel").text("更新地图类型");
+                        $("#newGroupName").val(newGroup.name);
+                        $("#newGroupBg").text(groupCheck);
+                        
+                        loadPOIGroupConfigImages(newGroup.markerImage,newGroup.pictureImage);
+                        $("#newGroupModal").modal({ "backdrop": "static", "focus": true });
                     });
         
-                    $('#newTypeModal').modal('hide');
-                    $("#newTypeName").val("");
+                    $('#newGroupModal').modal('hide');
+                    $("#newGroupName").val("");
+                    $("#newGroupBg").text("否");
                     $("#markerImages").empty();
                     $("#pictureImages").empty();
                 }
@@ -629,24 +642,25 @@ $(document).ready(function () {
 
     });
 
-    function doPoiTypeDelete() {
-        let $selectTableRow = $("#typesTable .table-success");
+    function doPoiGroupDelete() {
+        let $selectTableRow = $("#groupsTable .table-success");
         if ($selectTableRow.length == 1) {
             $selectTableRow.addClass("deleted");
         }
     }
 
-    $("#deletePoiType").click(function () {
+    $("#deletePoiGroup").click(function () {
         $("#confirmText").text("确认删除当前类型?");
-        $confirmModal._callback = doPoiTypeDelete;
+        $confirmModal._callback = doPoiGroupDelete;
         $confirmModal.modal({ "backdrop": "static", "focus": true });
     });
 
-    $("#newPoiType").click(function() {
-        configType = null;
-        $("#newTypeModalLabel").text("新增地图类型");
-        $("#newTypeName").val("");
-        loadPOITypeConfigImages();
+    $("#newPoiGroup").click(function() {
+        configGroup = null;
+        $("#newGroupModalLabel").text("新增地图类型");
+        $("#newGroupName").val("");
+        $("#newGroupGg").text("否");
+        loadPOIGroupConfigImages();
     });
     //==========================  app config end ========================
 
@@ -654,7 +668,7 @@ $(document).ready(function () {
     function loadCoverImages(imageName) {
         let $coverImages = $("#coverImages");
         $coverImages.empty();
-        $.getJSON("service?name=images&group=cover&v=" + new Date().getTime(), function (ret) {
+        $.getJSON("service?name=images&type=cover&v=" + new Date().getTime(), function (ret) {
             if (ret.retCode >= 0 && ret.data) {
                 let path = ret.data.path;
                 let images = ret.data.images;
@@ -678,13 +692,13 @@ $(document).ready(function () {
         });
     }
 
-    //处理POIType类型配置中（含marker和picture）,合并2次请求为1次
-    function loadPOITypeConfigImages(markerImageName,pictureImageName) {
+    //处理POIGroup类型配置中（含marker和picture）,合并2次请求为1次
+    function loadPOIGroupConfigImages(markerImageName,pictureImageName) {
         let $markerImages = $("#markerImages");
         let $pictureImages = $("#pictureImages");
         $markerImages.empty();
         $pictureImages.empty();
-        $.getJSON("service?name=images&group=poitype&v=" + new Date().getTime(), function (ret) {
+        $.getJSON("service?name=images&type=group&v=" + new Date().getTime(), function (ret) {
             if (ret.retCode >= 0 && ret.data) {
                 let marker = ret.data.marker;
                 let picture = ret.data.picture;
@@ -693,8 +707,9 @@ $(document).ready(function () {
                 let markerImages = marker.images;
                 for(let image of markerImages) {
                     let ss = '<div class="browser-item">' +
-                        '<img src="' + markerPath + '/' + image + '"/>' +
-                        '<div class="mask" path="' +  markerPath + '" name="' + image + '"></div>' +
+                    '<img class="markerIcon" src="' + markerPath + '/' + image + '"/>' +
+                    '<img class="markerIcon" src="' + markerPath + '/focus' + image + '"/>' +
+                    '<div class="mask" path="' +  markerPath + '" name="' + image + '"></div>' +
                         '</div>';
                     let $browserItem = $(ss);
                     $markerImages.append($browserItem);
@@ -755,7 +770,11 @@ $(document).ready(function () {
 
 
 
-
+    $("#newGroupBg").click(function() {
+        let text = $(this).text();
+        text = text === "是" ? "否":"是";
+        $(this).text(text);
+    })
 
 });
 
