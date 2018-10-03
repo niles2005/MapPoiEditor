@@ -101,8 +101,10 @@ public class POI {
 			if(!m_detailPath.exists()) {
 				m_detailPath.mkdir();
 			}
-			if(m_fileSum == null) {
-				removeOldFiles();
+			File destFile = new File(m_detailPath,m_key +".html");
+			
+			if(m_fileSum == null || !destFile.exists()) {
+//				removeOldFiles();
 
 
 				//重置imagesNum
@@ -116,7 +118,6 @@ public class POI {
 					ver++;
 				}
 				SimplifyHtml builder = new SimplifyHtml(strDetailUrl);
-				File destFile = new File(m_detailPath,m_key +".html");
 				m_imageFileList = builder.storeImages(m_detailPath,m_key);
 				m_fileSum = builder.store(destFile);
 				m_json.put("imagesNum", builder.getImagesNum());
@@ -127,7 +128,7 @@ public class POI {
 					String fileSum = builder.buildMD5Sum();
 					if(!m_fileSum.equals(fileSum)) {//重新执行校验不等，重新下载图片等数据
 						//删除老的文件及图片
-						removeOldFiles();
+//						removeOldFiles();
 
 						m_json.put("imagesNum", 0);
 						
@@ -138,7 +139,6 @@ public class POI {
 						} else {
 							ver++;
 						}
-						File destFile = new File(m_detailPath,m_key + ".html");
 						builder.store(destFile);
 						m_imageFileList = builder.storeImages(m_detailPath,m_key);
 						m_fileSum = fileSum;
@@ -153,27 +153,27 @@ public class POI {
 	}
 	
 	//更新版本前先删除老的html和图片
-	private void removeOldFiles() {
-		Integer ver = (Integer)m_json.get("updateVersion");
-		String verPart = "";
-		if(ver != null) {
-			verPart = "_" + ver;
-		}
-		
-		File oldFile = new File(m_detailPath,m_key + verPart +".html");
-		if(oldFile.exists()) {
-			oldFile.delete();
-		}
-		Integer imagesNum = m_json.getInteger("imagesNum");
-		if(imagesNum != null) {
-			for(int i=0;i<imagesNum;i++) {
-				File imageFile = new File(m_detailPath, m_key + verPart + "_" + i);
-				if(imageFile.exists()) {
-					imageFile.delete();
-				}
-			}
-		}
-	}
+//	private void removeOldFiles() {
+//		Integer ver = (Integer)m_json.get("updateVersion");
+//		String verPart = "";
+//		if(ver != null) {
+//			verPart = "_" + ver;
+//		}
+//		
+//		File oldFile = new File(m_detailPath,m_key + verPart +".html");
+//		if(oldFile.exists()) {
+//			oldFile.delete();
+//		}
+//		Integer imagesNum = m_json.getInteger("imagesNum");
+//		if(imagesNum != null) {
+//			for(int i=0;i<imagesNum;i++) {
+//				File imageFile = new File(m_detailPath, m_key + verPart + "_" + i);
+//				if(imageFile.exists()) {
+//					imageFile.delete();
+//				}
+//			}
+//		}
+//	}
 	
 	public Integer getImagesNum() {
 		return m_json.getInteger("imagesNum");

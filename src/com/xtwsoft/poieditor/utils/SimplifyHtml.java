@@ -177,8 +177,12 @@ public class SimplifyHtml {
 		try {
 			SimplifyHtml builder = new SimplifyHtml(
 					"https://mp.weixin.qq.com/s/vplqc8frSsrOP5nLkn6Zvw");
+			File path = new File("bak");
+			if(!path.exists()) {
+				path.mkdir();
+			}
 			String key = "tttttttttt";
-			File testPath = new File(key);
+			File testPath = new File(path,key);
 			testPath.mkdir();
 			builder.storeImages(testPath, key);
 			builder.store(new File(testPath, key + ".html"));
