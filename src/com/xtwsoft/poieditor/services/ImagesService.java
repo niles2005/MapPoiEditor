@@ -9,6 +9,9 @@ import com.xtwsoft.server.ServiceReturn;
 
 /**
  * 返回图片数组，JSONObject格式，含path，和图名列表
+ * /service?name=images&type=group
+ * /service?name=images&type=cover
+ * /service?name=images&type=marker
  * @author NieLei
  *
  */

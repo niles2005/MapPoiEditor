@@ -8,6 +8,7 @@ import com.xtwsoft.server.ServiceReturn;
 
 /**
  * 返回所有的POI数据，JSON格式
+ * /service?name=datas
  * @author NieLei
  *
  */
