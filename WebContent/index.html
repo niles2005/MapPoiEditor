@@ -10,6 +10,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="format-detection" content="telephone=no, email=no">
     <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/jquery.fileupload.css">
     <link type="text/css" href="current.css" rel="stylesheet" />
 </head>
 
@@ -125,137 +126,150 @@
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="introUrl" class="col-sm-2 col-form-label">类型</label>
-                            <div class="col-sm-10 table-responsive ">
-                                <table id="groupsTable" class="table table-hover" style="margin-bottom:0;">
-                                    <thead>
-                                        <tr>
-                                            <th scope="col">名称</th>
-                                            <th scope="col">背景图层</th>
-                                            <th scope="col">地图图标</th>
-                                            <th scope="col">缺省图片</th>
-                                            <th scope="col">配置</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                    </tbody>
-                                </table>
-                                <span>注：背景图层是不随tab切换，都会留在地图上显示图标的图层。</span>
+                            <label class="col-sm-2 col-form-label">简介Html</label>
+                            <div class="input-group col-sm-10" >
+                                <a id="introOpen" target="_blank" style="margin:0 10px;" class="btn btn-sm btn-primary btn-lg disabled" role="button" >打开简介Html</a>
+                                <a id="introDownload" download style="margin:0 10px;" class="btn btn-sm btn-primary btn-lg disabled" role="button">下载简介zip文件</a>
+                                <span style="margin:5px 10px;" class="btn btn-sm btn-primary fileinput-button">
+                                    <i class="glyphicon glyphicon-plus"></i>
+                                    <span>上传简介zip文件</span>
+                                    <input id="introUpload" type="file">
+                                </span>
                             </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="introUrl" class="col-sm-2 col-form-label">类型</label>
+                                <div class="col-sm-10 table-responsive ">
+                                    <table id="groupsTable" class="table table-hover" style="margin-bottom:0;">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">名称</th>
+                                                <th scope="col">背景图层</th>
+                                                <th scope="col">地图图标</th>
+                                                <th scope="col">缺省图片</th>
+                                                <th scope="col">配置</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        </tbody>
+                                    </table>
+                                    <span>注：背景图层是不随tab切换，都会留在地图上显示图标的图层。</span>
+                                </div>
 
-                            <div class="col-sm-12">
-                                <span class="col-sm-2" style="display: inline-block;"></span>
-                                <button type="button" id="moveUp" title="类型上移" class="btn btn-info">
-                                    <svg height="18" width="18" viewBox="-15 -15 330 330">
-                                        <path fill="#fff" stroke="transparent" stroke-width="10" d="m1.49805,149.64304l148.50121,-148.00241l148.50121,148.00241l-74.25061,0l0,148.71457l-148.5012,0l0,-148.71457z"></path>
-                                    </svg> </button>
-                                <button type="button" id="moveDown" title="类型下移" class="btn btn-info">
-                                    <svg height="18" width="18" transform="rotate(180)" viewBox="-15 -15 330 330">
-                                        <path fill="#fff" stroke="transparent" stroke-width="10" d="m1.49805,149.64304l148.50121,-148.00241l148.50121,148.00241l-74.25061,0l0,148.71457l-148.5012,0l0,-148.71457z"></path>
-                                    </svg> </button>
-                                </button>
-                                <button type="button" id="deletePoiGroup" title="删除类型" class="btn btn-danger">删除</button>
-                                <button type="button" id="newPoiGroup" data-toggle="modal" data-target="#newGroupModal"
-                                    title="新增类型" class="btn btn-info">新增</button>
+                                <div class="col-sm-12">
+                                    <span class="col-sm-2" style="display: inline-block;"></span>
+                                    <button type="button" id="moveUp" title="类型上移" class="btn btn-info">
+                                        <svg height="18" width="18" viewBox="-15 -15 330 330">
+                                            <path fill="#fff" stroke="transparent" stroke-width="10" d="m1.49805,149.64304l148.50121,-148.00241l148.50121,148.00241l-74.25061,0l0,148.71457l-148.5012,0l0,-148.71457z"></path>
+                                        </svg> </button>
+                                    <button type="button" id="moveDown" title="类型下移" class="btn btn-info">
+                                        <svg height="18" width="18" transform="rotate(180)" viewBox="-15 -15 330 330">
+                                            <path fill="#fff" stroke="transparent" stroke-width="10" d="m1.49805,149.64304l148.50121,-148.00241l148.50121,148.00241l-74.25061,0l0,148.71457l-148.5012,0l0,-148.71457z"></path>
+                                        </svg> </button>
+                                    </button>
+                                    <button type="button" id="deletePoiGroup" title="删除类型" class="btn btn-danger">删除</button>
+                                    <button type="button" id="newPoiGroup" data-toggle="modal" data-target="#newGroupModal"
+                                        title="新增类型" class="btn btn-info">新增</button>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
-                        <button type="button" id="configSave" class="btn btn-primary">保存</button>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
+                            <button type="button" id="configSave" class="btn btn-primary">保存</button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="modal fade" id="newGroupModal" tabindex="-1" role="dialog" aria-labelledby="newGroupModalLabel"
-            aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="newGroupModalLabel"></h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="form-group row">
-                            <label for="newGroupName" class="col-sm-2 col-form-label">类型名称</label>
-                            <div class="col-sm-10 input-group">
-                                <input type="text" class="form-control open-focus" id="newGroupName">
-                            </div>
+            <div class="modal fade" id="newGroupModal" tabindex="-1" role="dialog" aria-labelledby="newGroupModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="newGroupModalLabel"></h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
                         </div>
-                        <div class="form-group row">
-                            <label for="newGroupBG" class="col-sm-2 col-form-label">背景图层</label>
-                            <div class="col-sm-10 input-group">
-                                <button type="button" class="btn btn-sm btn-primary" id="newGroupBG">否</button>
-                                <span>注：背景图层是不随tab切换，都会留在地图上显示图标的图层。</span>
+                        <div class="modal-body">
+                            <div class="form-group row">
+                                <label for="newGroupName" class="col-sm-2 col-form-label">类型名称</label>
+                                <div class="col-sm-10 input-group">
+                                    <input type="text" class="form-control open-focus" id="newGroupName">
+                                </div>
                             </div>
-                        </div>
-                        <div class="form-group row">
-                            <label for="markerImageWidth" class="col-sm-2 col-form-label">地图显示图片宽高</label>
-                            <div class="col-sm-10 input-group">
-                                <input type="text" aria-label="First name" id="markerImageWidth" value="24" class="form-control">
-                                <input type="text" aria-label="Last name" id="markerImageHeight" value="35" class="form-control">
+                            <div class="form-group row">
+                                <label for="newGroupBG" class="col-sm-2 col-form-label">背景图层</label>
+                                <div class="col-sm-10 input-group">
+                                    <button type="button" class="btn btn-sm btn-primary" id="newGroupBG">否</button>
+                                    <span>注：背景图层是不随tab切换，都会留在地图上显示图标的图层。</span>
+                                </div>
                             </div>
-                        </div>
+                            <div class="form-group row">
+                                <label for="markerImageWidth" class="col-sm-2 col-form-label">地图显示图片宽高</label>
+                                <div class="col-sm-10 input-group">
+                                    <input type="text" aria-label="First name" id="markerImageWidth" value="24" class="form-control">
+                                    <input type="text" aria-label="Last name" id="markerImageHeight" value="35" class="form-control">
+                                </div>
+                            </div>
 
-                        <div class="form-group row">
-                            <label for="markerImages" class="col-sm-2 col-form-label">地图图标</label>
-                            <div class="input-group col-sm-10 mb-3">
-                                <div tabindex="-1" class="input-group-prepend browser open-scroll" id="markerImages">
+                            <div class="form-group row">
+                                <label for="markerImages" class="col-sm-2 col-form-label">地图图标</label>
+                                <div class="input-group col-sm-10 mb-3">
+                                    <div tabindex="-1" class="input-group-prepend browser open-scroll" id="markerImages">
+                                    </div>
                                 </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="pictureImages" class="col-sm-2 col-form-label">列表图片</label>
+                                <div class="input-group col-sm-10 mb-3">
+                                    <div tabindex="-1" class="input-group-prepend browser open-scroll" id="pictureImages">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                                <button type="button" class="btn btn-primary" id="groupSave">确定</button>
                             </div>
                         </div>
-                        <div class="form-group row">
-                            <label for="pictureImages" class="col-sm-2 col-form-label">列表图片</label>
-                            <div class="input-group col-sm-10 mb-3">
-                                <div tabindex="-1" class="input-group-prepend browser open-scroll" id="pictureImages">
-                                </div>
-                            </div>
+                    </div>
+                </div>
+
+            </div>
+
+
+
+
+
+
+            <div class="modal" id="confirmModal" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="confirmTitle">确认</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p id="confirmText"></p>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
-                            <button type="button" class="btn btn-primary" id="groupSave">确定</button>
+                            <button type="button" class="btn btn-primary open-focus" data-dismiss="modal">取消</button>
+                            <button type="button" id="deleteConfirmOK" class="btn btn-primary">确认</button>
                         </div>
                     </div>
                 </div>
             </div>
 
         </div>
-
-
-
-
-
-
-        <div class="modal" id="confirmModal" tabindex="-1" role="dialog">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="confirmTitle">确认</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <p id="confirmText"></p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary open-focus" data-dismiss="modal">取消</button>
-                        <button type="button" id="deleteConfirmOK" class="btn btn-primary">确认</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-    </div>
 </body>
 
 </html>
 <script src="lib/jquery-3.3.1.min.js"></script>
 <script src="lib/jquery.scrollintoview.min.js"></script>
-
+<script src="lib/jquery.ui.widget.js"></script>
+<script src="lib/jquery.fileupload.js"></script>
 <script src="lib/popper.min.js"></script>
 <script src="lib/bootstrap.min.js"></script>
 <script type="text/javascript" charset="utf-8" src="https://map.qq.com/api/js?v=2.exp"></script>

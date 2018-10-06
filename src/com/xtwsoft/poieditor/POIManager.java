@@ -109,9 +109,15 @@ public class POIManager extends TimerTask {
 
 	//客户端更新POI
 	public String updateApp(JSONObject json) {
-		m_dataJson.put("title", json.get("title"));
-		m_dataJson.put("name", json.get("name"));
-		m_dataJson.put("coverImage", json.get("coverImage"));
+		Iterator iters = json.keySet().iterator();
+		while(iters.hasNext()) {
+			String k = (String)iters.next();
+			if(k.startsWith("_") || k.equals("groups")) {//避开临时属性，比如_new,及groups
+			} else {
+				m_dataJson.put(k, json.get(k));
+			}
+		}
+		
 		JSONArray updateGroups = json.getJSONArray("groups");
 		for(int i=0;i<updateGroups.size();i++) {
 			JSONObject updateGroup = updateGroups.getJSONObject(i);

@@ -398,6 +398,17 @@ $(document).ready(function () {
     $("#pageConfig").click(function () {
         $("#appTitle").val(datas.title);
         $("#appName").val(datas.name);
+        if(datas.introPage) {
+            $('#introDownload').attr("href",datas.introPage + ".zip");
+            $('#introDownload').removeClass("disabled");
+            $('#introOpen').attr("href",datas.introPage);
+            $('#introOpen').removeClass("disabled");
+        } else {
+            $('#introDownload').removeAttr("href");
+            $('#introDownload').addClass("disabled");
+            $('#introOpen').removeAttr("href");
+            $('#introOpen').addClass("disabled");
+        }
 
         $("#groupsTable tbody").empty();
         for (let i = 0; i < datas.groups.length; i++) {
@@ -453,9 +464,14 @@ $(document).ready(function () {
             return true;
         }
 
+        $item = $("#introOpen");
+        let introPage = $item.attr("href");
+        
         datas.title = title;
         datas.name = name;
         datas.coverImage = coverImage;
+        datas.introPage = introPage;
+ 
     }
 
     function sortGroupsNav(newGroupsKeyArray) {
@@ -497,6 +513,7 @@ $(document).ready(function () {
             "title": datas.title,
             "name": datas.name,
             "coverImage": datas.coverImage,
+            "introPage": datas.introPage,
             "groups": updateGroupsArray
         }
 
@@ -595,7 +612,6 @@ $(document).ready(function () {
         if (!isBG && checkError($item, !pictureImage, "请选择列表图片！")) {
             return true;
         }
-
 
         if (configGroup) {//update
             configGroup.name = newGroupName;
@@ -807,6 +823,21 @@ $(document).ready(function () {
         let text = $(this).text();
         text = text === "是" ? "否" : "是";
         $(this).text(text);
+    })
+
+    $('#introUpload').fileupload({
+        url: "introUpload",
+        dataType: 'json',
+        done: function (e, data) {
+            if(data.result.retCode === 0 && data.result.data) {
+                $('#introDownload').attr("href",data.result.data.introPage + ".zip");
+                $('#introDownload').removeClass("disabled");
+                $('#introOpen').attr("href",data.result.data.introPage);
+                $('#introOpen').removeClass("disabled");
+            } 
+        },
+        progressall: function (e, data) {
+        }
     })
 
 });

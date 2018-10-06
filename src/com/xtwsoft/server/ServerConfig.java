@@ -11,6 +11,7 @@ public class ServerConfig {
 	private File m_WEBINFPath = null;
 	private File m_datasPath = null;
 	private File m_poisPath = null;
+	private File m_introPath = null;
 	
 	private ServerConfig(String appName,File appPath) {
 		if("/".equals(appName)) {
@@ -30,6 +31,11 @@ public class ServerConfig {
 			if(!m_poisPath.exists()) {
 				m_poisPath.mkdir();
 			}
+			
+			m_introPath = new File(appPath, "intro");
+			if(!m_introPath.exists()) {
+				m_introPath.mkdir();
+			}
 		} else {
 			System.err.println("WEB-INF path not found!");
 		}
@@ -37,10 +43,6 @@ public class ServerConfig {
 	
 	public File getWEBINFPath() {
 		return m_WEBINFPath;
-	}
-	
-	public File getPOISPath() {
-		return m_poisPath;
 	}
 	
 	public static ServerConfig getInstance() {
@@ -67,5 +69,13 @@ public class ServerConfig {
 		return m_appPath;
 	}
 
+	public File getPOISPath() {
+		return m_poisPath;
+	}
+	
+	public File getIntroPath() {
+		return m_introPath;
+	}
+	
 
 }
