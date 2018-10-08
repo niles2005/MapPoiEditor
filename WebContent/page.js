@@ -575,7 +575,7 @@ $(document).ready(function () {
     });
 
 
-    //新增类型
+    //类型新增或保存
     $("#groupSave").click(function () {
         let $item = $("#newGroupName");
         let newGroupName = $.trim($item.val());
@@ -634,9 +634,9 @@ $(document).ready(function () {
             let $tr = $("#groupsTable #" + configGroup.key);
             $tr.find(".groupName").text(configGroup.name)
             $tr.find(".groupBG").text(bgLabel)
-            $tr.find(">img.mapIcon").eq(0).attr("src", configGroup.markerPath + configGroup.markerImage)
-            $tr.find(">img.mapIcon").eq(1).attr("src", configGroup.markerPath + "focus" + configGroup.markerImage)
-            $tr.find(">img.listImage").attr("src", configGroup.picturePath + configGroup.pictureImage)
+            $tr.find("img.mapIcon").eq(0).attr("src", configGroup.markerPath + configGroup.markerImage)
+            $tr.find("img.mapIcon").eq(1).attr("src", configGroup.markerPath + "focus" + configGroup.markerImage)
+            $tr.find("img.listImage").attr("src", configGroup.picturePath + configGroup.pictureImage)
         } else {//new
             $.getJSON("service?name=createpoigroup&groupname=" + newGroupName + "&v=" + new Date().getTime(), function (ret) {
                 if (ret.retCode >= 0) {
