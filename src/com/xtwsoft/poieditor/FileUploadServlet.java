@@ -60,6 +60,28 @@ public class FileUploadServlet extends HttpServlet {
 			for (Part part : request.getParts()) {
 				String fileName = extractFileName(part);
 				if (fileName.length() > 0) {
+					if(!fileName.toLowerCase().endsWith(".zip")) {
+						ret.setError("上传文件仅支持zip文件！");
+						return ret;
+					}
+					
+					ZipInputStream zin = new ZipInputStream(part.getInputStream());
+					ZipEntry en;
+					boolean hasIndexHtml = false;
+					while ((en = zin.getNextEntry()) != null) {
+						if(en.isDirectory()) {
+						} else {
+							if(en.getName().equals("index.html")) {
+								hasIndexHtml = true;
+								break;
+							}
+						}
+					}
+					if(!hasIndexHtml) {
+						ret.setError("zip顶层目录不存在index.html文件！");
+						return ret;
+					}
+					
 					String guid = Guid.build16Guid();
 					int pos = fileName.lastIndexOf("\\");
 					if (pos != -1) {
@@ -73,7 +95,11 @@ public class FileUploadServlet extends HttpServlet {
 					if(!unZipPath.exists()) {
 						unZipPath.mkdir();
 					}
-					unZipFile(zipFile,unZipPath);
+					String error = unZipFile(zipFile,unZipPath);
+					if(error != null) {
+						ret.setError(error);
+						return  ret;
+					}
 					JSONObject retData = new JSONObject();
 					retData.put("introPage", introPath.getName() + "/" + guid);
 					ret.setSuccess(retData);
@@ -84,7 +110,7 @@ public class FileUploadServlet extends HttpServlet {
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			ret.setError("upload failed:" + e.getMessage());
+			ret.setError("上传错误:" + e.getMessage());
 		}
 		return ret;
 	}
@@ -102,7 +128,7 @@ public class FileUploadServlet extends HttpServlet {
 		return "";
 	}
 
-	private void unZipFile(File zipFile,File unzipPath) {
+	private String unZipFile(File zipFile,File unzipPath) {
 		try {
 			byte[] buffer = new byte[1024];
 			ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFile));
@@ -126,8 +152,10 @@ public class FileUploadServlet extends HttpServlet {
 			}
 			zis.closeEntry();
 			zis.close();
+			return null;
 		} catch (Exception ex) {
 			ex.printStackTrace();
+			return ex.getMessage();
 		}
 
 	}

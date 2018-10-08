@@ -398,10 +398,10 @@ $(document).ready(function () {
     $("#pageConfig").click(function () {
         $("#appTitle").val(datas.title);
         $("#appName").val(datas.name);
-        if(datas.introPage) {
-            $('#introDownload').attr("href",datas.introPage + ".zip");
+        if (datas.introPage) {
+            $('#introDownload').attr("href", datas.introPage + ".zip");
             $('#introDownload').removeClass("disabled");
-            $('#introOpen').attr("href",datas.introPage);
+            $('#introOpen').attr("href", datas.introPage);
             $('#introOpen').removeClass("disabled");
         } else {
             $('#introDownload').removeAttr("href");
@@ -466,12 +466,12 @@ $(document).ready(function () {
 
         $item = $("#introOpen");
         let introPage = $item.attr("href");
-        
+
         datas.title = title;
         datas.name = name;
         datas.coverImage = coverImage;
         datas.introPage = introPage;
- 
+
     }
 
     function sortGroupsNav(newGroupsKeyArray) {
@@ -829,12 +829,14 @@ $(document).ready(function () {
         url: "introUpload",
         dataType: 'json',
         done: function (e, data) {
-            if(data.result.retCode === 0 && data.result.data) {
-                $('#introDownload').attr("href",data.result.data.introPage + ".zip");
+            if (data.result.retCode === 0 && data.result.data) {
+                $('#introDownload').attr("href", data.result.data.introPage + ".zip");
                 $('#introDownload').removeClass("disabled");
-                $('#introOpen').attr("href",data.result.data.introPage);
+                $('#introOpen').attr("href", data.result.data.introPage);
                 $('#introOpen').removeClass("disabled");
-            } 
+            } else if (data.result.retCode < 0 && data.result.message) {
+                alert(data.result.message)
+            }
         },
         progressall: function (e, data) {
         }
