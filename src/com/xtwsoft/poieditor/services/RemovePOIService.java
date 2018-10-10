@@ -19,6 +19,10 @@ public class RemovePOIService extends Service {
 	public void work(ServiceReturn ret,HttpServletRequest request) {
 		String key = request.getParameter("key");
 		boolean success = POIManager.getInstance().removePOI(key);
-		ret.setSuccess("remove POI(" + key + ") " + (success? " success": "failed"));
+		if(success) {
+			ret.setSuccess("remove POI(" + key + ") " + (success? " success": "failed"));
+		} else {
+			ret.setError("POI(" + key + ") is not exist!");
+		}
 	}
 }

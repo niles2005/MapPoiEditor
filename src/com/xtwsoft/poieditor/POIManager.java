@@ -172,8 +172,9 @@ public class POIManager extends TimerTask {
 		if (poi != null) {
 			poi.remove();
 			m_isChange = true;
+			return true;
 		}
-		return true;
+		return false;
 	}
 
 	//客户端创建POI
