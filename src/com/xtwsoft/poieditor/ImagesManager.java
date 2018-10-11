@@ -1,6 +1,7 @@
 package com.xtwsoft.poieditor;
 
 import java.io.File;
+import java.util.Hashtable;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -8,6 +9,8 @@ import com.xtwsoft.server.ServerConfig;
 
 public class ImagesManager {
 	private static ImagesManager m_instance = null;
+	
+	private Hashtable<String,JSONObject> m_imageHash = new Hashtable<String,JSONObject>();
 	//封面
 	private JSONObject m_cover = new JSONObject();
 	private JSONArray m_coverImages = new JSONArray();
@@ -59,8 +62,36 @@ public class ImagesManager {
 
 		File picturePath = new File(imagesPath,"picture");
 		initImagePath(picturePath,m_pictureImages);
+		
+		this.initImageObject("introduction",true);
 	}
 	
+	private void initImageObject(String pathName,boolean makePath) {
+		File imagesPath = new File(ServerConfig.getInstance().getImagesPath(),pathName);
+		if(makePath) {
+			if(!imagesPath.exists()) {
+				imagesPath.mkdir();
+			}
+		}
+		if(imagesPath.isDirectory() && imagesPath.getParentFile().equals(ServerConfig.getInstance().getImagesPath())) {
+			JSONObject imageObj = m_imageHash.get(pathName);
+			if(imageObj == null) {
+				imageObj = new JSONObject();
+				m_imageHash.put(pathName,imageObj);
+				imageObj.put("path", "images/" + pathName + "/");
+			}
+			
+			JSONArray images = new JSONArray();
+			File[] files = imagesPath.listFiles();
+			for(int i=0;i<files.length;i++) {
+				File file = files[i];
+				if(file.isFile()) {
+					images.add(file.getName());
+				}
+			}
+			imageObj.put("images", images);
+		}
+	}
 	
 	private void initImagePath(File path,JSONArray imageArray) {
 		if(path.isDirectory() && path.exists()) {
@@ -92,7 +123,16 @@ public class ImagesManager {
 		}
 	}
 	
+	public JSONObject resetImagePath(String pathName) {
+		initImageObject(pathName,false);
+		return m_imageHash.get(pathName);
+	}
+	
 	public JSONObject getImages(String name) {
+		JSONObject imageObj = m_imageHash.get(name);
+		if(imageObj != null) {
+			return imageObj;
+		}
 		if("marker".equals(name)) {
 			return this.m_marker;
 		} else if("picture".equals(name)) {

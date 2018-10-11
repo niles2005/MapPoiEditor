@@ -429,13 +429,13 @@ $(document).ready(function () {
             })
             $tableRow.find("button").click(function () {
                 configGroup = poiGroup;
-                $("#newGroupModalLabel").text("更新地图类型");
-                $("#newGroupName").val(poiGroup.name);
-                $("#newGroupBG").text(groupCheck);
+                $("#groupModalLabel").text("更新地图类型");
+                $("#groupName").val(poiGroup.name);
+                $("#groupBG").text(groupCheck);
                 $("#markerImageWidth").val(poiGroup.markerImageWidth);
                 $("#markerImageHeight").val(poiGroup.markerImageHeight);
                 loadPOIGroupConfigImages(poiGroup.markerImage, poiGroup.pictureImage);
-                $("#newGroupModal").modal({ "backdrop": "static", "focus": true });
+                $("#groupModal").modal({ "backdrop": "static", "focus": true });
             });
         }
         if (currentGroup) {
@@ -443,7 +443,7 @@ $(document).ready(function () {
         }
         loadCoverImages(datas.coverImage)
 
-        $('#configModal').modal({ "backdrop": "static", "focus": true });
+        $('#appModal').modal({ "backdrop": "static", "focus": true });
     });
 
     function storeAppInfo() {
@@ -474,10 +474,10 @@ $(document).ready(function () {
 
     }
 
-    function sortGroupsNav(newGroupsKeyArray) {
+    function sortGroupsNav(groupsKeyArray) {
         let groups = datas.groups;
         groups.sort(function (a, b) {
-            return newGroupsKeyArray.indexOf(a.key) - newGroupsKeyArray.indexOf(b.key);
+            return groupsKeyArray.indexOf(a.key) - groupsKeyArray.indexOf(b.key);
         });
         buildGroups();
     }
@@ -534,14 +534,14 @@ $(document).ready(function () {
                             datas.groups.splice(i, 1);
                         }
                     }
-                    let newGroupsKeyArray = [];
+                    let groupsKeyArray = [];
                     let jRows = $("#groupsTable tbody").find(">tr");
                     for (let i = 0; i < jRows.length; i++) {
                         if (!jRows.eq(i).hasClass("deleted")) {
-                            newGroupsKeyArray.push(jRows.eq(i).attr("id"));
+                            groupsKeyArray.push(jRows.eq(i).attr("id"));
                         }
                     }
-                    sortGroupsNav(newGroupsKeyArray);
+                    sortGroupsNav(groupsKeyArray);
                     selectDefaultGroup();
                     callback();
                 } else {
@@ -557,7 +557,7 @@ $(document).ready(function () {
         let hasErr = storeAppInfo();
         if (!hasErr) {
             saveAppInfo(function () {
-                $('#configModal').modal('hide');
+                $('#appModal').modal('hide');
             });
         }
 
@@ -577,9 +577,9 @@ $(document).ready(function () {
 
     //类型新增或保存
     $("#groupSave").click(function () {
-        let $item = $("#newGroupName");
-        let newGroupName = $.trim($item.val());
-        if (checkError($item, !newGroupName, "类型名称不能为空！")) {
+        let $item = $("#groupName");
+        let groupName = $.trim($item.val());
+        if (checkError($item, !groupName, "类型名称不能为空！")) {
             return true;
         }
 
@@ -602,7 +602,7 @@ $(document).ready(function () {
             return true;
         }
 
-        $item = $("#newGroupBG");
+        $item = $("#groupBG");
         let bgLabel = $.trim($item.text());
         let isBG = bgLabel === "是";
 
@@ -614,7 +614,7 @@ $(document).ready(function () {
         }
 
         if (configGroup) {//update
-            configGroup.name = newGroupName;
+            configGroup.name = groupName;
             configGroup.isBG = bgLabel === "是";
             configGroup.markerPath = markerPath;
             configGroup.markerImage = markerImage;
@@ -623,11 +623,11 @@ $(document).ready(function () {
             configGroup.picturePath = picturePath;
             configGroup.pictureImage = pictureImage;
 
-            $('#newGroupModal').modal('hide');
-            $("#newGroupName").val("");
+            $('#groupModal').modal('hide');
+            $("#groupName").val("");
             $("#markerImageWidth").val("");
             $("#markerImageHeight").val("");
-            $("#newGroupBG").text("否");
+            $("#groupBG").text("否");
             $("#markerImages").empty();
             $("#pictureImages").empty();
 
@@ -638,25 +638,25 @@ $(document).ready(function () {
             $tr.find("img.mapIcon").eq(1).attr("src", configGroup.markerPath + "focus" + configGroup.markerImage)
             $tr.find("img.listImage").attr("src", configGroup.picturePath + configGroup.pictureImage)
         } else {//new
-            $.getJSON("service?name=createpoigroup&groupname=" + newGroupName + "&v=" + new Date().getTime(), function (ret) {
+            $.getJSON("service?name=createpoigroup&groupname=" + groupName + "&v=" + new Date().getTime(), function (ret) {
                 if (ret.retCode >= 0) {
-                    let newGroup = ret.data;
-                    newGroup.pois = [];
-                    newGroup._create = true;
-                    newGroup.isBG = bgLabel === "是";
-                    newGroup.markerPath = markerPath;
-                    newGroup.markerImage = markerImage;
-                    newGroup.markerImageWidth = markerImageWidth;
-                    newGroup.markerImageHeight = markerImageHeight;
-                    newGroup.picturePath = picturePath;
-                    newGroup.pictureImage = pictureImage;
-                    datas.groups.push(newGroup);
-                    let row = "<tr id=" + newGroup.key + " style='color:red;'>" +
-                        "<td class='groupName'>" + newGroup.name + "</td>" +
+                    let group = ret.data;
+                    group.pois = [];
+                    group._create = true;
+                    group.isBG = bgLabel === "是";
+                    group.markerPath = markerPath;
+                    group.markerImage = markerImage;
+                    group.markerImageWidth = markerImageWidth;
+                    group.markerImageHeight = markerImageHeight;
+                    group.picturePath = picturePath;
+                    group.pictureImage = pictureImage;
+                    datas.groups.push(group);
+                    let row = "<tr id=" + group.key + " style='color:red;'>" +
+                        "<td class='groupName'>" + group.name + "</td>" +
                         "<td class='groupBG'>" + bgLabel + "</td>" +
-                        "<td><img class='mapIcon' src='" + newGroup.markerPath + newGroup.markerImage + "'>" +
-                        "<img class='mapIcon' src='" + newGroup.markerPath + "focus" + newGroup.markerImage + "'></td>" +
-                        "<td><img class='listImage' src='" + newGroup.picturePath + newGroup.pictureImage + "'></td>" +
+                        "<td><img class='mapIcon' src='" + group.markerPath + group.markerImage + "'>" +
+                        "<img class='mapIcon' src='" + group.markerPath + "focus" + group.markerImage + "'></td>" +
+                        "<td><img class='listImage' src='" + group.picturePath + group.pictureImage + "'></td>" +
                         "<td><button class='btn btn-sm btn-outline-info'>配置</button></td>" +
                         "</tr>";
                     let $tableRow = $(row);
@@ -665,21 +665,21 @@ $(document).ready(function () {
                         $tableRow.addClass("table-success").siblings().removeClass("table-success")
                     })
                     $tableRow.find("button").click(function () {
-                        configGroup = newGroup;
+                        configGroup = group;
 
-                        $("#newGroupModalLabel").text("更新地图类型");
-                        $("#newGroupName").val(newGroup.name);
-                        $("#newGroupBG").text(bgLabel);
-                        $("#markerImageWidth").val(newGroup.markerImageWidth);
-                        $("#markerImageHeight").val(newGroup.markerImageHeight);
+                        $("#groupModalLabel").text("更新地图类型");
+                        $("#groupName").val(group.name);
+                        $("#groupBG").text(bgLabel);
+                        $("#markerImageWidth").val(group.markerImageWidth);
+                        $("#markerImageHeight").val(group.markerImageHeight);
 
-                        loadPOIGroupConfigImages(newGroup.markerImage, newGroup.pictureImage);
-                        $("#newGroupModal").modal({ "backdrop": "static", "focus": true });
+                        loadPOIGroupConfigImages(group.markerImage, group.pictureImage);
+                        $("#groupModal").modal({ "backdrop": "static", "focus": true });
                     });
 
-                    $('#newGroupModal').modal('hide');
-                    $("#newGroupName").val("");
-                    $("#newGroupBG").text("否");
+                    $('#groupModal').modal('hide');
+                    $("#groupName").val("");
+                    $("#groupBG").text("否");
                     $("#markerImages").empty();
                     $("#pictureImages").empty();
                 }
@@ -704,9 +704,9 @@ $(document).ready(function () {
 
     $("#newPoiGroup").click(function () {
         configGroup = null;
-        $("#newGroupModalLabel").text("新增地图类型");
-        $("#newGroupName").val("");
-        $("#newGroupGg").text("否");
+        $("#groupModalLabel").text("新增地图类型");
+        $("#groupName").val("");
+        $("#groupGg").text("否");
         $("#markerImageWidth").val("24");
         $("#markerImageHeight").val("35");
         loadPOIGroupConfigImages();
@@ -819,7 +819,7 @@ $(document).ready(function () {
 
 
 
-    $("#newGroupBG").click(function () {
+    $("#groupBG").click(function () {
         let text = $(this).text();
         text = text === "是" ? "否" : "是";
         $(this).text(text);
@@ -841,6 +841,24 @@ $(document).ready(function () {
         progressall: function (e, data) {
         }
     })
+
+    $('.fileUpload').each(function(index) {
+        let $upload = $('.fileUpload').eq(index);
+        let path = $upload.attr("path");
+        $upload.fileupload({
+            url: "upload?name=image&path=" + path,
+            dataType: 'json',
+            done: function (e, data) {
+                if (data.result.retCode === 0 && data.result.data) {
+                    console.dir(data)
+                } else if (data.result.retCode < 0 && data.result.message) {
+                    alert(data.result.message)
+                }
+            },
+            progressall: function (e, data) {
+            }
+        })
+    }); 
 
 });
 

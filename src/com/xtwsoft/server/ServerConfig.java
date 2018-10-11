@@ -12,6 +12,7 @@ public class ServerConfig {
 	private File m_datasPath = null;
 	private File m_poisPath = null;
 	private File m_introPath = null;
+	private File m_imagesPath = null;
 	
 	private ServerConfig(String appName,File appPath) {
 		if("/".equals(appName)) {
@@ -30,6 +31,11 @@ public class ServerConfig {
 			m_poisPath = new File(appPath, "p");
 			if(!m_poisPath.exists()) {
 				m_poisPath.mkdir();
+			}
+			
+			m_imagesPath = new File(appPath, "images");
+			if(!m_imagesPath.exists()) {
+				m_imagesPath.mkdir();
 			}
 			
 			m_introPath = new File(appPath, "intro");
@@ -75,6 +81,10 @@ public class ServerConfig {
 	
 	public File getIntroPath() {
 		return m_introPath;
+	}
+	
+	public File getImagesPath() {
+		return m_imagesPath;
 	}
 	
 
