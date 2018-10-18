@@ -31,13 +31,10 @@ public class UpdateDetailService extends Service {
 					ret.setError(err);
 				} else {//success
 					POI poi = POIManager.getInstance().getPOI(json.getString("key"));
-					Integer num = poi.getImagesNum();
-					if(num != null) {
-						JSONObject data = new JSONObject();
-						data.put("imagesNum", num);
-						data.put("updateVersion", poi.getUpdateVersion());
-						ret.setSuccess(data);
-					}
+					JSONObject data = new JSONObject();
+					data.put("updateVersion", poi.getJson().getString("updateVersion"));
+					data.put("detailJson", poi.getJson().getString("detailJson"));
+					ret.setSuccess(data);
 				}
 			}
 		} catch(Exception ex) {

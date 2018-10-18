@@ -118,6 +118,21 @@ public class MD5Sum {
 		}
 	}
 
+	public static String getByteArrayMD5Sum(byte[] byteArray,int len) {
+		try {
+			if (md == null)
+				md = MessageDigest.getInstance("MD5");
+
+			md.reset();
+			md.update(byteArray, 0, len);
+
+			return md5Sum();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
 	// 取32位MD5的中间8-24位
 	public static String encode16MD5(String str) {
 		String text = encode32MD5(str);

@@ -31,12 +31,7 @@ public class UpdatePOIService extends Service {
 					ret.setError(err);
 				} else {//success
 					POI poi = POIManager.getInstance().getPOI(json.getString("key"));
-					Integer num = poi.getImagesNum();
-					if(num != null) {
-						JSONObject data = new JSONObject();
-						data.put("imagesNum", num);
-						ret.setSuccess(data);
-					}
+					ret.setSuccess(poi.getJson());
 				}
 			}
 		} catch(Exception ex) {

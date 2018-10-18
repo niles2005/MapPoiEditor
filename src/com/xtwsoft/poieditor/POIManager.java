@@ -28,7 +28,7 @@ public class POIManager extends TimerTask {
 	private static POIManager m_instance = null;
 	private File m_dataJsonFile = null;
 	
-	private JSONObject m_dataJson = null;
+	private JSONObject m_appJson = null;
 	
 	private Hashtable<String, POIGroup> m_poiGroupHash = new Hashtable<String, POIGroup>();
 
@@ -53,31 +53,31 @@ public class POIManager extends TimerTask {
 
 	private void init() {
 		m_dataJsonFile = new File(ServerConfig.getInstance().getDatasPath(),
-				"datas.json");
+				"app.json");
 		try {
 			if (m_dataJsonFile.exists() && m_dataJsonFile.isFile()) {
 				JSON theJson = Utils.loadJSON(m_dataJsonFile);
 				if (theJson instanceof JSONObject) {
-					m_dataJson = (JSONObject) theJson;
+					m_appJson = (JSONObject) theJson;
 				}
 
-				if (m_dataJson == null) {// 格式不对，重写
+				if (m_appJson == null) {// 格式不对，重写
 					JSONObject json = new JSONObject();
 					json.put("groups", new JSONArray());
 					Utils.writeJSON(json, m_dataJsonFile);
-					m_dataJson = json;
+					m_appJson = json;
 				}
 			} else {
 				JSONObject json = new JSONObject();
 				json.put("groups", new JSONArray());
 				Utils.writeJSON(json, m_dataJsonFile);
-				m_dataJson = json;
+				m_appJson = json;
 			}
-			if (m_dataJson != null) {
-				JSONArray groupArray = m_dataJson.getJSONArray("groups");
+			if (m_appJson != null) {
+				JSONArray groupArray = m_appJson.getJSONArray("groups");
 				if(groupArray == null) {
 					groupArray = new JSONArray();
-					m_dataJson.put("groups", groupArray);
+					m_appJson.put("groups", groupArray);
 				} else {
 					for(int i=0;i<groupArray.size();i++) {
 						JSONObject groupJson = groupArray.getJSONObject(i);
@@ -92,8 +92,8 @@ public class POIManager extends TimerTask {
 		}
 	}
 
-	public JSONObject getDatas() {
-		return m_dataJson;
+	public JSONObject getAppJson() {
+		return m_appJson;
 	}
 	
 	public POI getPOI(String key) {
@@ -102,7 +102,7 @@ public class POIManager extends TimerTask {
 	
 	public void removePOIGroup(POIGroup poiGroup) {
 		if(poiGroup != null) {
-			m_dataJson.getJSONArray("groups").remove(poiGroup.getJson());
+			m_appJson.getJSONArray("groups").remove(poiGroup.getJson());
 			m_poiGroupHash.remove(poiGroup);
 		}
 	}
@@ -114,7 +114,7 @@ public class POIManager extends TimerTask {
 			String k = (String)iters.next();
 			if(k.startsWith("_") || k.equals("groups")) {//避开临时属性，比如_new,及groups
 			} else {
-				m_dataJson.put(k, json.get(k));
+				m_appJson.put(k, json.get(k));
 			}
 		}
 		
@@ -129,7 +129,7 @@ public class POIManager extends TimerTask {
 				}
 			}
 		}
-		this.m_dataJson.getJSONArray("groups").sort(new POIGroupComparator(updateGroups));
+		this.m_appJson.getJSONArray("groups").sort(new POIGroupComparator(updateGroups));
 		m_isChange = true;
 		return null;
 	}
@@ -203,13 +203,31 @@ public class POIManager extends TimerTask {
 			m_poiHash.put(poi.getKey(), poi);
 		}
 	}
+	
+	public JSONObject buildAllPoiDetails() {
+		Iterator iters = this.m_poiHash.values().iterator();
+		int successCount = 0;
+		int failedCount = 0;
+		while(iters.hasNext()) {
+			POI poi = (POI)iters.next();
+			if(poi.buildDetail(false)) {
+				successCount++;
+			} else {
+				failedCount++;
+			}
+		}
+		JSONObject ret = new JSONObject();
+		ret.put("successCount", successCount);
+		ret.put("failedCount", failedCount);
+		return ret;
+	}
 
 	//避免无更新的存盘，保留上次存盘的checkSum
 	private String m_storeDataSum = null;
 	public void saveDatasToFile() {
 		try {
-			if (m_dataJson != null) {
-				String str = m_dataJson.toJSONString();
+			if (m_appJson != null) {
+				String str = m_appJson.toJSONString();
 				String sum = MD5Sum.encode32MD5(str);
 				//避免每次重复存盘，先做checkSum比较。
 				if(!sum.equals(m_storeDataSum)) {

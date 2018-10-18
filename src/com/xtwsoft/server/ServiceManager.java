@@ -9,6 +9,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.xtwsoft.poieditor.services.BuildAllDetailsService;
 import com.xtwsoft.poieditor.services.CreatePOIGroupService;
 import com.xtwsoft.poieditor.services.CreatePOIService;
 import com.xtwsoft.poieditor.services.DatasService;
@@ -119,7 +120,7 @@ public class ServiceManager {
 		serviceManager.addService(new SaveAllService());
 		serviceManager.addService(new UpdateDetailService());
 		serviceManager.addService(new UpdateAppService());
-		
+		serviceManager.addService(new BuildAllDetailsService());
 		serviceManager.addService(new ImagesService());
 	}
 	

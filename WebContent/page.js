@@ -179,11 +179,12 @@ $(document).ready(function () {
         $("#poiName").val(poi.name);
         $("#poiAddress").val(poi.address);
         $("#poiDetailUrl").val(poi.detailUrl);
+        $("#poiDetailJson").val(poi.detailJson);
         if (poi.latitude && poi.longitude) {
             $("#poiLatitude").val(poi.latitude);
             $("#poiLongitude").val(poi.longitude);
         }
-        updatePOIImagesNum(poi);
+        updatePOIImages(poi);
     }
 
     function clearCurrentGroupMarkers() {
@@ -197,25 +198,42 @@ $(document).ready(function () {
         }
     }
 
-    function updatePOIImagesNum(poi, forceReload) {
+    function updatePOIImages(poi, forceReload) {
         $("#poiImages").empty();
-        if (poi.imagesNum) {
-            let ver = poi.updateVersion || "";
-            for (let i = 0; i < poi.imagesNum; i++) {
-                let ss = '<div class="browser-item">' +
-                    '<img src="p/' + poi.key + '/' + poi.key + '_' + i + '?v=' + ver + '"/>' +
-                    '<div class="mask" imageIndex="' + i + '"></div>' +
-                    '</div>';
-                let $browserItem = $(ss);
-                if (poi.imageIndex == i) {
-                    $browserItem.find(".mask").addClass("selected");
-                }
-                $("#poiImages").append($browserItem);
-                $browserItem.click(function () {
-                    $("#poiImages").find(".mask.selected").removeClass("selected");
-                    $browserItem.find(".mask").addClass("selected");
-                });
-            }
+		 let ss = '<div class="browser-item">' +
+			 '<span style="width: 100px;display: block;text-align: center;line-height: 60px;vertical-align: middle;">缺省图片</span>' +
+			 '<div class="mask" thumbnail=""></div>' +
+			 '</div>';
+		 let $browserItem = $(ss);
+		 if (!poi.thumbnail) {
+			 $browserItem.find(".mask").addClass("selected");
+		 }
+		 $("#poiImages").append($browserItem);
+		 $browserItem.click(function () {
+			 $("#poiImages").find(".mask.selected").removeClass("selected");
+			 $browserItem.find(".mask").addClass("selected");
+		 });
+		
+        if (poi.detailJson) {
+            $.getJSON(poi.detailPath + poi.detailJson,function(data) {
+				if(data.images) {
+					 for (let item of data.images) {
+						 let ss = '<div class="browser-item">' +
+							 '<img src="' + poi.detailPath + item + '"/>' +
+							 '<div class="mask" thumbnail="' + item + '"></div>' +
+							 '</div>';
+						 let $browserItem = $(ss);
+						 if (poi.thumbnail == "thumbnail" +item) {
+							 $browserItem.find(".mask").addClass("selected");
+						 }
+						 $("#poiImages").append($browserItem);
+						 $browserItem.click(function () {
+							 $("#poiImages").find(".mask.selected").removeClass("selected");
+							 $browserItem.find(".mask").addClass("selected");
+						 });
+					 }
+				}
+            });
         }
     }
 
@@ -247,13 +265,16 @@ $(document).ready(function () {
 
         let poiDetailUrl = $.trim($("#poiDetailUrl").val());
 
-        let imageIndex = $("#poiImages").find(".mask.selected").attr("imageIndex");
+        let thumbnail = $("#poiImages").find(".mask.selected").attr("thumbnail");
         currentPoi.name = name;
         currentPoi.address = address;
         currentPoi.latitude = lat;
         currentPoi.longitude = lon;
         currentPoi.detailUrl = poiDetailUrl;
-        currentPoi.imageIndex = imageIndex;
+		if(thumbnail) {
+			thumbnail = "thumbnail" + thumbnail;
+		}
+        currentPoi.thumbnail = thumbnail;
 
         currentMarker.setTitle(name);
 
@@ -343,7 +364,7 @@ $(document).ready(function () {
                     if (ret.data && ret.data.imagesNum) {
                         currentPoi.imagesNum = ret.data.imagesNum;
                         currentPoi.updateVersion = ret.data.updateVersion;
-                        updatePOIImagesNum(currentPoi);
+                        updatePOIImages(currentPoi);
                     }
                     //加载images
                 } else {

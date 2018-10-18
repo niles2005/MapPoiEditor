@@ -18,8 +18,8 @@ public class POIGroup {
 	
 	public POIGroup(String name) {
 		JSONObject json = new JSONObject();
-		//为区分POI的key，group加T前缀
-		m_key = "T" + Guid.build16Guid();
+		//为区分POI的key，group加G前缀
+		m_key = "G" + Guid.build16Guid();
 		json.put("key", m_key);
 		json.put("name", name);
 		
@@ -36,8 +36,8 @@ public class POIGroup {
 		m_groupJson = groupJson;
 		m_key = m_groupJson.getString("key");
 		if(m_key == null) {
-			//为区分POI的key，Group加T前缀
-			m_key = "T" + Guid.build16Guid();
+			//为区分POI的key，Group加G前缀
+			m_key = "G" + Guid.build16Guid();
 			m_groupJson.put("key", m_key);
 		}
 		m_poisArray = m_groupJson.getJSONArray("pois");
@@ -78,7 +78,7 @@ public class POIGroup {
 			POIManager.getInstance().removePOIGroup(this);
 		} else {
 			if(this.m_isNew) {
-				JSONArray groups = POIManager.getInstance().getDatas().getJSONArray("groups");
+				JSONArray groups = POIManager.getInstance().getAppJson().getJSONArray("groups");
 				groups.add(this.getJson());
 				m_isNew = false;
 			}

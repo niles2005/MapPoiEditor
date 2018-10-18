@@ -24,26 +24,26 @@ public class ServerConfig {
 
 		m_WEBINFPath = new File(appPath, "WEB-INF");
 		if (m_WEBINFPath.exists()) {
-			m_datasPath = new File(m_WEBINFPath, "datas");
-			if(!m_datasPath.exists()) {
-				m_datasPath.mkdir();
-			}
-			m_poisPath = new File(appPath, "p");
-			if(!m_poisPath.exists()) {
-				m_poisPath.mkdir();
-			}
-			
-			m_imagesPath = new File(appPath, "images");
-			if(!m_imagesPath.exists()) {
-				m_imagesPath.mkdir();
-			}
-			
-			m_introPath = new File(appPath, "intro");
-			if(!m_introPath.exists()) {
-				m_introPath.mkdir();
-			}
 		} else {
 			System.err.println("WEB-INF path not found!");
+		}
+		
+		m_datasPath = new File(appPath, "datas");
+		if(!m_datasPath.exists()) {
+			m_datasPath.mkdir();
+		}
+		m_poisPath = new File(m_datasPath, "p");
+		if(!m_poisPath.exists()) {
+			m_poisPath.mkdir();
+		}
+		m_imagesPath = new File(appPath, "images");
+		if(!m_imagesPath.exists()) {
+			m_imagesPath.mkdir();
+		}
+		
+		m_introPath = new File(m_datasPath, "intro");
+		if(!m_introPath.exists()) {
+			m_introPath.mkdir();
 		}
 	}
 	

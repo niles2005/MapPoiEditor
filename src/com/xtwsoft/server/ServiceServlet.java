@@ -53,7 +53,6 @@ public class ServiceServlet extends HttpServlet {
 	public void doPage(HttpServletRequest request, HttpServletResponse response)throws IOException, ServletException {
 		request.setCharacterEncoding("UTF-8");
 		response.setContentType("text/html; charset=UTF-8");
-		
 		ServiceManager.getInstance().doService(request, response);
 	}
 

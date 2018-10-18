@@ -18,6 +18,6 @@ public class DatasService extends Service {
 	}
 	
 	public void work(ServiceReturn ret,HttpServletRequest request) {
-		ret.setSuccess(POIManager.getInstance().getDatas());
+		ret.setSuccess(POIManager.getInstance().getAppJson());
 	}
 }

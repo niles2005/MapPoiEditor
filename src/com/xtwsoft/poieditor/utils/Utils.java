@@ -1,5 +1,9 @@
 package com.xtwsoft.poieditor.utils;
 
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -7,6 +11,9 @@ import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.net.URL;
+
+import javax.imageio.ImageIO;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -45,4 +52,54 @@ public class Utils {
 		}
 		return null;
 	}
+	
+	//图片缩减，返回缩减后图片名。
+	public static void doThumbnail(File imageFile,File destFile) {
+		try {
+			String imageName = imageFile.getName();
+			//ImageIO 处理不了webp格式，同时webp格式压缩率比较大，不需要再压缩，所以返回原文件。
+			if(imageName.toLowerCase().endsWith(".webp")) {
+				try {
+					BufferedInputStream bis = new BufferedInputStream(new FileInputStream(imageFile));
+					
+					byte[] buff = new byte[4096];
+					BufferedOutputStream bos = new BufferedOutputStream(
+							new FileOutputStream(destFile));
+					int num = bis.read(buff);
+					while (num > 0) {
+						bos.write(buff,0,num);
+						num = bis.read(buff);
+					}
+					bos.flush();
+					bos.close();
+				} catch (Exception ex) {
+					ex.printStackTrace();
+				}
+				return;
+			}
+			double ratio = 0.0;
+			BufferedImage buffImage = ImageIO.read(imageFile);
+			
+			double ratioHeight = 100.0 / buffImage.getHeight();
+			double ratioWhidth = 100.0 / buffImage.getWidth();
+			if (ratioHeight > ratioWhidth) {
+				ratio = ratioHeight;
+			} else {
+				ratio = ratioWhidth;
+			}
+			
+			int w = (int)(buffImage.getWidth() * ratio + 0.5);
+			int h = (int)(buffImage.getHeight() * ratio + 0.5);
+			
+			BufferedImage image = new BufferedImage(w, h,
+					BufferedImage.TYPE_INT_RGB);
+			Graphics2D g = image.createGraphics();
+			g.drawImage(buffImage, 0, 0, w, h, null);
+			g.dispose();
+			ImageIO.write((BufferedImage) image, "png", destFile);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+	
 }
