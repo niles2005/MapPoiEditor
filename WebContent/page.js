@@ -744,12 +744,12 @@ $(document).ready(function () {
                 let images = ret.data.images;
                 for (let image of images) {
                     let ss = '<div class="browser-item">' +
-                        '<img src="' + path + '/' + image + '"/>' +
-                        '<div class="mask" name="' + image + '"></div>' +
+                        '<img src="' + path + image + '"/>' +
+                        '<div class="mask" name="' + path + image + '"></div>' +
                         '</div>';
                     let $browserItem = $(ss);
                     $coverImages.append($browserItem);
-                    if (image == imageName) {
+                    if ((path + image) == imageName) {
                         $browserItem.find(".mask").addClass("selected");
                     }
 
