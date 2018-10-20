@@ -425,9 +425,14 @@ $(document).ready(function () {
 
     //==========================  app config start ========================
 
+    $("#introEdit").click(function() {
+        window.open("infoedit/index.html?path=datas/intro/");
+    });
+
     $("#pageConfig").click(function () {
         $("#appTitle").val(datas.title);
         $("#appName").val(datas.name);
+        $("#introPage").val(datas.introPage);
         if (datas.introPage) {
             $('#introDownload').attr("href", datas.introPage + ".zip");
             $('#introDownload').removeClass("disabled");
