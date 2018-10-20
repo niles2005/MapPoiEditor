@@ -28,27 +28,23 @@
 		}
         
 		let self = this;
-		$('.fileUpload').each(function(index) {
-			let $upload = $('.fileUpload').eq(index);
-			let path = $upload.attr("path");
-			$upload.fileupload({
-				url: "../upload?name=image&path=../" + self._path,
-				dataType: 'json',
-				done: function (e, data) {
-					if (data.result.retCode === 0) {
-						let image = null;
-						if(data.result.data) {
-							image = data.result.data.image;
-						}
-						self.loadFiles(image);
-					} else if(data.result.message) {
-						alert(data.result.message)
+		$('.fileUpload').fileupload({
+			url: "../upload?name=image&path=../" + self._path,
+			dataType: 'json',
+			done: function (e, data) {
+				if (data.result.retCode === 0) {
+					let image = null;
+					if(data.result.data) {
+						image = data.result.data.image;
 					}
-				},
-				progressall: function (e, data) {
+					self.loadFiles(image);
+				} else if(data.result.message) {
+					alert(data.result.message)
 				}
-			})
-		}); 
+			},
+			progressall: function (e, data) {
+			}
+		});
 		$(".button_action_new").click(function() {
 			self.newJsonFile();
 		});
