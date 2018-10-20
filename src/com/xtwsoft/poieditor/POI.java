@@ -94,6 +94,14 @@ public class POI {
 		buildDetail(true);
 	}
 	
+	public void buildDetailJson(File detailJsonFile) {
+		if((m_key + ".json").equals(detailJsonFile.getName())) {
+			m_json.put("detailJson", detailJsonFile.getName());
+			String theDetailPath = "datas/p/" + m_key + "/";
+			m_json.put("detailPath", theDetailPath);
+		}
+	}
+	
 	//限于小程序的访问权限，根据detailUrl处理详情，转存为json格式，用于生成小程序的wxml。
 	//每次保存后按 处理后内容产生一个md5sum，用以判断是否已经处理。
 	//再次处理后可以先比较此 md5sum，如果一致，则不保存，并不进行下载图片，声音等操作。

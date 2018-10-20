@@ -7,9 +7,8 @@ import java.io.PrintWriter;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.xtwsoft.poieditor.POI;
 import com.xtwsoft.poieditor.POIManager;
 import com.xtwsoft.server.ServerConfig;
 import com.xtwsoft.server.Service;
@@ -32,16 +31,27 @@ public class DetailJsonBuildService extends Service {
 			if(!detailPath.exists()) {
 				detailPath.mkdir();
 			}
+			POI poi = POIManager.getInstance().getPOI(detailPath.getName());
+			if(poi == null) {
+				ret.setError("can not find poi:" + detailPath.getName());
+			}
+			
 			String fileName = detailPath.getName() + ".json";
 			File detailJsonFile = new File(detailPath,fileName);
 			if(detailJsonFile.exists() && detailJsonFile.isFile()) {
-				ret.setError("file:" + fileName + " is exist!");
+				if(poi.getJson().getString("detailJson") == null) {
+					poi.buildDetailJson(detailJsonFile);
+					ret.setError("file:" + fileName + " is exist,and bind to POI!");
+				} else {
+					ret.setError("file:" + fileName + " is exist!");
+				}
 				return;
 			}
 			PrintWriter writer = new PrintWriter(new OutputStreamWriter(new FileOutputStream(detailJsonFile),"UTF-8"));
 			writer.write("{}");
 			writer.flush();
 			writer.close();
+			poi.buildDetailJson(detailJsonFile);
 			JSONObject obj = new JSONObject();
 			obj.put("name", fileName);
 			obj.put("path", strDetailPath);
