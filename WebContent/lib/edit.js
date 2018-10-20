@@ -403,9 +403,9 @@ $(document).ready(function () {
 
     $("#detailJsonView").click(function() {
 		if(currentPoi.detailJson) {
-			window.open("jsonedit/index.html?path=" + currentPoi.detailPath);
+			window.open("infoedit/index.html?path=" + currentPoi.detailPath);
 		} else {
-			window.open("jsonedit/index.html?path=datas/p/" + currentPoi.key + "/");
+			window.open("infoedit/index.html?path=datas/p/" + currentPoi.key + "/");
 		}
     });
 	

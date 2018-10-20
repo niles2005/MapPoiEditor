@@ -31,7 +31,7 @@ public class EditServlet extends HttpServlet {
 	public void doPage(HttpServletRequest request, HttpServletResponse response)throws IOException, ServletException {
 		request.setCharacterEncoding("UTF-8");
 		response.setContentType("text/html; charset=UTF-8");
-		RequestDispatcher dispatcher = request.getRequestDispatcher("/jsonedit/index.html");
+		RequestDispatcher dispatcher = request.getRequestDispatcher("/infoedit/index.html");
 		try {
 			dispatcher.include(request, response);
 		} catch (ServletException e) {
