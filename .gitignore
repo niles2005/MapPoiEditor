@@ -5,6 +5,7 @@
 /WebContent/p/
 /WebContent/images/
 /WebContent/intro/
+/tomcat/work/
 .classpath
 .project
 datas.json
