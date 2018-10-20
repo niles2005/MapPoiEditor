@@ -1,6 +1,7 @@
 /bin/
-/datas/
+
 /bak/
+/WebContent/datas/
 /WebContent/p/
 /WebContent/images/
 /WebContent/intro/

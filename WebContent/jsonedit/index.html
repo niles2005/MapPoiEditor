@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="initial-scale = 1, user-scalable = no">
+
+
+    <link type="text/css" href="./css/bootstrap.css" rel="stylesheet">
+	<link type="text/css" href="./css/jquery.fileupload.css" rel="stylesheet">
+    <link type="text/css" href="./css/jsonedit.css" rel="stylesheet">
+    <link rel="stylesheet" href="./css/codemirror.css">
+    <script type="text/javascript" src="./js/jquery-3.3.1.min.js"></script>
+	<script type="text/javascript" src="./js/jquery.ui.widget.js"></script>
+    <script type="text/javascript" src="./js/jquery.fileupload.js" charset="utf-8"></script>
+    <script type="text/javascript" src="./js/codemirror.js" charset="utf-8"></script>
+    <script type="text/javascript" src="./js/javascript.js" charset="utf-8"></script>
+
+    <script type="text/javascript" src="./js/Init.js" charset="utf-8"></script>
+    <script type="text/javascript" src="./js/utils.js" charset="utf-8"></script>
+    <script type="text/javascript" src="./js/PageFrame.js" charset="utf-8"></script>
+    <script type="text/javascript" src="./js/EditPage.js" charset="utf-8"></script>
+</head>
+
+<body>
+    <div id="container">
+        <div id="n" class="clearfix shadow">
+        </div>
+        <div id="c">
+            <div id="cleft">
+                <div class="toolbarpanel" style="height: 25px;">
+					<span style="vertical-align:top;padding:0;" title="上传图片" class="btn btn-sm btn-primary fileinput-button">
+						<svg height="18" width="18" viewBox="-15 -15 330 330">
+							<path fill="#fff" stroke="transparent" stroke-width="10" d="m1.49805,149.64304l148.50121,-148.00241l148.50121,148.00241l-74.25061,0l0,148.71457l-148.5012,0l0,-148.71457z"></path>
+						</svg>
+						<input id="fileUpload" class="fileUpload" accept="image/*" type="file" accept="aplication/zip"
+							name="file" path="cover">
+					</span>
+					<span style="vertical-align:top;padding:0;" title="创建本目录json文件" class="btn btn-sm btn-primary">
+						<div class="toolbar_button_icon button_action_new" style="background: url(&quot;images/icons.png&quot;) -120px 0px no-repeat;"></div>
+					</span>
+					<span style="vertical-align:top;padding:0;" title="保存文件" class="btn btn-sm btn-primary">
+						<div class="toolbar_button_icon button_action_save" style="background: url(&quot;images/icons.png&quot;) -60px 0px no-repeat;"></div>
+					</span>
+					<span style="vertical-align:top;padding:0;" title="重新加载目录文件" class="btn btn-sm btn-primary">
+						<div class="toolbar_button_icon button_action_reload" style="background: url(&quot;images/icons.png&quot;) -200px 0px no-repeat;"></div>
+					</span>
+					<span style="vertical-align:top;padding:0;" title="格式化json文件" class="btn btn-sm btn-primary">
+						<div class="toolbar_button_icon button_action_format" style="background: url(&quot;images/icons.png&quot;) -100px 0px no-repeat;"></div>
+					</span>
+					<span class="tipInfo" style="color: red;float:right;"></span>
+                </div>
+                <div class="sidebar_tree">
+                </div>
+            </div>
+            <div id="ccenter">
+                <textarea id="code_area"></textarea>
+				<div id="display_area"></div>
+            </div>
+            <div id="cright">
+            </div>
+        </div>
+        <div id="s">
+        </div>
+    </div>
+	<input id="fileUpload" class="fileUpload" style="display:none;" accept="image/*" type="file" accept="aplication/zip"
+	name="file" path="cover">
+
+</body>
+
+</html>
