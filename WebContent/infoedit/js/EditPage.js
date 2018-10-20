@@ -230,7 +230,6 @@
                 contentType: 'text/plain; charset=UTF-8',
                 cache: false,
                 success: function (ret) {
-                    console.dir(ret)
                     if (ret.retCode === 0) {
                         self.loadFiles(ret.data.name);
                     } else if (ret.message) {
@@ -253,7 +252,6 @@
             }
             save(this._currentPath, fileContent);
             function save(currentPath, fileContent, isReloadFiles) {
-                console.log(fileContent)
                 if (currentPath.endsWith(".json")) {
                     try {
                         JSON.parse(fileContent);
