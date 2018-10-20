@@ -13,6 +13,9 @@ import com.xtwsoft.poieditor.services.BuildAllDetailsService;
 import com.xtwsoft.poieditor.services.CreatePOIGroupService;
 import com.xtwsoft.poieditor.services.CreatePOIService;
 import com.xtwsoft.poieditor.services.DatasService;
+import com.xtwsoft.poieditor.services.DetailFilesService;
+import com.xtwsoft.poieditor.services.DetailJsonBuildService;
+import com.xtwsoft.poieditor.services.FileSaveService;
 import com.xtwsoft.poieditor.services.ImagesService;
 import com.xtwsoft.poieditor.services.RemovePOIService;
 import com.xtwsoft.poieditor.services.SaveAllService;
@@ -121,6 +124,10 @@ public class ServiceManager {
 		serviceManager.addService(new UpdateDetailService());
 		serviceManager.addService(new UpdateAppService());
 		serviceManager.addService(new BuildAllDetailsService());
+		serviceManager.addService(new DetailFilesService());
+		serviceManager.addService(new FileSaveService());
+		serviceManager.addService(new DetailJsonBuildService());
+		
 		serviceManager.addService(new ImagesService());
 	}
 	

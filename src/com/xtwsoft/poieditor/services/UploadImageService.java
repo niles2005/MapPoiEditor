@@ -5,6 +5,7 @@ import java.io.File;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.Part;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.xtwsoft.poieditor.ImagesManager;
 import com.xtwsoft.poieditor.utils.Guid;
@@ -25,6 +26,7 @@ public class UploadImageService extends Service {
 				ret.setError("上传图片目录不存在·！");
 				return;
 			}
+			JSONArray arr = new JSONArray();
 			for (Part part : request.getParts()) {
 				String newName = Guid.build16Guid();
 				String fileName = extractFileName(part).toLowerCase();
@@ -33,9 +35,18 @@ public class UploadImageService extends Service {
 					newName += fileName.substring(pos);
 				}
 				File imageFile = new File(imagePath, newName);
+				arr.add(newName);
 				part.write(imageFile.getAbsolutePath());
 			}
 			JSONObject imagesObj = ImagesManager.getInstance().resetImagePath(path);
+			if(imagesObj == null) {
+				imagesObj = new JSONObject();
+			}
+			if(arr.size() == 1) {
+				imagesObj.put("image", arr.getString(0));
+			} else if(arr.size() > 1) {
+				imagesObj.put("image", arr);
+			}
 			ret.setSuccess(imagesObj);
 		} catch (Exception e) {
 			e.printStackTrace();
