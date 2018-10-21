@@ -1,7 +1,5 @@
 @charset "utf-8";
 
-
-/* CSS Document */
 body,div,dl,dt,dd,ul,li,p,em,b,span,img,table,tr,td,th,form,i,h1,h2,h3,h4{border:0;margin:0;padding:0;}
 body{font-family:Verdana, Geneva, sans-serif;font-size:12px;color:#313131;}
 ul,dl,li,dt,dd{ list-style:none;}
@@ -36,45 +34,21 @@ a:hover {
     position: relative;
 }
 
-
-
-
-#main {
-    position:relative;
-    width:100%;
-}
-
-#sidebar {
-    
-}
-
 #cleft {
     width: 300px;
     float: left;
     background-color: white;
     border-right: #959595 solid 1px;
-    margin-bottom:-10000px;
-    padding-bottom:10000px;
+    display: block;
 }
-#cmapleft {
-    width: 300px;
-    float: left;
-    background-color: white;
-    border-right: #959595 solid 1px;
-}
+
 #cright {
     float:right;
     width: 0;
-    background-color: white;
-    /*border-left: #959595 solid 1px;*/
-    margin-bottom:-10000px;
-    padding-bottom:10000px;
 }
 
 #ccenter {
     margin-left: 300px;
-    margin-bottom:-10000px;
-    padding-bottom:10000px;
 }
 
 
@@ -83,7 +57,6 @@ a:hover {
     position: relative;    
     -webkit-user-select: none;
     -moz-user-select:none;
-    /*border: 1px solid #ccc;*/
     background-color:#ECE9D8;
     cursor: default;
     border-bottom: 1px solid #7F9DB9;
@@ -95,17 +68,22 @@ a:hover {
     height:20px;
 }
 
+.CodeMirror {border: 1px solid gray; }
 
-
-#c {margin: 0;}
-.CodeMirror {border: 1px solid black; height: auto;}
 #ccenter {padding:0 2px;}
+
 #code_area {width:100%;margin:0;height:100%;}
 
-.sidebar_tree {
-	overflow: hidden;
-	cursor:default;
+#file_tree {
+    overflow-y: scroll;
+    cursor: default;
 }
-.focus_item {
-	background:lightgreen;
+
+.item-focused {
+    background: lightgreen;
+}
+
+#app_tree {
+    border-top: 1px solid gray;
+    overflow-y: scroll;
 }

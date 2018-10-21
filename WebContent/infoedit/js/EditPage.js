@@ -7,6 +7,7 @@
         if (EXTEND) {
             EXTEND.apply(this, arguments);
         }
+        let self = this;
         this._reseizeCallback = reseizeCallback;
         this._options = options;
         this._wrapDiv = wrapDiv;
@@ -26,25 +27,25 @@
                 break;
             }
         }
-
-        let self = this;
-        $('.fileUpload').fileupload({
-            url: "../upload?name=image&path=../" + self._path,
-            dataType: 'json',
-            done: function (e, data) {
-                if (data.result.retCode === 0) {
-                    let image = null;
-                    if (data.result.data) {
-                        image = data.result.data.image;
+        $('.fileUpload').click(function() {
+            $('.fileUpload').fileupload({
+                url: "../upload?name=image&path=../" + self._path,
+                dataType: 'json',
+                done: function (e, data) {
+                    if (data.result.retCode === 0) {
+                        let image = null;
+                        if (data.result.data) {
+                            image = data.result.data.image;
+                        }
+                        self.loadFiles(image);
+                    } else if (data.result.message) {
+                        alert(data.result.message)
                     }
-                    self.loadFiles(image);
-                } else if (data.result.message) {
-                    alert(data.result.message)
+                },
+                progressall: function (e, data) {
                 }
-            },
-            progressall: function (e, data) {
-            }
-        });
+            });
+            })
         $(".button_action_new").click(function () {
             self.newJsonFile();
         });
@@ -59,13 +60,79 @@
         });
 
 
-        this.initFrame();
         this.loadFiles();
         this.bindSaveKey();
+
+        this.loadAppDatas();
+
+        var resetWindow = function() {
+            self.resetSize();
+        }
+        window.onload = resetWindow;
+        window.onresize = resetWindow;
 
     }
 
     EditPage.prototype = {
+        loadAppDatas: function () {
+            self = this;
+            $.ajax({
+                type: "GET",
+                url: "../service?name=datas&v=" + new Date().getTime(),
+                dataType: "json",
+                cache: "false",
+                success: function (data) {
+                    if (data.retCode === 0) {
+                        self.initAppDatas(data.data);
+                    }
+                }
+            });
+        },
+        initAppDatas: function (data) {
+            let self = this;
+            data.text = data.name;
+            let detailPath = data.introPage;
+            if(detailPath) {
+                let pos = detailPath.lastIndexOf("/");
+                if(pos != -1) {
+                    detailPath = detailPath.substring(0,pos + 1);
+                }
+            }
+            for (let group of data.groups) {
+                group.text = group.name;
+                group.color = "orange"
+                group.icon = 'glyphicon glyphicon-flag';
+                if (group.pois) {
+                    group.nodes = group.pois;
+                    for (let poi of group.pois) {
+                        poi.text = poi.name;
+                        poi.icon = 'glyphicon glyphicon-map-marker';
+                    }
+                }
+            }
+            data.groups.unshift({ 
+                "text": "简介",
+                "detailPath":detailPath,
+                "icon" : "glyphicon glyphicon-home"
+            });
+
+            let $appTree = $('#app_tree');
+            $appTree.treeview({
+                color: "#428bca",
+                enableLinks: true,
+                data: data.groups
+            });
+            $appTree.on('nodeSelected', function (event, data) {
+                self._path = data.detailPath;
+                if(!self._path) {
+                    if(data.key && data.key.startsWith("P")) {
+                        self._path = "datas/p/" + data.key + "/";
+                    }
+                }
+                self.loadFiles();
+            });
+
+        },
         bindSaveKey: function () {
             var self = this;
             document.onkeydown = function (event) {
@@ -82,26 +149,23 @@
             };
         },
         resetSize: function () {
-            var cOffsetTop = this._c.offsetTop;
-            var marginLeft = 0;
-            this._c.style["marginLeft"] = marginLeft + "px";
-
-            var marginRight = 0;
-            this._c.style["marginRight"] = marginRight + "px";
-            var newHeight = works.utils.getWindowHeight() - cOffsetTop - this._s.offsetHeight;
-            this._c.style.height = newHeight + "px";
-            $("#ccenter").height(newHeight);
-            $(".treepanel").height(newHeight - 26);
+            let pageHeight = $("#container").height() - 2;
+            $("#file_tree").height((pageHeight - 25 ) / 2);
+            $("#app_tree").height((pageHeight - 25 ) / 2);
+            $("#c").height(pageHeight)
+            $("#ccenter").height(pageHeight);
             if (this._editor) {
-                this._editor.setSize("100%", newHeight);
+                this._editor.setSize("100%", pageHeight);
             }
-            this.onWindowResize();
         },
         loadFiles: function (focusName) {
             var self = this;
-            $(".sidebar_tree").empty();
+            let $fileTree = $('#file_tree');
+            $fileTree.empty();
             self.loadContent("");
-
+            if(!self._path) {
+                return;
+            }
             $.ajax({
                 type: "GET",
                 url: "../service?name=detailfiles&path=" + self._path + "&v=" + new Date().getTime(),
@@ -110,54 +174,37 @@
                 success: function (data) {
                     if (data.retCode === 0 && data.data) {
                         for (let item of data.data) {
-                            let $item = $("<div title='" + item + "'>" + item + "</div>");
-                            $(".sidebar_tree").append($item);
-                            $item.click(function () {
-                                $item.addClass("focus_item").siblings().removeClass("focus_item")
-                                self.loadFileContent(self._path, item);
-                            });
-                            if (item === focusName) {
-                                $item.addClass("focus_item")
-                                self.loadFileContent(self._path, item);
+                            let $item;
+                            if(item.endsWith(".json")) {
+                                $item = $("<div style='display:block;height:30px;line-height:30px;' >" + item + "</div>");
+                            } else if(item.endsWith(".png")) {
+                                $item = $("<div  style='display:block;width:100%;height:30px;line-height:30px;'><img style='display:block;width:30px;height:30px;' src='../" + self._path + item + "'></div>");
+                            } else if(item.endsWith(".jpg")) {
+                                $item = $("<div  style='display:block;width:100%;height:30px;line-height:30px;'><img style='display:block;width:30px;height:30px;' src='../" + self._path + item + "'></div>");
+                            } else if(item.endsWith(".jpeg")) {
+                                $item = $("<div  style='display:block;width:100%;height:30px;line-height:30px;'><img style='display:block;width:30px;height:30px;' src='../" + self._path + item + "'></div>");
+                            } else if(item.endsWith(".webp")) {
+                                $item = $("<div  style='display:block;width:100%;height:30px;line-height:30px;'><img style='display:block;width:30px;height:30px;' src='../" + self._path + item + "'></div>");
+                            } else if(item.endsWith(".gif")) {
+                                $item = $("<div  style='display:block;width:100%;height:30px;line-height:30px;'><img style='display:block;width:30px;height:30px;' src='../" + self._path + item + "'></div>");
+                            } else if(item.endsWith(".mp3")) {
+                                $item = $("<div  style='display:block;width:100%;line-height:60px;'><audio style='vertical-align: middle;width: 150px;' controls><source  type='audio/mpeg' src='../" + self._path + item + "'></audio></div>");
+                            } else {
+                                $item = $("<div style='display:block;height:30px;line-height:30px;' >" + item + "</div>");
                             }
+                            $("#file_tree").append($item);
+                            $item.click(function() {
+                                $item.addClass("item-focused").siblings().removeClass("item-focused");
+                                self.loadFileContent(self._path, item);
+                            })
                         }
-                    } else if (data.retCode === -1) {//dir is not exist
-                        var message = data.message;
-                        if (message && message.endsWith("is not exist!")) {
-                            new works.MyAlert().hiConfirm("目录不存在，创建此目录?", "目录创建", function (r) {
-                                if (r) {
-                                    buildPath(pagePath);
-                                } else {
-                                    //close page?
-                                }
-                            });
+                    } else if (data.retCode === -1) {
+                        if(data.message) {
+                            alert(data.message);
                         }
                     }
                 }
             });
-
-            function buildPath(pagePath) {
-                var allFilesUrl = pagePath + "buildPath";
-                $.ajax({
-                    type: "GET",
-                    url: allFilesUrl,
-                    dataType: "json",
-                    success: function (data) {
-                        if (data.retCode === 0) {
-                            var pathNode = {
-                                class: "dir",
-                                "isDir": true,
-                                file: pagePath
-                            };
-                            self._currentPath = pathNode;
-                        }
-                        if (data.message) {
-                            works.alert(data.message);
-                        }
-                    }
-                });
-            }
-
         },
         loadFileContent: function (path, name) {
             this._currentPath = path + name;

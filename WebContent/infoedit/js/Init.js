@@ -1,62 +1,5 @@
 var works = window.works = {};
 
-works.ajaxtype = 0; //0:default,use jquery ajax,   1: use jsonP
-works.actions = {};
-
-
-if(!window.console) {
-    window.console = {};
-    window.console.log = function(){};
-    window.console.dir = function(){};
-}
-works.isIE = (!!window.ActiveXObject || "ActiveXObject" in window) ;
-works.IEVersion = 0;
-if(works.isIE) {
-    if(navigator.appName === "Microsoft Internet Explorer") {
-        var pos = navigator.appVersion.indexOf("MSIE ");
-        if(pos >= 0) {
-            var pos1 = navigator.appVersion.indexOf(".",pos + 5);
-            works.IEVersion = parseInt(navigator.appVersion.substring(pos + 5,pos1));
-            works.isIELess9 = works.IEVersion < 9;
-        }
-    } else {
-        if(!!window.MSStream) {
-            works.IEVersion = 11;
-        }
-    }
-}
-
-works.isFirefox = navigator.userAgent.indexOf('Firefox') >= 0;
-works.isOpera = navigator.userAgent.indexOf('Opera') >= 0 ;
-
-works.supportSVG = document.createElementNS != null;
-
-if(works.isIELess9) {//VML
-        // document.namespaces.add("v", "urn:schemas-microsoft-com:vml");
-        // var style = document.createStyleSheet();
-        // var VMLel = ['line','stroke','path','polyline','fill','oval','shape'];
-        // for (var i=0,l=VMLel.length;i<l;i++) {
-        //         style.addRule('v\\:'+VMLel[i], "behavior: url(#default#VML);");
-        //         style.addRule('v\\:'+VMLel[i], "antialias: true;");
-        // }
-   if (document.namespaces['v'] == null) {
-       var e = ["shape", "shapetype", "group", "background", "path", "formulas", "handles", "fill", "stroke", "shadow", "textbox", "textpath", "imagedata", "line", "polyline", "curve", "roundrect", "oval", "rect", "arc", "image"], s = document.createStyleSheet();
-       for (var i = 0; i < e.length; i++) {
-           s.addRule("v\\:" + e[i], "behavior: url(#default#VML); display: inline-block;");
-       }
-       document.namespaces.add("v", "urn:schemas-microsoft-com:vml");
-   }
-}
-
-works.alert = function(message,func) {
-    new works.MyAlert().hiAlert(message,null,func);
-    
-//    alert(message);
-}
-
-works.myConfirmAlert = function(message,func) {
-    new works.MyAlert().hiMyConfirm(message,null,func);
-}
 
 if (!Array.prototype.indexOf)
 {
@@ -107,12 +50,6 @@ Array.remove = function(array, from, to) {
 };
 
 
-function printMap(printpage)
-{
-	window.print(); 
-return false;
-}
-
 function setCookie(name,value,expireDays){
 	var exp  = new Date();  
 	if(expireDays) {
@@ -132,3 +69,118 @@ function delCookie(name){
 	var cval=getCookie(name);
 	if(cval!=null) document.cookie= name + "="+cval+";expires="+exp.toGMTString();
 }			
+
+
+(function() {
+    function Base() {
+    }
+
+    works.utils = {
+        inherits: function(subClass, superClass) {
+            var sub = subClass.prototype;
+            Base.prototype = superClass.prototype;
+            var sup = new Base();
+            Base.prototype = null;
+            for (prop in sub) {
+                sup[prop] = sub[prop];
+            }
+            subClass.prototype = sup;
+            sup.constructor = subClass;
+        },
+        extend: function(dest, src) {
+            for (var prop in src) {
+                dest[prop] = src[prop];
+            }
+            return dest;
+        },
+        removeItem: function(array, item) {
+            var k = array.length;
+            if (k <= 0) {
+                return;
+            }
+            while (k--) {
+                if (array[k] === item) {
+                    array.splice(k, 1);
+                    break;
+                }
+            }
+        },
+        bindEvent: function(elementTarget, eventType, func) {
+            if (window.addEventListener) {
+                elementTarget.addEventListener(eventType, func, false);
+            } else if (window.attachEvent) {
+                elementTarget.attachEvent("on" + eventType, func);
+            }
+        },
+        unbindEvent: function(elementTarget, eventType, func) {
+            if (window.addEventListener) {
+                elementTarget.removeEventListener(eventType, func, false);
+            } else if (window.attachEvent) {
+                elementTarget.detachEvent("on" + eventType, func);
+            }
+        },
+        getWindowWidth: function() {
+            var myWidth = 0;
+            if (typeof(window.innerWidth) === 'number') {
+                //Non-IE
+                myWidth = window.innerWidth;
+                //                myHeight = window.innerHeight;
+            } else if (document.documentElement && (document.documentElement.clientWidth || document.documentElement.clientHeight)) {
+                //IE 6+ in 'standards compliant mode'
+                myWidth = document.documentElement.clientWidth;
+                //                myHeight = document.documentElement.clientHeight;
+            } else if (document.body && (document.body.clientWidth || document.body.clientHeight)) {
+                //IE 4 compatible
+                myWidth = document.body.clientWidth;
+                //                myHeight = document.body.clientHeight;
+            }
+            return myWidth;
+        },
+        getWindowHeight: function() {
+            var myHeight = 0;
+            if (typeof(window.innerHeight) === 'number') {
+                //Non-IE
+                myHeight = window.innerHeight;
+            } else if (document.documentElement && (document.documentElement.clientWidth || document.documentElement.clientHeight)) {
+                //IE 6+ in 'standards compliant mode'
+                myHeight = document.documentElement.clientHeight;
+            } else if (document.body && (document.body.clientWidth || document.body.clientHeight)) {
+                //IE 4 compatible
+                myHeight = document.body.clientHeight;
+            }
+            return myHeight;
+        },
+        getOffset: function(event) {//for firefox bug
+            var target = event.target;
+            if (target.offsetLeft === undefined)
+            {
+                target = target.parentNode;
+            }
+            var pageCoord = getPageCoord(target);
+            var eventCoord =
+                    {//计算鼠标位置（触发元素与窗口的距离）
+                        x: window.pageXOffset + event.clientX,
+                        y: window.pageYOffset + event.clientY
+                    };
+            var offset =
+                    {
+                        offsetX: eventCoord.x - pageCoord.x,
+                        offsetY: eventCoord.y - pageCoord.y
+                    };
+            return offset;
+        },
+        getClientSize: function() {
+            if (window.innerHeight) {
+                return {width: window.innerWidth, height: window.innerHeight};
+            }
+            else {
+                if (document.documentElement && document.documentElement.clientHeight) {
+                    return {width: document.documentElement.clientWidth, height: document.documentElement.clientHeight};
+                }
+                else {
+                    return {width: document.body.clientWidth, height: document.body.clientHeight};
+                }
+            }
+        }
+    };
+})();
