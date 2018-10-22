@@ -60,6 +60,11 @@ public class POI {
 	
 	public void remove() {
 		m_poiGroup.removePOI(this);
+		try {
+			Utils.deletePath(m_detailPath);
+		} catch(Exception ex) {
+			ex.printStackTrace();
+		}
 	}
 	
 	public void update(JSONObject json) {

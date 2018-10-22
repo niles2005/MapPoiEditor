@@ -102,4 +102,21 @@ public class Utils {
 		}
 	}
 	
+	public static void deletePath(File path) {
+		if (path == null) {
+			return;
+		}
+		if (!path.exists()) {
+			return;
+		}
+		File[] files = path.listFiles();
+		for (int i = 0; i < files.length; i++) {
+			if (files[i].isDirectory()) {
+				deletePath(files[i]);
+			}
+			files[i].delete();
+		}
+		path.delete();
+	}
+	
 }

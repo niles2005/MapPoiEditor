@@ -241,15 +241,28 @@ public class POIManager extends TimerTask {
 	public void saveDatasToFile() {
 		try {
 			if (m_appJson != null) {
+				m_appJson.remove("_version");
 				String str = m_appJson.toJSONString();
 				String sum = MD5Sum.encode32MD5(str);
 				//避免每次重复存盘，先做checkSum比较。
 				if(!sum.equals(m_storeDataSum)) {
+					//文件写入之前加入版本信息，用户客户端版本比较
+					m_appJson.put("_version", sum);
 					PrintWriter writer = new PrintWriter(new OutputStreamWriter(
 							new FileOutputStream(m_dataJsonFile), "UTF-8"));
-					writer.write(str);
+					writer.write(m_appJson.toJSONString());
 					writer.flush();
 					writer.close();
+					
+					File sumFile = new File(m_dataJsonFile.getAbsolutePath() + ".sum");
+					PrintWriter writer1 = new PrintWriter(new OutputStreamWriter(
+							new FileOutputStream(sumFile), "UTF-8"));
+					JSONObject sumObj = new JSONObject();
+					sumObj.put("_version", sum);
+					writer1.write(sumObj.toJSONString());
+					writer1.flush();
+					writer1.close();
+					
 					m_storeDataSum = sum;
 				}
 				// System.err.println("save datas at :" + new Date());
