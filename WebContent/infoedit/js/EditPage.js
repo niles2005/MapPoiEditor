@@ -56,8 +56,14 @@
             self.formatJsonContent();
         });
 
-
-        this.loadFiles();
+        let focusFileName;
+        if(this._path && this._path.startsWith("datas/p/")) {
+            let pos = this._path.indexOf("/",8);
+            if(pos > 0) {
+                focusFileName = this._path.substring(8,pos) + ".json";
+            }
+        }
+        this.loadFiles(focusFileName);
         this.bindSaveKey();
 
         this.loadAppDatas();
@@ -67,7 +73,6 @@
         }
         window.onload = resetWindow;
         window.onresize = resetWindow;
-
     }
 
     EditPage.prototype = {
@@ -110,6 +115,7 @@
             data.groups.unshift({ 
                 "text": "简介",
                 "detailPath":detailPath,
+                "detailJson":"intro.json",
                 "icon" : "glyphicon glyphicon-home"
             });
 
@@ -126,7 +132,7 @@
                         self._path = "datas/p/" + data.key + "/";
                     }
                 }
-                self.loadFiles();
+                self.loadFiles(data.detailJson);
             });
 
         },
@@ -160,6 +166,7 @@
             let $fileTree = $('#file_tree');
             $fileTree.empty();
             self.loadContent("");
+            $("#file-name").val("");
             if(!self._path) {
                 return;
             }
@@ -194,6 +201,10 @@
                                 $item.addClass("item-focused").siblings().removeClass("item-focused");
                                 self.loadFileContent(self._path, item);
                             })
+                            if(focusName == item) {
+                                $item.addClass("item-focused").siblings().removeClass("item-focused");
+                                self.loadFileContent(self._path, item);
+                            }
                         }
                     } else if (data.retCode === -1) {
                         if(data.message) {
@@ -207,7 +218,7 @@
             this._currentPath = path + name;
             var self = this;
             document.title = name;
-            $("#file-name").val(this._currentPath);
+            $("#file-name").val(name);
 
             var lowerName = name.toLowerCase();
             if (lowerName.endsWith(".json")) {
