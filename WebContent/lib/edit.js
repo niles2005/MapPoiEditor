@@ -19,10 +19,15 @@ $(document).ready(function () {
         mapTypeControlOptions: {
             position: qq.maps.ControlPosition.BOTTOM_RIGHT    //设置地图控件位置靠近顶部
         },
+        zoomControl: false,
+        zoomControlOptions: {
+            position: qq.maps.ControlPosition.BOTTOM_RIGHT   //设置地图控件位置靠近左侧
+        },
         draggingCursor: "pointer",
         draggableCursor: "crosshair",
         zoom: 17
     });
+    console.dir(qq.maps.ControlPosition)
 
     $('body').on('shown.bs.modal', '.modal', function (e) {
         $(this).find(".open-focus").focus();

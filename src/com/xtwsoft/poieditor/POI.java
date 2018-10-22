@@ -1,6 +1,9 @@
 package com.xtwsoft.poieditor;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.util.Iterator;
 
 import com.alibaba.fastjson.JSONObject;
@@ -13,7 +16,6 @@ public class POI {
 	private JSONObject m_json = null;
 	private String m_key = null;
 	private File m_detailPath = null;
-	private String m_fileSum = null;
 	private POIGroup m_poiGroup = null;
 //	private ArrayList<File> m_imageFileList = null;
 	private boolean m_isNew = false;
@@ -38,6 +40,7 @@ public class POI {
 		m_key = json.getString("key");
 		m_detailPath = new File(ServerConfig.getInstance().getPOISPath(),m_key);
 	}
+	
 	
 	public POIGroup getPOIGroup() {
 		return m_poiGroup;
@@ -109,26 +112,45 @@ public class POI {
 	//POI编辑页面点 "保存 "时，如果没有m_fileSum,会调用一次，后续保存，在m_fileSum存在时不执行此方法。isForce: false
 	protected boolean buildDetail(boolean isForce) {
 		try {
-			String strDetailUrl = m_json.getString("detailUrl");
-			if(strDetailUrl != null) {
-				strDetailUrl = strDetailUrl.trim();
-			}
-			if(!strDetailUrl.startsWith("http")) {
-				return false;
-			}
 			if(!m_detailPath.exists()) {
 				m_detailPath.mkdir();
 			}
-
 			File destFile = new File(m_detailPath,m_key +".json");
-			if(m_fileSum == null || !destFile.exists() || isForce) {
-				Html2JSON h2J = new Html2JSON(strDetailUrl,m_detailPath,m_key);
-				m_fileSum = h2J.getCheckSum();
-				m_json.put("updateVersion", m_fileSum);
-				String theDetailPath = "datas/p/" + m_key + "/";
-				m_json.put("detailPath", theDetailPath);
-				m_json.put("detailJson", destFile.getName());
-				return true;
+
+			String strDetailUrl = m_json.getString("detailUrl");
+			if(strDetailUrl != null) {
+				if(strDetailUrl != null) {
+					strDetailUrl = strDetailUrl.trim();
+				}
+				if(strDetailUrl.startsWith("http")) {
+					if(!destFile.exists() || isForce) {
+						Html2JSON h2J = new Html2JSON(strDetailUrl,m_detailPath,m_key);
+						String theDetailPath = "datas/p/" + m_key + "/";
+						m_json.put("detailPath", theDetailPath);
+						m_json.put("detailJson", destFile.getName());
+						return true;
+					}
+				}
+			}
+			if(!destFile.exists()) {
+				JSONObject modelJson = POIManager.getInstance().cloneInfoModelJson();
+				if(modelJson != null) {
+					String name = this.m_json.getString("name");
+					if(name != null) {
+						modelJson.put("title", name);
+					}
+					PrintWriter writer = new PrintWriter(new OutputStreamWriter(
+							new FileOutputStream(destFile), "UTF-8"));
+					
+					writer.write(modelJson.toJSONString());
+					writer.flush();
+					writer.close();
+					
+					String theDetailPath = "datas/p/" + m_key + "/";
+					m_json.put("detailPath", theDetailPath);
+					m_json.put("detailJson", destFile.getName());
+					return true;
+				}
 			}
 		} catch(Exception ex) {
 			ex.printStackTrace();

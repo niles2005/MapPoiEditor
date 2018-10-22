@@ -24,43 +24,9 @@ import com.xtwsoft.server.ServiceReturn;
  *
  */
 public class DetailJsonBuildService extends Service {
-	private JSONObject m_json = null;
 	public DetailJsonBuildService() {
 		super("detailjsonbuild");
-		m_json = loadModelJson();
-		if(m_json == null) {
-			JSONObject json = new JSONObject();
-			json.put("contents", new JSONArray());
-			json.put("title", "");
-			m_json = json;
-		}
 	}
-	
-	private JSONObject loadModelJson() {
-		try {
-			File f = new File(ServerConfig.getInstance().getWEBINFPath(),"infoModel.json");
-			if(f.exists()) {
-				
-				StringBuffer strBuff = new StringBuffer();
-				BufferedReader reader = new BufferedReader(new FileReader(f));
-				String line = reader.readLine();
-				if (line != null && line.startsWith("\uFEFF")) {//remove utf-8 bom
-					line = line.substring(1);
-				}
-				while(line != null) {
-					strBuff.append(line);
-					line = reader.readLine();
-				}
-				reader.close();
-				JSONObject jsonObject = JSON.parseObject(strBuff.toString());
-				return jsonObject;
-			}
-		} catch(Exception ex) {
-			ex.printStackTrace();
-		}
-		return null;
-	}
-
 	
 	public void work(ServiceReturn ret,HttpServletRequest request) {
 		try {
@@ -90,9 +56,9 @@ public class DetailJsonBuildService extends Service {
 			if(name == null) {
 				name = "";
 			}
-			JSONObject cloneJson = (JSONObject)this.m_json.clone();
-			cloneJson.put("title", name);
-			writer.write(cloneJson.toJSONString());
+			JSONObject modelJson = POIManager.getInstance().cloneInfoModelJson();
+			modelJson.put("title", name);
+			writer.write(modelJson.toJSONString());
 			writer.flush();
 			writer.close();
 			poi.buildDetailJson(detailJsonFile);

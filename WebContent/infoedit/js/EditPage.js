@@ -46,9 +46,6 @@
                 }
             });
             })
-        $(".button_action_new").click(function () {
-            self.newJsonFile();
-        });
         $(".button_action_save").click(function () {
             self.saveContent();
         });
@@ -155,7 +152,7 @@
             $("#c").height(pageHeight)
             $("#ccenter").height(pageHeight);
             if (this._editor) {
-                this._editor.setSize("100%", pageHeight);
+                this._editor.setSize("100%", pageHeight - 25);
             }
         },
         loadFiles: function (focusName) {
@@ -210,6 +207,7 @@
             this._currentPath = path + name;
             var self = this;
             document.title = name;
+            $("#file-name").val(this._currentPath);
 
             var lowerName = name.toLowerCase();
             if (lowerName.endsWith(".json")) {
@@ -266,24 +264,6 @@
             var jsonContent = JSON.stringify(jsObject, null, '\t');
             var doc = CodeMirror.Doc(jsonContent, "javascript");
             this._editor.swapDoc(doc);
-        },
-        newJsonFile: function () {
-            var self = this;
-
-            $.ajax({
-                type: "GET",
-                url: "../service?name=detailjsonbuild&path=" + self._path,
-                dataType: "json",
-                contentType: 'text/plain; charset=UTF-8',
-                cache: false,
-                success: function (ret) {
-                    if (ret.retCode === 0) {
-                        self.loadFiles(ret.data.name);
-                    } else if (ret.message) {
-                        alert(ret.message);
-                    }
-                }
-            });
         },
         saveContent: function () {
             var self = this;
