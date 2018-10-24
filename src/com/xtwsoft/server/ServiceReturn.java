@@ -25,9 +25,22 @@ public class ServiceReturn {
 		m_ret.put("message", message);
 	}
 	
+	public void setError(String message,int retCode) {
+		if(retCode >= 0) {
+			retCode = -1;
+		}
+		m_ret.put("retCode", retCode);
+		m_ret.put("message", message);
+	}
+	
 	public void setSuccess(String message) {
 		m_ret.put("retCode", 0);
 		m_ret.put("message", message);
+	}
+
+	public void setSuccessData(String message) {
+		m_ret.put("retCode", 0);
+		m_ret.put("data", message);
 	}
 
 	public void setSuccess(JSONObject data) {

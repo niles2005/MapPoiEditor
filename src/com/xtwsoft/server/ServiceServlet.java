@@ -20,21 +20,23 @@ public class ServiceServlet extends HttpServlet {
 	/**
 	 * @see Servlet#init(ServletConfig)
 	 */
-	public void init(ServletConfig config) throws ServletException {
-        try {
-        	System.out.println("server init ...");
-        	ServletContext servletContext = config.getServletContext();
-        	String contextPath = servletContext.getContextPath();
-        	String realPath = servletContext.getRealPath("");
-        	ServerConfig.initInstance(contextPath,realPath);
-			POIManager.initInstance();
-			ImagesManager.initInstance();
-        	ServiceManager.initInstance();
-        }
-        catch (Exception ex) {
-            ex.printStackTrace();
-        }
-	}
+	//move to Filter
+//	public void init(ServletConfig config) throws ServletException {
+//        try {
+//        	System.out.println("server init ...");
+//        	ServletContext servletContext = config.getServletContext();
+//        	String contextPath = servletContext.getContextPath();
+//        	String realPath = servletContext.getRealPath("");
+//        	ServerConfig.initInstance(contextPath,realPath);
+//			POIManager.initInstance();
+//			ImagesManager.initInstance();
+//        	ServiceManager.initInstance();
+//			UsersManager.initInstance();
+//        }
+//        catch (Exception ex) {
+//            ex.printStackTrace();
+//        }
+//	}
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)

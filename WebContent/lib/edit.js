@@ -27,7 +27,6 @@ $(document).ready(function () {
         draggableCursor: "crosshair",
         zoom: 17
     });
-    console.dir(qq.maps.ControlPosition)
 
     $('body').on('shown.bs.modal', '.modal', function (e) {
         $(this).find(".open-focus").focus();
