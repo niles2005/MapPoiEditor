@@ -365,8 +365,7 @@ $(document).ready(function () {
                 $("#detailSave").removeAttr("disabled");
                 if (ret.retCode === 0) {
                     currentPoi.detailUrl = poiDetailUrl;
-                    if (ret.data && ret.data.imagesNum) {
-                        currentPoi.imagesNum = ret.data.imagesNum;
+                    if (ret.data) {
                         currentPoi.updateVersion = ret.data.updateVersion;
                         updatePOIImages(currentPoi);
                     }
@@ -391,9 +390,11 @@ $(document).ready(function () {
             cache: false,
             success: function (ret) {
                 if (ret.retCode === 0) {
-                    if (ret.data && ret.data.imagesNum > 0) {
-                        delete currentPoi._create;
-                        currentPoi.imagesNum = ret.data.imagesNum;
+                    if (ret.data) {
+                        delete poi._create;
+                        for(let k in ret.data) {
+                            poi[k] = ret.data[k];
+                        }
                     }
                     callback();
                 } else {

@@ -1,11 +1,15 @@
 package com.xtwsoft.poieditor;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.Iterator;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.xtwsoft.poieditor.utils.Guid;
 import com.xtwsoft.poieditor.utils.Html2JSON;
@@ -138,28 +142,37 @@ public class POI {
 				}
 			}
 			if(!destFile.exists()) {
-				JSONObject modelJson = POIManager.getInstance().cloneInfoModelJson();
-				if(modelJson != null) {
-					String name = this.m_json.getString("name");
-					if(name != null) {
-						modelJson.put("title", name);
-					}
-					PrintWriter writer = new PrintWriter(new OutputStreamWriter(
-							new FileOutputStream(destFile), "UTF-8"));
-					
-					writer.write(modelJson.toJSONString());
-					writer.flush();
-					writer.close();
-					
-					String theDetailPath = "datas/p/" + m_key + "/";
-					m_json.put("detailPath", theDetailPath);
-					m_json.put("detailJson", destFile.getName());
-					return true;
+				JSONObject modelJson = null;
+				File f = new File(ServerConfig.getInstance().getDatasPath(),"model/model.json");
+				if(f.exists()) {
+					modelJson = (JSONObject)Utils.loadJSON(f);
 				}
+				if(modelJson == null) {
+					JSONObject json = new JSONObject();
+					json.put("contents", new JSONArray());
+					json.put("title", "");
+					modelJson = json;
+				}
+				String name = this.m_json.getString("name");
+				if(name != null) {
+					modelJson.put("title", name);
+				}
+				PrintWriter writer = new PrintWriter(new OutputStreamWriter(
+						new FileOutputStream(destFile), "UTF-8"));
+				
+				writer.write(modelJson.toJSONString());
+				writer.flush();
+				writer.close();
+				
+				String theDetailPath = "datas/p/" + m_key + "/";
+				m_json.put("detailPath", theDetailPath);
+				m_json.put("detailJson", destFile.getName());
+				return true;
 			}
 		} catch(Exception ex) {
 			ex.printStackTrace();
 		}
 		return false;
 	}
+	
 }

@@ -119,6 +119,13 @@
                 "icon" : "glyphicon glyphicon-home"
             });
 
+            data.groups.unshift({ 
+                "text": "模板",
+                "detailPath":"datas/model/",
+                "detailJson":"model.json",
+                "icon" : "glyphicon glyphicon-home"
+            });
+
             let $appTree = $('#app_tree');
             $appTree.treeview({
                 color: "#428bca",

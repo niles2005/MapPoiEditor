@@ -14,6 +14,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.xtwsoft.poieditor.POI;
 import com.xtwsoft.poieditor.POIManager;
+import com.xtwsoft.poieditor.utils.Utils;
 import com.xtwsoft.server.ServerConfig;
 import com.xtwsoft.server.Service;
 import com.xtwsoft.server.ServiceReturn;
@@ -56,7 +57,19 @@ public class DetailJsonBuildService extends Service {
 			if(name == null) {
 				name = "";
 			}
-			JSONObject modelJson = POIManager.getInstance().cloneInfoModelJson();
+			
+			JSONObject modelJson = null;
+			File f = new File(ServerConfig.getInstance().getDatasPath(),"model/model.json");
+			if(f.exists()) {
+				modelJson = (JSONObject)Utils.loadJSON(f);
+			}
+			if(modelJson == null) {
+				JSONObject json = new JSONObject();
+				json.put("contents", new JSONArray());
+				json.put("title", "");
+				modelJson = json;
+			}
+			
 			modelJson.put("title", name);
 			writer.write(modelJson.toJSONString());
 			writer.flush();
@@ -69,7 +82,5 @@ public class DetailJsonBuildService extends Service {
 		} catch(Exception ex) {
 			ret.setError(ex.getMessage());
 		}
-
-		
 	}
 }

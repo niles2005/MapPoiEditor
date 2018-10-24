@@ -36,9 +36,6 @@ public class POIManager extends TimerTask {
 
 	private Hashtable<String, POI> m_poiHash = new Hashtable<String, POI>();
 
-	//创建的详情页面json模板
-	private JSONObject m_infoModelJson = null;
-	
 	//用于标志POI是否增删改，如变动，需重新排序，和存盘
 	private Boolean m_isChange = false;
 	
@@ -92,15 +89,6 @@ public class POIManager extends TimerTask {
 				}
 				startTaskTimer();
 			}
-			
-			m_infoModelJson = loadInfoModelJson();
-			if(m_infoModelJson == null) {
-				JSONObject json = new JSONObject();
-				json.put("contents", new JSONArray());
-				json.put("title", "");
-				m_infoModelJson = json;
-			}
-			
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -272,35 +260,6 @@ public class POIManager extends TimerTask {
 		}
 	}
 
-	public JSONObject cloneInfoModelJson() {
-		return (JSONObject)this.m_infoModelJson.clone();
-	}
-	
-	private JSONObject loadInfoModelJson() {
-		try {
-			File f = new File(ServerConfig.getInstance().getWEBINFPath(),"infoModel.json");
-			if(f.exists()) {
-				
-				StringBuffer strBuff = new StringBuffer();
-				BufferedReader reader = new BufferedReader(new FileReader(f));
-				String line = reader.readLine();
-				if (line != null && line.startsWith("\uFEFF")) {//remove utf-8 bom
-					line = line.substring(1);
-				}
-				while(line != null) {
-					strBuff.append(line);
-					line = reader.readLine();
-				}
-				reader.close();
-				JSONObject jsonObject = JSON.parseObject(strBuff.toString());
-				return jsonObject;
-			}
-		} catch(Exception ex) {
-			ex.printStackTrace();
-		}
-		return null;
-	}
-	
 	// 5min 5 * 60 * 1000 = 300000
 	private void startTaskTimer() {
 		long delay = 5 * 60 * 1000;
