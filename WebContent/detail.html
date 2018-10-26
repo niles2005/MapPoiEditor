@@ -6,12 +6,31 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="initial-scale = 1, user-scalable = no">
 
-
-    <link type="text/css" href="./css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/jquery.fileupload.css">
 
     <script type="text/javascript" src="./lib/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript" src="lib/jquery.ui.widget.js"></script>
+    <script type="text/javascript" src="./lib/jquery.fileupload.js"></script>
     <script type="text/javascript" src="./lib/vue.min.js" charset="utf-8"></script>
     <style>
+        ul,
+        dl,
+        li,
+        dt,
+        dd {
+            list-style: none;
+        }
+
+        body {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 400;
+            line-height: 1.5;
+            color: #212529;
+            text-align: left;
+            background-color: #fff;
+        }
+
         .blockButtons {
             position: absolute;
             top: -50px;
@@ -21,12 +40,36 @@
             padding: 5px 0;
             z-index: 100;
         }
+        .topSpanButton {
+            background: lightgreen;
+            float: right;
+            margin: 0px 3px;
+            border-width: 2px;
+            border-style: outset;
+            padding: 1px 6px;
+            border-color: buttonface;
+            font: 400 13.3333px Arial;
+        }
+
+        .partType {
+            line-height: 25px;
+            height: 25px;
+            margin: 2px;
+        }
     </style>
 </head>
 
 <body>
-    <div id="app" :style="'background-color: #fff;padding: 20px 16px 12px;text-align: justify;color: #333;font-size: 17px;font-family: 宋体;font-size: 14px;line-height: 1.6em;' + doc.docStyle">
-        <button style="z-index:1000;top:10px;background:lightgreen;right:10px;position: fixed;" v-on:click="doSubmit">提交</button>
+    <div id="app" :style="'background-color: #fff;padding: 50px 16px 12px;text-align: justify;color: #333;font-size: 17px;font-family: 宋体;font-size: 14px;line-height: 1.6em;' + doc.docStyle">
+        <div style="z-index:1000;top:10px;right:10px;position: fixed;">
+            <button style="background:lightgreen;float:right;margin: 0 3px;" v-on:click="doSubmit">提交</button>
+            <span class="fileinput-button">
+                    <span class="topSpanButton">上传媒体文件</span>
+                    <input v-on:click="uploadFiles" accept="image/*,audio/*,video/*" type="file" id="fileUpload">
+                </span>
+
+        </div>
+
         <div v-on:click="doc._titleEdit = true" v-show="!doc._titleEdit" :style="'font-weight: 400;font-size: 22px;    line-height: 1.4;margin-bottom: 14px;' + doc.titleStyle">
             {{doc.title}}
         </div>
@@ -37,12 +80,13 @@
                 <div :_key="item._key" v-show="!item._editable" :style="item.style">
                     {{item.text}}
                 </div>
-                <textarea :_key="item._key" v-show="item._editable" style="width:100%;height:100%;" v-model="item.text"></textarea>
+                <textarea :_key="item._key" v-show="item._editable" rows="4" style="width:100%;height:100%;" v-model="item.text"></textarea>
             </div>
             <div v-if="item.tag === 'image'" style="text-align: center;margin-top: 10px;margin-right: 0%;margin-left: 0%;box-sizing: border-box;">
                 <div :style="'position:relative;'+item.wrapStyle">
                     <img :_key="item._key" :style="'width:100%;' +item.style" mode="widthFix" :src="path + item.src" />
-                    <img v-if="data.doc.thumbnail === 'thumbnail' + item.src" title="列表缩略图" src="infoedit/images/icon.png" style="background:white;position:absolute;top:0;right:0;width:40px;height: 40px;" />
+                    <img v-if="data.doc.thumbnail === 'thumbnail' + item.src" title="列表缩略图" src="infoedit/images/icon.png"
+                        style="background:white;position:absolute;top:0;right:0;width:40px;height: 40px;" />
                 </div>
             </div>
             <div v-if="item.tag === 'audio'" :style="'padding:20px 0;' + item.wrapStyle">
@@ -60,18 +104,28 @@
                 </div>
             </div>
             <div v-if="item.tag === 'video'" :style="'text-align:center;' + item.wrapStyle">
-                <video :_key="item._key" :src="path + item.src" :style="item.style" controls></video>
+                <video :_key="item._key" :src="path + item.src" :style="'width:100%;' + item.style" controls></video>
             </div>
             <div v-if="item._show" class="blockButtons">
                 <span>{{item.tag}}</span>
                 <button v-show="item.tag === 'p'" :_key="item._key" v-on:click="edit">编辑</button>
-                <button v-show="item.tag === 'image'" :_key="item._key" v-on:click.stop="changeImage">换图片</button>
-                <button v-show="item.tag === 'audio'" :_key="item._key" v-on:click.stop="changeAudio">换音频</button>
-                <button v-show="item.tag === 'video'" :_key="item._key" v-on:click.stop="changeVideo">换视频</button>
+                <button v-show="item.tag === 'image'" :_key="item._key" v-on:click.stop="changeFile('image')">换图片</button>
+                <button v-show="item.tag === 'audio'" :_key="item._key" v-on:click.stop="changeFile('audio')">换音频</button>
+                <button v-show="item.tag === 'video'" :_key="item._key" v-on:click.stop="changeFile('video')">换视频</button>
                 <button :_key="item._key" v-on:click="remove">删除</button>
                 <button :_key="item._key" v-on:click="moveUp">上移</button>
                 <button :_key="item._key" v-on:click="moveDown">下移</button>
-                <button :_key="item._key" v-on:click="addItem">添加</button>
+                <div style="position: relative;display: inline-block;">
+                    <button :_key="item._key" v-on:click="openItem">添加</button>
+                    <ul id="actions" style="display: none;width:60px;padding:0;margin:25px 0 0 0;top:0;position: absolute;background: white;">
+                        <li><button class="partType" v-on:click="addItem('p')">加文本</button></li>
+                        <li><button class="partType" v-on:click="addItem('image')">加图片</button></li>
+                        <li><button class="partType" v-on:click="addItem('audio')">加音频</button></li>
+                        <li><button class="partType" v-on:click="addItem('video')">加视频</button></li>
+                        <li><button class="partType" v-on:click="addItem('br')">加空行</button></li>
+                        <li><button class="partType" v-on:click="addItem('hr')">加横线</button></li>
+                    </ul>
+                </div>
                 <button v-show="item.tag === 'image'" :_key="item._key" v-on:click="doThumbnail(item.src)">缩略图</button>
             </div>
         </div>
@@ -101,7 +155,7 @@
                 break;
             }
         }
-        if(!path) {
+        if (!path) {
             return;
         }
         if (path.startsWith("datas/p/")) {
@@ -109,18 +163,17 @@
             if (pos > 0) {
                 key = path.substring(8, pos);
             }
-        } else if(path === "datas/intro/") {
+        } else if (path === "datas/intro/") {
             key = "intro";
         }
-        if(!key) {
+        if (!key) {
             return;
         }
 
 
         let url = path + key + ".json?v" + new Date().getTime();
-        console.log(url)
         $.getJSON(url, function (data) {
-            console.dir(data)
+            // console.dir(data)
             buildApp(data)
         })
     });
@@ -184,44 +237,22 @@
                         data.doc.contents.splice(index, 1)
                     }
                 },
-                save: function () {
-
-                },
-                changeImage: function (event) {
-                    if (currentItem && data.doc.images) {
-                        let index = data.doc.images.indexOf(currentItem.src);
-                        if (index >= 0) {
-                            index += 1;
-                            if (index === data.doc.images.length) {
-                                index = 0;
+                changeFile: function (fileType) {
+                    let url = "service?name=pathfiles&path=" + path + "&type=" + fileType + "&v=" + new Date().getTime();
+                    $.getJSON(url, function (ret) {
+                        if (ret.retCode === 0 && ret.data && ret.data.length > 0) {
+                            let index = ret.data.indexOf(currentItem.src);
+                            if (index >= 0) {
+                                index += 1;
+                                if (index === ret.data.length) {
+                                    index = 0;
+                                }
+                                currentItem.src = ret.data[index];
+                            } else {
+                                currentItem.src = ret.data[0];
                             }
-                            currentItem.src = data.doc.images[index];
                         }
-                    }
-                },
-                changeAudio: function (event) {
-                    if (currentItem && data.doc.audios) {
-                        let index = data.doc.audios.indexOf(currentItem.src);
-                        if (index >= 0) {
-                            index += 1;
-                            if (index === data.doc.audios.length) {
-                                index = 0;
-                            }
-                            currentItem.src = data.doc.audios[index];
-                        }
-                    }
-                },
-                changeVideo: function (event) {
-                    if (currentItem && data.doc.videos) {
-                        let index = data.doc.videos.indexOf(currentItem.src);
-                        if (index >= 0) {
-                            index += 1;
-                            if (index === data.doc.videos.length) {
-                                index = 0;
-                            }
-                            currentItem.src = data.doc.videos[index];
-                        }
-                    }
+                    })
                 },
                 moveUp: function () {
                     let index = data.doc.contents.indexOf(currentItem);
@@ -239,11 +270,22 @@
                         data.doc.contents[index] = downItem;
                     }
                 },
-                addItem: function () {
+                openItem: function () {
+                    $("#actions").toggle();
+                },
+                addItem: function (tag) {
                     let index = data.doc.contents.indexOf(currentItem);
                     let item = {
-                        "tag": "p",
-                        "text": "新加段落"
+                        "tag": tag
+                    }
+                    if (tag === "p") {
+                        item.text = "新加段落";
+                    } else if (tag === "vido") {
+                        item.src = "";
+                    } else if (tag === "audio") {
+                        item.src = "";
+                    } else if (tag === "image") {
+                        item.src = "";
                     }
                     item._key = createGuid();
                     item._show = false;
@@ -251,20 +293,33 @@
                     items[item._key] = item;
 
                     data.doc.contents.splice(index + 1, 0, item);
-                    console.dir(data.doc.contents)
                 },
                 doThumbnail: function (imageSrc) {
                     data.doc.thumbnail = "thumbnail" + imageSrc;
-                    console.dir(currentItem)
                     let updateData = {
                         "thumbnail": "thumbnail" + imageSrc,
                         "key": key
                     }
                     savePOI(updateData);
-                    console.dir(updateData)
                 },
                 doSubmit: function () {
                     saveDoc(regularData(data.doc));
+                },
+                uploadFiles: function () {
+                    let $upload = $('#fileUpload');
+                    $upload.fileupload({
+                        url: "upload?name=uploaddetailfiles&path=" + path,
+                        dataType: 'json',
+                        done: function (e, ret) {
+                            if (ret.result.retCode === 0) {
+                            } else if (ret.result.message) {
+                                alert(ret.result.message)
+                            }
+                        },
+                        progressall: function (e, ret) {
+                        }
+                    })
+
                 }
             }
         })

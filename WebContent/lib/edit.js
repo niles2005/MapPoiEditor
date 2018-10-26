@@ -188,7 +188,6 @@ $(document).ready(function () {
             $("#poiLatitude").val(poi.latitude);
             $("#poiLongitude").val(poi.longitude);
         }
-        updatePOIImages(poi);
     }
 
     function clearCurrentGroupMarkers() {
@@ -199,45 +198,6 @@ $(document).ready(function () {
                     marker.setMap(null);
                 }
             }
-        }
-    }
-
-    function updatePOIImages(poi, forceReload) {
-        $("#poiImages").empty();
-		 let ss = '<div class="browser-item">' +
-			 '<span style="width: 100px;display: block;text-align: center;line-height: 60px;vertical-align: middle;">缺省图片</span>' +
-			 '<div class="mask" thumbnail=""></div>' +
-			 '</div>';
-		 let $browserItem = $(ss);
-		 if (!poi.thumbnail) {
-			 $browserItem.find(".mask").addClass("selected");
-		 }
-		 $("#poiImages").append($browserItem);
-		 $browserItem.click(function () {
-			 $("#poiImages").find(".mask.selected").removeClass("selected");
-			 $browserItem.find(".mask").addClass("selected");
-		 });
-		
-        if (poi.detailJson) {
-            $.getJSON(poi.detailPath + poi.detailJson + "?v=" + new Date().getTime(),function(data) {
-				if(data.images) {
-					 for (let item of data.images) {
-						 let ss = '<div class="browser-item">' +
-							 '<img src="' + poi.detailPath + item + '"/>' +
-							 '<div class="mask" thumbnail="' + item + '"></div>' +
-							 '</div>';
-						 let $browserItem = $(ss);
-						 if (poi.thumbnail == "thumbnail" +item) {
-							 $browserItem.find(".mask").addClass("selected");
-						 }
-						 $("#poiImages").append($browserItem);
-						 $browserItem.click(function () {
-							 $("#poiImages").find(".mask.selected").removeClass("selected");
-							 $browserItem.find(".mask").addClass("selected");
-						 });
-					 }
-				}
-            });
         }
     }
 
@@ -269,16 +229,11 @@ $(document).ready(function () {
 
         let poiDetailUrl = $.trim($("#poiDetailUrl").val());
 
-        let thumbnail = $("#poiImages").find(".mask.selected").attr("thumbnail");
         currentPoi.name = name;
         currentPoi.address = address;
         currentPoi.latitude = lat;
         currentPoi.longitude = lon;
         currentPoi.detailUrl = poiDetailUrl;
-		if(thumbnail) {
-			thumbnail = "thumbnail" + thumbnail;
-		}
-        currentPoi.thumbnail = thumbnail;
 
         currentMarker.setTitle(name);
 
@@ -365,10 +320,6 @@ $(document).ready(function () {
                 $("#detailSave").removeAttr("disabled");
                 if (ret.retCode === 0) {
                     currentPoi.detailUrl = poiDetailUrl;
-                    if (ret.data) {
-                        currentPoi.updateVersion = ret.data.updateVersion;
-                        updatePOIImages(currentPoi);
-                    }
                     //加载images
                 } else {
                     if (ret.message) {
