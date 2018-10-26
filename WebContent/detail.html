@@ -70,7 +70,7 @@
 
         </div>
 
-        <div v-on:click="doc._titleEdit = true" v-show="!doc._titleEdit" :style="'font-weight: 400;font-size: 22px;    line-height: 1.4;margin-bottom: 14px;' + doc.titleStyle">
+        <div v-on:click="unselect();doc._titleEdit = true" v-show="!doc._titleEdit" :style="'font-weight: 400;font-size: 22px;    line-height: 1.4;margin-bottom: 14px;' + doc.titleStyle">
             {{doc.title}}
         </div>
         <input v-on:blur="doc._titleEdit = false" v-show="doc._titleEdit" style="width:100%;" v-model="doc.title" />
@@ -131,7 +131,7 @@
         </div>
 
         <div v-if="doc.from" style="color:#576b95;font-size:14px;margin:20px 0;">
-            来源:<span v-on:click="doc._fromEdit = true" v-show="!doc._fromEdit">{{doc.from}}</span>
+            来源:<span v-on:click="unselect();doc._fromEdit = true" v-show="!doc._fromEdit">{{doc.from}}</span>
             <input v-on:blur="doc._fromEdit = false" v-show="doc._fromEdit" v-focus v-model="doc.from" />
         </div>
     </div>
