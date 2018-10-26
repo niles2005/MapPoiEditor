@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="initial-scale = 1, user-scalable = no">
+
+
+    <link type="text/css" href="./css/bootstrap.min.css" rel="stylesheet">
+
+    <script type="text/javascript" src="./lib/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript" src="./lib/vue.min.js" charset="utf-8"></script>
+    <style>
+        .blockButtons {
+            position: absolute;
+            top: -50px;
+            background: lightblue;
+            width: 100%;
+            margin: 5px 0;
+            padding: 5px 0;
+            z-index: 100;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app" :style="'background-color: #fff;padding: 20px 16px 12px;text-align: justify;color: #333;font-size: 17px;font-family: 宋体;font-size: 14px;line-height: 1.6em;' + doc.docStyle">
+        <button style="z-index:1000;top:10px;background:lightgreen;right:10px;position: fixed;" v-on:click="doSubmit">提交</button>
+        <div v-on:click="doc._titleEdit = true" v-show="!doc._titleEdit" :style="'font-weight: 400;font-size: 22px;    line-height: 1.4;margin-bottom: 14px;' + doc.titleStyle">
+            {{doc.title}}
+        </div>
+        <input v-on:blur="doc._titleEdit = false" v-show="doc._titleEdit" style="width:100%;" v-model="doc.title" />
+
+        <div v-on:click="focusItem" v-for="item in doc.contents" :style="'position:relative;box-sizing: border-box;' +doc.blockStyle">
+            <div v-if="item.tag === 'p'" :style="item.wrapStyle">
+                <div :_key="item._key" v-show="!item._editable" :style="item.style">
+                    {{item.text}}
+                </div>
+                <textarea :_key="item._key" v-show="item._editable" style="width:100%;height:100%;" v-model="item.text"></textarea>
+            </div>
+            <div v-if="item.tag === 'image'" style="text-align: center;margin-top: 10px;margin-right: 0%;margin-left: 0%;box-sizing: border-box;">
+                <div :style="'position:relative;'+item.wrapStyle">
+                    <img :_key="item._key" :style="'width:100%;' +item.style" mode="widthFix" :src="path + item.src" />
+                    <img v-if="data.doc.thumbnail === 'thumbnail' + item.src" title="列表缩略图" src="infoedit/images/icon.png" style="background:white;position:absolute;top:0;right:0;width:40px;height: 40px;" />
+                </div>
+            </div>
+            <div v-if="item.tag === 'audio'" :style="'padding:20px 0;' + item.wrapStyle">
+                <audio :_key="item._key" :style="item.style" :name="item.name" :poster="item.poster" :author="item.author"
+                    :src="path + item.src" controls></audio>
+            </div>
+
+            <div :_key="item._key" v-if="item.tag === 'br'" :style="'height:15px;' + item.wrapStyle">
+                <div :_key="item._key" :style="'height:10px;' + item.style">
+                </div>
+            </div>
+
+            <div :_key="item._key" v-if="item.tag === 'hr'" :style="'padding:5px 0;' + item.wrapStyle">
+                <div :_key="item._key" :style="'height:1px;background-color:#b2b2b2;' + item.style">
+                </div>
+            </div>
+            <div v-if="item.tag === 'video'" :style="'text-align:center;' + item.wrapStyle">
+                <video :_key="item._key" :src="path + item.src" :style="item.style" controls></video>
+            </div>
+            <div v-if="item._show" class="blockButtons">
+                <span>{{item.tag}}</span>
+                <button v-show="item.tag === 'p'" :_key="item._key" v-on:click="edit">编辑</button>
+                <button v-show="item.tag === 'image'" :_key="item._key" v-on:click.stop="changeImage">换图片</button>
+                <button v-show="item.tag === 'audio'" :_key="item._key" v-on:click.stop="changeAudio">换音频</button>
+                <button v-show="item.tag === 'video'" :_key="item._key" v-on:click.stop="changeVideo">换视频</button>
+                <button :_key="item._key" v-on:click="remove">删除</button>
+                <button :_key="item._key" v-on:click="moveUp">上移</button>
+                <button :_key="item._key" v-on:click="moveDown">下移</button>
+                <button :_key="item._key" v-on:click="addItem">添加</button>
+                <button v-show="item.tag === 'image'" :_key="item._key" v-on:click="doThumbnail(item.src)">缩略图</button>
+            </div>
+        </div>
+
+        <div v-if="doc.from" style="color:#576b95;font-size:14px;margin:20px 0;">
+            来源:<span v-on:click="doc._fromEdit = true" v-show="!doc._fromEdit">{{doc.from}}</span>
+            <input v-on:blur="doc._fromEdit = false" v-show="doc._fromEdit" v-focus v-model="doc.from" />
+        </div>
+    </div>
+
+</body>
+<script>
+    var key;
+    var path;
+    var currentItem;
+    var focusStyle = ";background:lime;";
+    var items = {};
+    var data;
+
+    $(document).ready(function () {
+        var query = window.location.search.substring(1);
+        var vars = query.split('&');
+        for (var i = 0; i < vars.length; i++) {
+            var pair = vars[i].split('=');
+            if (pair[0] === "path") {
+                path = pair[1];
+                break;
+            }
+        }
+        if(!path) {
+            return;
+        }
+        if (path.startsWith("datas/p/")) {
+            let pos = path.indexOf("/", 8);
+            if (pos > 0) {
+                key = path.substring(8, pos);
+            }
+        } else if(path === "datas/intro/") {
+            key = "intro";
+        }
+        if(!key) {
+            return;
+        }
+
+
+        let url = path + key + ".json?v" + new Date().getTime();
+        console.log(url)
+        $.getJSON(url, function (data) {
+            console.dir(data)
+            buildApp(data)
+        })
+    });
+
+
+    function buildApp(doc) {
+        doc._titleEdit = false;
+        doc._fromEdit = false;
+        for (let index in doc.contents) {
+            let item = doc.contents[index];
+            item._key = createGuid();
+            item._show = false;
+            item._editable = false;
+            items[item._key] = item;
+        }
+        data = {
+            path: path,
+            doc: doc
+        }
+
+        new Vue({
+            el: "#app",
+            data: data,
+            methods: {
+                focusItem: function (event) {
+                    data.doc._titleEdit = false;
+                    data.doc._fromEdit = false;
+                    let id = event.target.getAttribute("_key")
+                    if (currentItem) {
+                        currentItem._show = false;
+                        if (currentItem.wrapStyle) {
+                            let pos = currentItem.wrapStyle.indexOf(focusStyle);
+                            if (pos != -1) {
+                                currentItem.wrapStyle = currentItem.wrapStyle.substring(0, pos)
+                            }
+                        }
+                        if (currentItem._key !== id) {
+                            currentItem._editable = false;
+                        }
+                    }
+                    if (id) {
+                        currentItem = items[id];
+                        if (currentItem) {
+                            currentItem._show = true;
+                            if (currentItem.wrapStyle) {
+                                currentItem.wrapStyle += focusStyle;
+                            } else {
+                                currentItem.wrapStyle = focusStyle;
+                            }
+                        }
+                    }
+                },
+                edit: function (event) {
+                    if (currentItem) {
+                        currentItem._editable = true;
+                    }
+                },
+                remove: function () {
+                    if (currentItem) {
+                        let index = data.doc.contents.indexOf(currentItem);
+                        data.doc.contents.splice(index, 1)
+                    }
+                },
+                save: function () {
+
+                },
+                changeImage: function (event) {
+                    if (currentItem && data.doc.images) {
+                        let index = data.doc.images.indexOf(currentItem.src);
+                        if (index >= 0) {
+                            index += 1;
+                            if (index === data.doc.images.length) {
+                                index = 0;
+                            }
+                            currentItem.src = data.doc.images[index];
+                        }
+                    }
+                },
+                changeAudio: function (event) {
+                    if (currentItem && data.doc.audios) {
+                        let index = data.doc.audios.indexOf(currentItem.src);
+                        if (index >= 0) {
+                            index += 1;
+                            if (index === data.doc.audios.length) {
+                                index = 0;
+                            }
+                            currentItem.src = data.doc.audios[index];
+                        }
+                    }
+                },
+                changeVideo: function (event) {
+                    if (currentItem && data.doc.videos) {
+                        let index = data.doc.videos.indexOf(currentItem.src);
+                        if (index >= 0) {
+                            index += 1;
+                            if (index === data.doc.videos.length) {
+                                index = 0;
+                            }
+                            currentItem.src = data.doc.videos[index];
+                        }
+                    }
+                },
+                moveUp: function () {
+                    let index = data.doc.contents.indexOf(currentItem);
+                    if (index > 0) {
+                        let upItem = data.doc.contents[index - 1];
+                        data.doc.contents[index - 1] = currentItem;
+                        data.doc.contents[index] = upItem;
+                    }
+                },
+                moveDown: function () {
+                    let index = data.doc.contents.indexOf(currentItem);
+                    if (index < data.doc.contents.length - 1) {
+                        let downItem = data.doc.contents[index + 1];
+                        data.doc.contents[index + 1] = currentItem;
+                        data.doc.contents[index] = downItem;
+                    }
+                },
+                addItem: function () {
+                    let index = data.doc.contents.indexOf(currentItem);
+                    let item = {
+                        "tag": "p",
+                        "text": "新加段落"
+                    }
+                    item._key = createGuid();
+                    item._show = false;
+                    item._editable = false;
+                    items[item._key] = item;
+
+                    data.doc.contents.splice(index + 1, 0, item);
+                    console.dir(data.doc.contents)
+                },
+                doThumbnail: function (imageSrc) {
+                    data.doc.thumbnail = "thumbnail" + imageSrc;
+                    console.dir(currentItem)
+                    let updateData = {
+                        "thumbnail": "thumbnail" + imageSrc,
+                        "key": key
+                    }
+                    savePOI(updateData);
+                    console.dir(updateData)
+                },
+                doSubmit: function () {
+                    saveDoc(regularData(data.doc));
+                }
+            }
+        })
+    }
+
+    function regularData(data) {
+        let newData = {};
+        for (let k in data) {
+            if (!k.startsWith("_")) {
+                if ($.isArray(data[k])) {
+                    newData[k] = validArray(data[k])
+                } else {
+                    newData[k] = data[k];
+                }
+            }
+        }
+        return newData;
+        function validArray(items) {
+            let newArray = [];
+            for (let item of items) {
+                let type = $.type(item);
+                if (type === "string") {
+                    newArray.push(item);
+                } else {
+                    newArray.push(validObject(item));
+                }
+            }
+            return newArray;
+        }
+        function validObject(item) {
+            if ($.isArray(item)) {
+                let newArray = [];
+                for (let k of item) {
+                    if ($.isArray(k)) {
+                        newArray.push(validArray(k));
+                    } else {
+                        newArray.push(K);
+                    }
+                }
+                return newArray;
+            } else {
+                let newItem = {};
+                for (let k in item) {
+                    if (!k.startsWith("_")) {
+                        if ($.isArray(item[k])) {
+                            newItem[k] = validArray(item[k])
+                        } else {
+                            newItem[k] = item[k];
+                        }
+                    }
+                }
+                return newItem;
+            }
+        }
+
+    }
+
+    function saveDoc(doc) {
+        let fileContent = JSON.stringify(doc);
+
+        if (fileContent) {
+            let url = path + key + ".json";
+            $.ajax({
+                type: "POST",
+                url: "service?name=filesave&path=" + url,
+                dataType: "json",
+                data: fileContent,
+                contentType: 'text/plain; charset=UTF-8',
+                cache: false,
+                success: function (ret) {
+                    if (ret.retCode === 0) {
+                        console.log("save success!")
+                    } else {
+                        if (ret.message) {
+                            alert(ret.message)
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    function savePOI(poi) {
+        $.ajax({
+            type: "POST",
+            url: "service?name=updatepoi",
+            dataType: "json",
+            data: JSON.stringify(poi),
+            contentType: 'text/plain; charset=UTF-8',
+            cache: false,
+            success: function (ret) {
+                if (ret.retCode === 0) {
+                    //数据保存
+                    $.getJSON("service?name=saveall&v=" + new Date().getTime());
+                } else {
+                    if (ret.message) {
+                        alert(ret.message)
+                    }
+                }
+            }
+        });
+    }
+
+    function createGuid() {
+        function S4() {
+            return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+        }
+
+        // then to call it, plus stitch in '4' in the third group
+        guid = (S4() + S4() + "-" + S4() + "-4" + S4().substr(0, 3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase();
+        return guid;
+    }
+
+</script>
+
+</html>

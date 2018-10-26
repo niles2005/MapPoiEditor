@@ -219,7 +219,7 @@ $(document).ready(function () {
 		 });
 		
         if (poi.detailJson) {
-            $.getJSON(poi.detailPath + poi.detailJson,function(data) {
+            $.getJSON(poi.detailPath + poi.detailJson + "?v=" + new Date().getTime(),function(data) {
 				if(data.images) {
 					 for (let item of data.images) {
 						 let ss = '<div class="browser-item">' +
@@ -408,9 +408,9 @@ $(document).ready(function () {
 
     $("#detailJsonView").click(function() {
 		if(currentPoi.detailJson) {
-			window.open("infoedit/index.html?path=" + currentPoi.detailPath);
+			window.open("detail.html?path=" + currentPoi.detailPath);
 		} else {
-			window.open("infoedit/index.html?path=datas/p/" + currentPoi.key + "/");
+			window.open("detail.html?path=datas/p/" + currentPoi.key + "/");
 		}
     });
 	
@@ -431,7 +431,7 @@ $(document).ready(function () {
     //==========================  app config start ========================
 
     $("#introEdit").click(function() {
-        window.open("infoedit/index.html?path=datas/intro/");
+        window.open("detail.html?path=datas/intro/");
     });
 
     $("#pageConfig").click(function () {

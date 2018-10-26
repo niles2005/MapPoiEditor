@@ -30,6 +30,7 @@ public class UpdatePOIService extends Service {
 				if(err != null) {
 					ret.setError(err);
 				} else {//success
+					
 					POI poi = POIManager.getInstance().getPOI(json.getString("key"));
 					ret.setSuccess(poi.getJson());
 				}
