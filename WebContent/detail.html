@@ -59,13 +59,14 @@
 </head>
 
 <body>
-    <div id="app" :style="'background-color: #fff;padding: 50px 16px 12px;text-align: justify;color: #333;font-size: 17px;font-family: 宋体;font-size: 14px;line-height: 1.6em;' + doc.docStyle">
+    <div id="app" :style="'background-color: #fff;padding: 35px 16px 12px;text-align: justify;color: #333;font-size: 17px;font-family: 宋体;font-size: 14px;line-height: 1.6em;' + doc.docStyle">
         <div style="z-index:1000;top:10px;right:10px;position: fixed;">
             <button style="background:lightgreen;float:right;margin: 0 3px;" v-on:click="doSubmit">提交</button>
-            <span class="fileinput-button">
-                    <span class="topSpanButton">上传媒体文件</span>
-                    <input v-on:click="uploadFiles" accept="image/*,audio/*,video/*" type="file" id="fileUpload">
-                </span>
+            <span class="fileinput-button" style="float:right;">
+                <span class="topSpanButton">上传媒体文件</span>
+                <input v-on:click="uploadFiles" accept="image/*,audio/*,video/*" type="file" id="fileUpload">
+            </span>
+            <button style="background:lightgreen;float:right;margin: 0 3px;" v-on:click="unselect">取消选择</button>
 
         </div>
 
@@ -197,6 +198,20 @@
             el: "#app",
             data: data,
             methods: {
+                unselect: function() {
+                    data.doc._titleEdit = false;
+                    data.doc._fromEdit = false;
+                    if (currentItem) {
+                        currentItem._show = false;
+                        currentItem._editable = false;
+                        if (currentItem.wrapStyle) {
+                            let pos = currentItem.wrapStyle.indexOf(focusStyle);
+                            if (pos != -1) {
+                                currentItem.wrapStyle = currentItem.wrapStyle.substring(0, pos)
+                            }
+                        }
+                    }
+                },
                 focusItem: function (event) {
                     data.doc._titleEdit = false;
                     data.doc._fromEdit = false;
@@ -223,7 +238,7 @@
                                 currentItem.wrapStyle = focusStyle;
                             }
                         }
-                    } 
+                    }
                 },
                 edit: function (event) {
                     if (currentItem) {
@@ -302,16 +317,7 @@
                     savePOI(updateData);
                 },
                 doSubmit: function () {
-                    if (currentItem) {
-                        currentItem._show = false;
-                        currentItem._editable = false;
-                        if (currentItem.wrapStyle) {
-                            let pos = currentItem.wrapStyle.indexOf(focusStyle);
-                            if (pos != -1) {
-                                currentItem.wrapStyle = currentItem.wrapStyle.substring(0, pos)
-                            }
-                        }
-                    }
+                    this.unselect();
 
                     saveDoc(regularData(data.doc));
                 },
