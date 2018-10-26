@@ -47,7 +47,6 @@
             border-width: 2px;
             border-style: outset;
             padding: 1px 6px;
-            border-color: buttonface;
             font: 400 13.3333px Arial;
         }
 
@@ -80,7 +79,7 @@
                 <div :_key="item._key" v-show="!item._editable" :style="item.style">
                     {{item.text}}
                 </div>
-                <textarea :_key="item._key" v-show="item._editable" rows="4" style="width:100%;height:100%;" v-model="item.text"></textarea>
+                <textarea :_key="item._key" v-show="item._editable" rows="12" style="width:100%;height:100%;" v-model="item.text"></textarea>
             </div>
             <div v-if="item.tag === 'image'" style="text-align: center;margin-top: 10px;margin-right: 0%;margin-left: 0%;box-sizing: border-box;">
                 <div :style="'position:relative;'+item.wrapStyle">
@@ -224,7 +223,7 @@
                                 currentItem.wrapStyle = focusStyle;
                             }
                         }
-                    }
+                    } 
                 },
                 edit: function (event) {
                     if (currentItem) {
@@ -303,6 +302,17 @@
                     savePOI(updateData);
                 },
                 doSubmit: function () {
+                    if (currentItem) {
+                        currentItem._show = false;
+                        currentItem._editable = false;
+                        if (currentItem.wrapStyle) {
+                            let pos = currentItem.wrapStyle.indexOf(focusStyle);
+                            if (pos != -1) {
+                                currentItem.wrapStyle = currentItem.wrapStyle.substring(0, pos)
+                            }
+                        }
+                    }
+
                     saveDoc(regularData(data.doc));
                 },
                 uploadFiles: function () {
