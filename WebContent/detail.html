@@ -96,7 +96,7 @@
 
             <div class="swiper-item" v-for="(item,index) of doc.swiper.images" v-on:click="selectSwiper(index)">
                 <img :src="path + item" style="width:100%;    vertical-align: middle;">
-                <div v-if="doc._selectSwiperIndex === index" class="swiperButtons">
+                <div v-if="doc.swiper._selectSwiperIndex === index" class="swiperButtons">
                     <button style="display:inline-block" v-on:click="addSwiperImage">加</button>
                     <button style="display:inline-block" v-on:click="removeSwiperImage">删</button>
                     <button style="display:inline-block" v-on:click="changeSwiperImage(index)">换</button>
@@ -106,53 +106,53 @@
             </div>
         </div>
 
-        <div v-on:click="unselect();doc._titleEdit = true" v-show="!doc._titleEdit" :style="'font-weight: 400;font-size: 22px;    line-height: 1.4;margin-bottom: 14px;' + doc.titleStyle">
-            {{doc.title}}
+        <div v-on:click="focusItem(doc._title);doc._title._editable = true" v-show="!doc._title._editable" :style="'font-weight: 400;font-size: 22px;    line-height: 1.4;margin-bottom: 14px;' + doc.titleStyle">
+            {{doc._title.title}}
         </div>
-        <input v-on:blur="doc._titleEdit = false" v-show="doc._titleEdit" style="width:100%;" v-model="doc.title" />
+        <input v-on:click="focusItem(doc._title);" v-on:blur="doc._title._editable = false" v-show="doc._title._editable" style="width:100%;" v-model="doc._title.title" />
 
-        <div v-on:click="focusItem" v-for="item in doc.contents" :style="'position:relative;box-sizing: border-box;' +doc.blockStyle">
+        <div v-on:click="focusItem(item)" v-for="item in doc.contents" :style="'position:relative;box-sizing: border-box;' +doc.blockStyle">
             <div v-if="item.tag === 'p'" :style="item.wrapStyle">
-                <div :_key="item._key" v-show="!item._editable" :style="item.style">
+                <div v-show="!item._editable" :style="item.style">
                     {{item.text}}
                 </div>
-                <textarea :_key="item._key" v-show="item._editable" rows="12" style="width:100%;height:100%;" v-model="item.text"></textarea>
+                <textarea v-show="item._editable" rows="12" style="width:100%;height:100%;" v-model="item.text"></textarea>
             </div>
             <div v-if="item.tag === 'image'" style="text-align: center;margin-top: 10px;margin-right: 0%;margin-left: 0%;box-sizing: border-box;">
                 <div :style="'position:relative;'+item.wrapStyle">
-                    <img :_key="item._key" :style="'width:100%;' +item.style" mode="widthFix" :src="path + item.src" />
+                    <img :style="'width:100%;' +item.style" mode="widthFix" :src="path + item.src" />
                     <img v-if="data.doc.thumbnail === 'thumbnail' + item.src" title="列表缩略图" src="infoedit/images/icon.png"
                         style="background:white;position:absolute;top:0;right:0;width:40px;height: 40px;" />
                 </div>
             </div>
             <div v-if="item.tag === 'audio'" :style="'padding:20px 0;' + item.wrapStyle">
-                <audio :_key="item._key" :style="item.style" :name="item.name" :poster="item.poster" :author="item.author"
+                <audio :style="item.style" :name="item.name" :poster="item.poster" :author="item.author"
                     :src="path + item.src" controls></audio>
             </div>
 
-            <div :_key="item._key" v-if="item.tag === 'br'" :style="'height:15px;' + item.wrapStyle">
-                <div :_key="item._key" :style="'height:10px;' + item.style">
+            <div v-if="item.tag === 'br'" :style="'height:15px;' + item.wrapStyle">
+                <div :style="'height:10px;' + item.style">
                 </div>
             </div>
 
-            <div :_key="item._key" v-if="item.tag === 'hr'" :style="'padding:5px 0;' + item.wrapStyle">
-                <div :_key="item._key" :style="'height:1px;background-color:#b2b2b2;' + item.style">
+            <div v-if="item.tag === 'hr'" :style="'padding:5px 0;' + item.wrapStyle">
+                <div :style="'height:1px;background-color:#b2b2b2;' + item.style">
                 </div>
             </div>
             <div v-if="item.tag === 'video'" :style="'text-align:center;' + item.wrapStyle">
-                <video :_key="item._key" :src="path + item.src" :style="'width:100%;' + item.style" controls></video>
+                <video :src="path + item.src" :style="'width:100%;' + item.style" controls></video>
             </div>
             <div v-if="item._show" class="blockButtons">
                 <span>{{item.tag}}</span>
-                <button v-show="item.tag === 'p'" :_key="item._key" v-on:click="edit">编辑</button>
-                <button v-show="item.tag === 'image'" :_key="item._key" v-on:click.stop="changeFile('image')">换图片</button>
-                <button v-show="item.tag === 'audio'" :_key="item._key" v-on:click.stop="changeFile('audio')">换音频</button>
-                <button v-show="item.tag === 'video'" :_key="item._key" v-on:click.stop="changeFile('video')">换视频</button>
-                <button :_key="item._key" v-on:click="remove">删除</button>
-                <button :_key="item._key" v-on:click="moveUp">上移</button>
-                <button :_key="item._key" v-on:click="moveDown">下移</button>
+                <button v-show="item.tag === 'p'" v-on:click="edit">编辑</button>
+                <button v-show="item.tag === 'image'" v-on:click.stop="changeFile('image')">换图片</button>
+                <button v-show="item.tag === 'audio'" v-on:click.stop="changeFile('audio')">换音频</button>
+                <button v-show="item.tag === 'video'" v-on:click.stop="changeFile('video')">换视频</button>
+                <button v-on:click="remove">删除</button>
+                <button v-on:click="moveUp">上移</button>
+                <button v-on:click="moveDown">下移</button>
                 <div style="position: relative;display: inline-block;">
-                    <button :_key="item._key" v-on:click="openItem">添加</button>
+                    <button v-on:click="openItem">添加</button>
                     <ul id="actions" style="display: none;width:60px;padding:0;margin:25px 0 0 0;top:0;position: absolute;background: white;">
                         <li><button class="partType" v-on:click="addItem('p')">加文本</button></li>
                         <li><button class="partType" v-on:click="addItem('image')">加图片</button></li>
@@ -162,13 +162,13 @@
                         <li><button class="partType" v-on:click="addItem('hr')">加横线</button></li>
                     </ul>
                 </div>
-                <button v-show="item.tag === 'image'" :_key="item._key" v-on:click="doThumbnail(item.src)">缩略图</button>
+                <button v-show="item.tag === 'image'" v-on:click="doThumbnail(item.src)">缩略图</button>
             </div>
         </div>
 
         <div v-if="doc.from" style="color:#576b95;font-size:14px;margin:20px 0;">
-            来源:<span v-on:click="unselect();doc._fromEdit = true" v-show="!doc._fromEdit">{{doc.from}}</span>
-            <input v-on:blur="doc._fromEdit = false" v-show="doc._fromEdit" v-focus v-model="doc.from" />
+            来源:<span v-on:click="focusItem(doc._from);doc._from._editable = true" v-show="!doc._from._editable">{{doc._from.from}}</span>
+            <input v-on:click="focusItem(doc._from);" v-on:blur="doc._from._editable = false" v-show="doc._from._editable" v-focus v-model="doc._from.from" />
         </div>
     </div>
 
@@ -178,7 +178,6 @@
     var path;
     var currentItem;
     var focusStyle = ";background:lime;";
-    var items = {};
     var data;
 
     $(document).ready(function () {
@@ -216,15 +215,21 @@
 
 
     function buildApp(doc) {
-        doc._titleEdit = false;
-        doc._fromEdit = false;
-        doc._selectSwiperIndex = -1;
+        doc._title = {
+            title: doc.title,
+            _editable:false
+        };
+        doc._from = {
+            from: doc.from,
+            _editable:false
+        };
         for (let index in doc.contents) {
             let item = doc.contents[index];
-            item._key = createGuid();
             item._show = false;
             item._editable = false;
-            items[item._key] = item;
+        }
+        if(doc.swiper) {
+            doc.swiper._selectSwiperIndex = -1;
         }
         data = {
             path: path,
@@ -236,9 +241,9 @@
             data: data,
             methods: {
                 unselect: function () {
-                    doc._selectSwiperIndex = -1;
-                    data.doc._titleEdit = false;
-                    data.doc._fromEdit = false;
+                    if(doc.swiper) {
+                        doc.swiper._selectSwiperIndex = -1;
+                    }
                     if (currentItem) {
                         currentItem._show = false;
                         currentItem._editable = false;
@@ -250,10 +255,10 @@
                         }
                     }
                 },
-                focusItem: function (event) {
-                    data.doc._titleEdit = false;
-                    data.doc._fromEdit = false;
-                    let id = event.target.getAttribute("_key")
+                focusItem: function (selectItem) {
+                    if (currentItem === selectItem) {
+                        return;
+                    }
                     if (currentItem) {
                         currentItem._show = false;
                         if (currentItem.wrapStyle) {
@@ -262,19 +267,17 @@
                                 currentItem.wrapStyle = currentItem.wrapStyle.substring(0, pos)
                             }
                         }
-                        if (currentItem._key !== id) {
+                        if (currentItem._editable) {
                             currentItem._editable = false;
                         }
                     }
-                    if (id) {
-                        currentItem = items[id];
-                        if (currentItem) {
-                            currentItem._show = true;
-                            if (currentItem.wrapStyle) {
-                                currentItem.wrapStyle += focusStyle;
-                            } else {
-                                currentItem.wrapStyle = focusStyle;
-                            }
+                    currentItem = selectItem;
+                    if (currentItem) {
+                        currentItem._show = true;
+                        if (currentItem.wrapStyle) {
+                            currentItem.wrapStyle += focusStyle;
+                        } else {
+                            currentItem.wrapStyle = focusStyle;
                         }
                     }
                 },
@@ -339,10 +342,8 @@
                     } else if (tag === "image") {
                         item.src = "";
                     }
-                    item._key = createGuid();
                     item._show = false;
                     item._editable = false;
-                    items[item._key] = item;
 
                     data.doc.contents.splice(index + 1, 0, item);
                 },
@@ -371,42 +372,40 @@
                     })
                 },
                 moveSwiper: function (offset) {
-                    if (doc._selectSwiperIndex + offset >= 0 && doc._selectSwiperIndex + offset <= doc.swiper.images.length - 1) {
-                        let theImage = doc.swiper.images[doc._selectSwiperIndex + offset];
-                        doc.swiper.images[doc._selectSwiperIndex + offset] = doc.swiper.images[doc._selectSwiperIndex];
-                        doc.swiper.images[doc._selectSwiperIndex] = theImage;
+                    if (doc.swiper._selectSwiperIndex + offset >= 0 && doc.swiper._selectSwiperIndex + offset <= doc.swiper.images.length - 1) {
+                        let theImage = doc.swiper.images[doc.swiper._selectSwiperIndex + offset];
+                        doc.swiper.images[doc.swiper._selectSwiperIndex + offset] = doc.swiper.images[doc.swiper._selectSwiperIndex];
+                        doc.swiper.images[doc.swiper._selectSwiperIndex] = theImage;
 
                         let images = [];
                         for (let k of doc.swiper.images) {
                             images.push(k);
                         }
-                        doc._selectSwiperIndex += offset;
+                        doc.swiper._selectSwiperIndex += offset;
                         doc.swiper.images = images;
                     }
                 },
                 addSwiperImage: function () {
-                    if (doc._selectSwiperIndex >= 0 && doc._selectSwiperIndex <= doc.swiper.images.length - 1) {
-                        doc.swiper.images.splice(doc._selectSwiperIndex+1, 0,"")
+                    if (doc.swiper._selectSwiperIndex >= 0 && doc.swiper._selectSwiperIndex <= doc.swiper.images.length - 1) {
+                        doc.swiper.images.splice(doc.swiper._selectSwiperIndex+1, 0,"")
 
                         let images = [];
                         for (let k of doc.swiper.images) {
                             images.push(k);
                         }
-                        doc._selectSwiperIndex = -1;
+                        doc.swiper._selectSwiperIndex = -1;
                         doc.swiper.images = images;
-                        console.dir(doc.swiper.images)
-                        console.dir(doc.swiper.images)
                     }
                 },
                 removeSwiperImage: function () {
-                    if (doc._selectSwiperIndex >= 0 && doc._selectSwiperIndex <= doc.swiper.images.length - 1) {
-                        doc.swiper.images.splice(doc._selectSwiperIndex, 1)
+                    if (doc.swiper._selectSwiperIndex >= 0 && doc.swiper._selectSwiperIndex <= doc.swiper.images.length - 1) {
+                        doc.swiper.images.splice(doc.swiper._selectSwiperIndex, 1)
 
                         let images = [];
                         for (let k of doc.swiper.images) {
                             images.push(k);
                         }
-                        doc._selectSwiperIndex = -1;
+                        doc.swiper._selectSwiperIndex = -1;
                         doc.swiper.images = images;
                     }
                 },
@@ -414,6 +413,7 @@
                     doc.swiper = {
                         "autoplay": true,
                         "indicatorDots": true,
+                        "_selectSwiperIndex":-1,
                         "images": [
                             ""
                         ]
@@ -423,7 +423,7 @@
                 doc.swiper = null;
             },
             selectSwiper: function (index) {
-                doc._selectSwiperIndex = index;
+                doc.swiper._selectSwiperIndex = index;
             },
             doThumbnail: function (imageSrc) {
                 data.doc.thumbnail = "thumbnail" + imageSrc;
@@ -435,8 +435,22 @@
             },
             doSubmit: function () {
                 this.unselect();
-
-                saveDoc(regularData(data.doc));
+                let title = doc._title.title;
+                let from = doc._from.from;
+                let newData = regularData(data.doc);
+                if(title) {
+                    newData.title = $.trim(title);
+                }
+                if(from || from === "") {
+                    from = $.trim(from);
+                    if(from.length === 0) {
+                        newData.from = null;    
+                    } else {
+                        newData.from = from;
+                    }
+                }
+                console.dir(newData)
+                saveDoc(newData);
             },
             uploadFiles: function () {
                 let $upload = $('#fileUpload');
@@ -554,16 +568,6 @@
                 }
             }
         });
-    }
-
-    function createGuid() {
-        function S4() {
-            return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
-        }
-
-        // then to call it, plus stitch in '4' in the third group
-        guid = (S4() + S4() + "-" + S4() + "-4" + S4().substr(0, 3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase();
-        return guid;
     }
 
 </script>
