@@ -109,7 +109,8 @@
         <div v-on:click="focusItem(doc._title);doc._title._editable = true" v-show="!doc._title._editable" :style="'font-weight: 400;font-size: 22px;    line-height: 1.4;margin-bottom: 14px;' + doc.titleStyle">
             {{doc._title.title}}
         </div>
-        <input v-on:click="focusItem(doc._title);" v-on:blur="doc._title._editable = false" v-show="doc._title._editable" style="width:100%;" v-model="doc._title.title" />
+        <input v-on:click="focusItem(doc._title);" v-on:blur="doc._title._editable = false" v-show="doc._title._editable"
+            style="width:100%;" v-model="doc._title.title" />
 
         <div v-on:click="focusItem(item)" v-for="item in doc.contents" :style="'position:relative;box-sizing: border-box;' +doc.blockStyle">
             <div v-if="item.tag === 'p'" :style="item.wrapStyle">
@@ -126,8 +127,8 @@
                 </div>
             </div>
             <div v-if="item.tag === 'audio'" :style="'padding:20px 0;' + item.wrapStyle">
-                <audio :style="item.style" :name="item.name" :poster="item.poster" :author="item.author"
-                    :src="path + item.src" controls></audio>
+                <audio :style="item.style" :name="item.name" :poster="item.poster" :author="item.author" :src="path + item.src"
+                    controls></audio>
             </div>
 
             <div v-if="item.tag === 'br'" :style="'height:15px;' + item.wrapStyle">
@@ -168,7 +169,8 @@
 
         <div v-if="doc.from" style="color:#576b95;font-size:14px;margin:20px 0;">
             来源:<span v-on:click="focusItem(doc._from);doc._from._editable = true" v-show="!doc._from._editable">{{doc._from.from}}</span>
-            <input v-on:click="focusItem(doc._from);" v-on:blur="doc._from._editable = false" v-show="doc._from._editable" v-focus v-model="doc._from.from" />
+            <input v-on:click="focusItem(doc._from);" v-on:blur="doc._from._editable = false" v-show="doc._from._editable"
+                v-focus v-model="doc._from.from" />
         </div>
     </div>
 
@@ -217,19 +219,28 @@
     function buildApp(doc) {
         doc._title = {
             title: doc.title,
-            _editable:false
+            _editable: false
         };
         doc._from = {
             from: doc.from,
-            _editable:false
+            _editable: false
         };
         for (let index in doc.contents) {
             let item = doc.contents[index];
             item._show = false;
             item._editable = false;
         }
-        if(doc.swiper) {
+        if (doc.swiper) {
             doc.swiper._selectSwiperIndex = -1;
+        } else {
+            doc.swiper = {
+                "autoplay": true,
+                "indicatorDots": true,
+                "_selectSwiperIndex": -1,
+                "images": [
+                    ""
+                ]
+            }
         }
         data = {
             path: path,
@@ -239,9 +250,12 @@
         new Vue({
             el: "#app",
             data: data,
+            created: function () {
+                doc.swiper = null;
+            },
             methods: {
                 unselect: function () {
-                    if(doc.swiper) {
+                    if (doc.swiper) {
                         doc.swiper._selectSwiperIndex = -1;
                     }
                     if (currentItem) {
@@ -387,7 +401,7 @@
                 },
                 addSwiperImage: function () {
                     if (doc.swiper._selectSwiperIndex >= 0 && doc.swiper._selectSwiperIndex <= doc.swiper.images.length - 1) {
-                        doc.swiper.images.splice(doc.swiper._selectSwiperIndex+1, 0,"")
+                        doc.swiper.images.splice(doc.swiper._selectSwiperIndex + 1, 0, "")
 
                         let images = [];
                         for (let k of doc.swiper.images) {
@@ -413,62 +427,62 @@
                     doc.swiper = {
                         "autoplay": true,
                         "indicatorDots": true,
-                        "_selectSwiperIndex":-1,
+                        "_selectSwiperIndex": -1,
                         "images": [
                             ""
                         ]
                     }
-            },
-            removeSwiper: function () {
-                doc.swiper = null;
-            },
-            selectSwiper: function (index) {
-                doc.swiper._selectSwiperIndex = index;
-            },
-            doThumbnail: function (imageSrc) {
-                data.doc.thumbnail = "thumbnail" + imageSrc;
-                let updateData = {
-                    "thumbnail": "thumbnail" + imageSrc,
-                    "key": key
-                }
-                savePOI(updateData);
-            },
-            doSubmit: function () {
-                this.unselect();
-                let title = doc._title.title;
-                let from = doc._from.from;
-                let newData = regularData(data.doc);
-                if(title) {
-                    newData.title = $.trim(title);
-                }
-                if(from || from === "") {
-                    from = $.trim(from);
-                    if(from.length === 0) {
-                        newData.from = null;    
-                    } else {
-                        newData.from = from;
+                },
+                removeSwiper: function () {
+                    doc.swiper = null;
+                },
+                selectSwiper: function (index) {
+                    doc.swiper._selectSwiperIndex = index;
+                },
+                doThumbnail: function (imageSrc) {
+                    data.doc.thumbnail = "thumbnail" + imageSrc;
+                    let updateData = {
+                        "thumbnail": "thumbnail" + imageSrc,
+                        "key": key
                     }
-                }
-                console.dir(newData)
-                saveDoc(newData);
-            },
-            uploadFiles: function () {
-                let $upload = $('#fileUpload');
-                $upload.fileupload({
-                    url: "upload?name=uploaddetailfiles&path=" + path,
-                    dataType: 'json',
-                    done: function (e, ret) {
-                        if (ret.result.retCode === 0) {
-                        } else if (ret.result.message) {
-                            alert(ret.result.message)
+                    savePOI(updateData);
+                },
+                doSubmit: function () {
+                    this.unselect();
+                    let title = doc._title.title;
+                    let from = doc._from.from;
+                    let newData = regularData(data.doc);
+                    if (title) {
+                        newData.title = $.trim(title);
+                    }
+                    if (from || from === "") {
+                        from = $.trim(from);
+                        if (from.length === 0) {
+                            newData.from = null;
+                        } else {
+                            newData.from = from;
                         }
-                    },
-                    progressall: function (e, ret) {
                     }
-                })
+                    console.dir(newData)
+                    saveDoc(newData);
+                },
+                uploadFiles: function () {
+                    let $upload = $('#fileUpload');
+                    $upload.fileupload({
+                        url: "upload?name=uploaddetailfiles&path=" + path,
+                        dataType: 'json',
+                        done: function (e, ret) {
+                            if (ret.result.retCode === 0) {
+                            } else if (ret.result.message) {
+                                alert(ret.result.message)
+                            }
+                        },
+                        progressall: function (e, ret) {
+                        }
+                    })
 
+                }
             }
-        }
         })
     }
 
