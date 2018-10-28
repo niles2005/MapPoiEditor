@@ -54,6 +54,10 @@
             padding: 1px 6px;
             font: 400 13.3333px Arial;
         }
+        .swiperButtons button {
+            margin: 2px 0;
+            padding: 1px 0;
+        }
 
         .partType {
             line-height: 25px;
@@ -66,18 +70,17 @@
             overflow-x: auto;
             background-color: lightgoldenrodyellow;
         }
+        .focused {
+            background:lightgreen;
+        }
         .swiper-item {
             display: table-cell;
-            border-top: solid 3px lightgray;
-            border-left: solid 3px lightgray;
-            border-right: solid 3px lightgray;
+            border: solid 3px lightgray;
             position: relative;
-            width: 120px;
-            height: 100px;
             vertical-align: middle;
         }
-        .focused {
-            background:lime;
+        .swiper-item.focused {
+            border: solid 3px lightgreen;
         }
     </style>
 </head>
@@ -97,18 +100,18 @@
         </div>
         <div class="swiper" v-if="doc.swiper" :class="{focused:doc.swiper._active}">
 
-            <div class="swiper-item" v-for="(item,index) of doc.swiper.images" v-on:click="focusItem(doc.swiper);selectSwiper(index)">
-                <img :src="path + item" style="width:100%;height:100%;vertical-align: middle;">
-                <img v-if="data.doc.thumbnail === 'thumbnail' + item" title="列表缩略图" src="infoedit/images/icon.png"
+            <div :class="['swiper-item',{focused:doc.swiper._active && doc.swiper._selectSwiperIndex === index}]" v-for="(item,index) of doc.swiper.images" v-on:click="focusItem(doc.swiper);selectSwiper(index)">
+                <img :src="path + item" style="width:110px;height:90px;vertical-align: middle;">
+                <img v-if="doc.thumbnail === 'thumbnail' + item" title="列表缩略图" src="infoedit/images/icon.png"
                 style="background:white;position:absolute;top:0;right:0;width:40px;height: 40px;" />
 
                 <div v-if="doc.swiper._active && doc.swiper._selectSwiperIndex === index" class="swiperButtons">
                     <button v-on:click="addSwiperImage">加图</button>
                     <button v-on:click="removeSwiperImage">删图</button>
-                    <button v-on:click.stop="moveSwiper(-1)">左移</button>
-                    <button v-on:click.stop="moveSwiper(+1)">右移</button>
+                    <button v-on:click="moveSwiper(-1)">左移</button>
+                    <button v-on:click="moveSwiper(+1)">右移</button>
                     <button v-on:click="changeSwiperImage(index)">换图</button>
-                    <button  style="float:right;" v-on:click="doThumbnail(item)">缩略图</button>
+                    <button v-show="path !== 'datas/intro/'" v-on:click="doThumbnail(item)">缩略图</button>
                 </div>
             </div>
         </div>
@@ -129,7 +132,7 @@
             <div v-if="item.tag === 'image'" style="text-align: center;margin-top: 10px;margin-right: 0%;margin-left: 0%;box-sizing: border-box;">
                 <div :class="{focused:item._active}" :style="'position:relative;'+item.wrapStyle">
                     <img :style="'width:100%;' +item.style" mode="widthFix" :src="path + item.src" />
-                    <img v-if="data.doc.thumbnail === 'thumbnail' + item.src" title="列表缩略图" src="infoedit/images/icon.png"
+                    <img v-if="doc.thumbnail === 'thumbnail' + item.src" title="列表缩略图" src="infoedit/images/icon.png"
                         style="background:white;position:absolute;top:0;right:0;width:40px;height: 40px;" />
                 </div>
             </div>
@@ -186,7 +189,7 @@
     var key;
     var path;
     var currentItem;
-    var data;
+    var doc;
 
     $(document).ready(function () {
         var query = window.location.search.substring(1);
@@ -222,7 +225,8 @@
     });
 
 
-    function buildApp(doc) {
+    function buildApp(dacData) {
+        doc = dacData;
         doc._title = {
             title: doc.title,
             _editable: false
@@ -251,14 +255,12 @@
             doc.swiper._selectSwiperIndex = -1;
             doc.swiper._active = false;
         }
-        data = {
-            path: path,
-            doc: doc
-        }
-
         new Vue({
             el: "#app",
-            data: data,
+            data: {
+                path: path,
+                doc: doc
+            },
             created: function () {
                 if(doc.swiper && doc.swiper.images.length === 0) {
                     doc.swiper = null;
@@ -273,6 +275,7 @@
                         currentItem._active = false;
                         currentItem._editable = false;
                     }
+                    currentItem = null;
                 },
                 focusItem: function (selectItem) {
                     if (currentItem === selectItem) {
@@ -296,8 +299,8 @@
                 },
                 remove: function () {
                     if (currentItem) {
-                        let index = data.doc.contents.indexOf(currentItem);
-                        data.doc.contents.splice(index, 1)
+                        let index = doc.contents.indexOf(currentItem);
+                        doc.contents.splice(index, 1)
                     }
                 },
                 changeFile: function (fileType) {
@@ -318,26 +321,26 @@
                     })
                 },
                 moveUp: function () {
-                    let index = data.doc.contents.indexOf(currentItem);
+                    let index = doc.contents.indexOf(currentItem);
                     if (index > 0) {
-                        let upItem = data.doc.contents[index - 1];
-                        data.doc.contents[index - 1] = currentItem;
-                        data.doc.contents[index] = upItem;
+                        let upItem = doc.contents[index - 1];
+                        doc.contents[index - 1] = currentItem;
+                        doc.contents[index] = upItem;
                     }
                 },
                 moveDown: function () {
-                    let index = data.doc.contents.indexOf(currentItem);
-                    if (index < data.doc.contents.length - 1) {
-                        let downItem = data.doc.contents[index + 1];
-                        data.doc.contents[index + 1] = currentItem;
-                        data.doc.contents[index] = downItem;
+                    let index = doc.contents.indexOf(currentItem);
+                    if (index < doc.contents.length - 1) {
+                        let downItem = doc.contents[index + 1];
+                        doc.contents[index + 1] = currentItem;
+                        doc.contents[index] = downItem;
                     }
                 },
                 openItem: function () {
                     $("#actions").toggle();
                 },
                 addItem: function (tag) {
-                    let index = data.doc.contents.indexOf(currentItem);
+                    let index = doc.contents.indexOf(currentItem);
                     let item = {
                         "tag": tag
                     }
@@ -353,7 +356,7 @@
                     item._active = false;
                     item._editable = false;
 
-                    data.doc.contents.splice(index + 1, 0, item);
+                    doc.contents.splice(index + 1, 0, item);
                 },
                 changeSwiperImage: function (selectIndex) {
                     let url = "service?name=pathfiles&path=" + path + "&type=image&v=" + new Date().getTime();
@@ -436,7 +439,7 @@
                 },
                 doThumbnail: function (imageSrc) {
                     if(key && key !== "intro") {
-                        data.doc.thumbnail = "thumbnail" + imageSrc;
+                        doc.thumbnail = "thumbnail" + imageSrc;
                         let updateData = {
                             "thumbnail": "thumbnail" + imageSrc,
                             "key": key
@@ -449,18 +452,18 @@
                     this.unselect();
                     let title = doc._title.title;
                     let from = doc._from.from;
-                    let newData = regularData(data.doc);
+                    let newData = regularData(doc);
                     if (title) {
-                        newData.title = $.trim(title);
+                        title = $.trim(title);
                     }
+                    newData.title = title;
                     if (from || from === "") {
                         from = $.trim(from);
                         if (from.length === 0) {
-                            newData.from = null;
-                        } else {
-                            newData.from = from;
+                            from = null;
                         }
                     }
+                    newData.from = from;
                     saveDoc(newData);
                 },
                 uploadFiles: function () {
