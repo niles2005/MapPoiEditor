@@ -40,6 +40,11 @@
             padding: 5px 0;
             z-index: 100;
         }
+        .swiperButtons {
+            position: absolute;
+            top: 0px;
+            z-index: 100;
+        }
         .topSpanButton {
             background: lightgreen;
             float: right;
@@ -55,6 +60,22 @@
             height: 25px;
             margin: 2px;
         }
+        .swiper {
+            width: 100%;
+            z-index: 10;
+            overflow-x: auto;
+            background-color: lightgoldenrodyellow;
+        }
+        .swiper-item {
+            display: table-cell;
+            border-top: solid 3px lightgray;
+            border-left: solid 3px lightgray;
+            border-right: solid 3px lightgray;
+            position: relative;
+            width: 100px;
+            height: 100px;
+            vertical-align: middle;
+        }
     </style>
 </head>
 
@@ -67,7 +88,22 @@
                 <input v-on:click="uploadFiles" accept="image/*,audio/*,video/*" type="file" id="fileUpload">
             </span>
             <button style="background:lightgreen;float:right;margin: 0 3px;" v-on:click="unselect">取消选择</button>
+            <button style="background:lightgreen;float:right;margin: 0 3px;" v-if="!doc.swiper" v-on:click="addSwiper">加轮播</button>
+            <button style="background:lightgreen;float:right;margin: 0 3px;" v-if="doc.swiper" v-on:click="removeSwiper">删轮播</button>
 
+        </div>
+        <div class="swiper" v-if="doc.swiper">
+
+            <div class="swiper-item" v-for="(item,index) of doc.swiper.images" v-on:click="selectSwiper(index)">
+                <img :src="path + item" style="width:100%;    vertical-align: middle;">
+                <div v-if="doc._selectSwiperIndex === index" class="swiperButtons">
+                    <button style="display:inline-block" v-on:click="addSwiperImage">加</button>
+                    <button style="display:inline-block" v-on:click="removeSwiperImage">删</button>
+                    <button style="display:inline-block" v-on:click="changeSwiperImage(index)">换</button>
+                    <button style="display:inline-block" v-on:click.stop="moveSwiper(-1)">左移</button>
+                    <button style="display:inline-block" v-on:click.stop="moveSwiper(+1)">右移</button>
+                </div>
+            </div>
         </div>
 
         <div v-on:click="unselect();doc._titleEdit = true" v-show="!doc._titleEdit" :style="'font-weight: 400;font-size: 22px;    line-height: 1.4;margin-bottom: 14px;' + doc.titleStyle">
@@ -182,6 +218,7 @@
     function buildApp(doc) {
         doc._titleEdit = false;
         doc._fromEdit = false;
+        doc._selectSwiperIndex = -1;
         for (let index in doc.contents) {
             let item = doc.contents[index];
             item._key = createGuid();
@@ -198,7 +235,8 @@
             el: "#app",
             data: data,
             methods: {
-                unselect: function() {
+                unselect: function () {
+                    doc._selectSwiperIndex = -1;
                     data.doc._titleEdit = false;
                     data.doc._fromEdit = false;
                     if (currentItem) {
@@ -308,36 +346,115 @@
 
                     data.doc.contents.splice(index + 1, 0, item);
                 },
-                doThumbnail: function (imageSrc) {
-                    data.doc.thumbnail = "thumbnail" + imageSrc;
-                    let updateData = {
-                        "thumbnail": "thumbnail" + imageSrc,
-                        "key": key
-                    }
-                    savePOI(updateData);
-                },
-                doSubmit: function () {
-                    this.unselect();
-
-                    saveDoc(regularData(data.doc));
-                },
-                uploadFiles: function () {
-                    let $upload = $('#fileUpload');
-                    $upload.fileupload({
-                        url: "upload?name=uploaddetailfiles&path=" + path,
-                        dataType: 'json',
-                        done: function (e, ret) {
-                            if (ret.result.retCode === 0) {
-                            } else if (ret.result.message) {
-                                alert(ret.result.message)
+                changeSwiperImage: function (selectIndex) {
+                    console.log(selectIndex)
+                    let url = "service?name=pathfiles&path=" + path + "&type=image&v=" + new Date().getTime();
+                    $.getJSON(url, function (ret) {
+                        if (ret.retCode === 0 && ret.data && ret.data.length > 0) {
+                            let image = doc.swiper.images[selectIndex];
+                            let index = ret.data.indexOf(image);
+                            let images = [];
+                            for (let k of doc.swiper.images) {
+                                images.push(k);
                             }
-                        },
-                        progressall: function (e, ret) {
+                            if (index >= 0) {
+                                index += 1;
+                                if (index === ret.data.length) {
+                                    index = 0;
+                                }
+                                images[selectIndex] = ret.data[index];
+                            } else {
+                                images[selectIndex] = ret.data[0];
+                            }
+                            doc.swiper.images = images;
                         }
                     })
+                },
+                moveSwiper: function (offset) {
+                    if (doc._selectSwiperIndex + offset >= 0 && doc._selectSwiperIndex + offset <= doc.swiper.images.length - 1) {
+                        let theImage = doc.swiper.images[doc._selectSwiperIndex + offset];
+                        doc.swiper.images[doc._selectSwiperIndex + offset] = doc.swiper.images[doc._selectSwiperIndex];
+                        doc.swiper.images[doc._selectSwiperIndex] = theImage;
 
+                        let images = [];
+                        for (let k of doc.swiper.images) {
+                            images.push(k);
+                        }
+                        doc._selectSwiperIndex += offset;
+                        doc.swiper.images = images;
+                    }
+                },
+                addSwiperImage: function () {
+                    if (doc._selectSwiperIndex >= 0 && doc._selectSwiperIndex <= doc.swiper.images.length - 1) {
+                        doc.swiper.images.splice(doc._selectSwiperIndex+1, 0,"")
+
+                        let images = [];
+                        for (let k of doc.swiper.images) {
+                            images.push(k);
+                        }
+                        doc._selectSwiperIndex = -1;
+                        doc.swiper.images = images;
+                        console.dir(doc.swiper.images)
+                        console.dir(doc.swiper.images)
+                    }
+                },
+                removeSwiperImage: function () {
+                    if (doc._selectSwiperIndex >= 0 && doc._selectSwiperIndex <= doc.swiper.images.length - 1) {
+                        doc.swiper.images.splice(doc._selectSwiperIndex, 1)
+
+                        let images = [];
+                        for (let k of doc.swiper.images) {
+                            images.push(k);
+                        }
+                        doc._selectSwiperIndex = -1;
+                        doc.swiper.images = images;
+                    }
+                },
+                addSwiper: function () {
+                    doc.swiper = {
+                        "autoplay": true,
+                        "indicatorDots": true,
+                        "images": [
+                            ""
+                        ]
+                    }
+            },
+            removeSwiper: function () {
+                doc.swiper = null;
+            },
+            selectSwiper: function (index) {
+                doc._selectSwiperIndex = index;
+            },
+            doThumbnail: function (imageSrc) {
+                data.doc.thumbnail = "thumbnail" + imageSrc;
+                let updateData = {
+                    "thumbnail": "thumbnail" + imageSrc,
+                    "key": key
                 }
+                savePOI(updateData);
+            },
+            doSubmit: function () {
+                this.unselect();
+
+                saveDoc(regularData(data.doc));
+            },
+            uploadFiles: function () {
+                let $upload = $('#fileUpload');
+                $upload.fileupload({
+                    url: "upload?name=uploaddetailfiles&path=" + path,
+                    dataType: 'json',
+                    done: function (e, ret) {
+                        if (ret.result.retCode === 0) {
+                        } else if (ret.result.message) {
+                            alert(ret.result.message)
+                        }
+                    },
+                    progressall: function (e, ret) {
+                    }
+                })
+
             }
+        }
         })
     }
 
