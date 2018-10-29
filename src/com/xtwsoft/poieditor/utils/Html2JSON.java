@@ -31,8 +31,6 @@ public class Html2JSON {
 	private File m_storePath = null;
 	private String m_storeName = null;
 	private static HashSet<String> m_removeSumSet = new HashSet<String>(); 
-	private JSONArray m_images = new JSONArray();
-	private JSONArray m_audios = new JSONArray();
 	private String m_checkSum = null;
 
 	static {
@@ -60,9 +58,6 @@ public class Html2JSON {
 			
 			buildContent(m_doc,doc.select("div#js_content"));
 			
-			m_doc.put("images", this.m_images);
-			
-			m_doc.put("audios", this.m_audios);
 			
 			if(m_meta != null) {
 				String from = m_meta;
@@ -95,13 +90,10 @@ public class Html2JSON {
 	
 	private void buildMeta(JSONObject jsonDoc,Elements part) {
 		Elements metas = part.select("a#js_name");
-		JSONArray metaArray = new JSONArray();
-		jsonDoc.put("meta", metaArray);
 		for(Element meta: metas) {
 			if(m_meta == null) {
 				m_meta = meta.text();
 			}
-			metaArray.add(meta.text());
 		}
 	}
 	
@@ -174,7 +166,6 @@ public class Html2JSON {
 						}
 						String fileName = storeFile(element,element.attr("data-src"),this.m_storePath,type);
 						if(fileName != null) {
-							this.m_images.add(fileName);
 							JSONObject obj = new JSONObject();
 							contentArray.add(obj);
 							obj.put("tag", "image");
@@ -198,7 +189,6 @@ public class Html2JSON {
 					}
 					String fileName = storeFile(element,audioSrc,this.m_storePath,".mp3");
 					if(fileName != null) {
-						this.m_audios.add(fileName);
 						JSONObject obj = new JSONObject();
 						contentArray.add(obj);
 						obj.put("tag", "audio");

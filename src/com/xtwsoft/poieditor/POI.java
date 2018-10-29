@@ -151,11 +151,19 @@ public class POI {
 					JSONObject json = new JSONObject();
 					json.put("contents", new JSONArray());
 					json.put("title", "");
+					json.put("address", "");
 					modelJson = json;
 				}
 				String name = this.m_json.getString("name");
 				if(name != null) {
 					modelJson.put("title", name);
+				}
+				String address = this.m_json.getString("address");
+				if(address != null) {
+					address = address.trim();
+					if(address.length() > 0) {
+						modelJson.put("address", address);
+					}
 				}
 				PrintWriter writer = new PrintWriter(new OutputStreamWriter(
 						new FileOutputStream(destFile), "UTF-8"));

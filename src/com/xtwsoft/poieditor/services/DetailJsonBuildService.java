@@ -57,6 +57,10 @@ public class DetailJsonBuildService extends Service {
 			if(name == null) {
 				name = "";
 			}
+			String address = poi.getJson().getString("address");
+			if(address == null) {
+				address = "";
+			}
 			
 			JSONObject modelJson = null;
 			File f = new File(ServerConfig.getInstance().getDatasPath(),"model/model.json");
@@ -67,10 +71,12 @@ public class DetailJsonBuildService extends Service {
 				JSONObject json = new JSONObject();
 				json.put("contents", new JSONArray());
 				json.put("title", "");
+				json.put("address", "");
 				modelJson = json;
 			}
 			
 			modelJson.put("title", name);
+			modelJson.put("address", address);
 			writer.write(modelJson.toJSONString());
 			writer.flush();
 			writer.close();
