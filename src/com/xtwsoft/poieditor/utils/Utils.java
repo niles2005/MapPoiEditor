@@ -96,7 +96,7 @@ public class Utils {
 			Graphics2D g = image.createGraphics();
 			g.drawImage(buffImage, 0, 0, w, h, null);
 			g.dispose();
-			ImageIO.write((BufferedImage) image, "png", destFile);
+			ImageIO.write(image, "png", destFile);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
