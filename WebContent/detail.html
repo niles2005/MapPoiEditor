@@ -100,10 +100,10 @@
         </div>
         <div class="swiper" v-if="doc.swiper" :class="{focused:doc.swiper._active}">
 
-            <div :class="['swiper-item',{focused:doc.swiper._active && doc.swiper._selectSwiperIndex === index}]" v-for="(item,index) of doc.swiper.images" v-on:click="focusItem(doc.swiper);selectSwiper(index)">
+            <div :class="['swiper-item',{focused:doc.swiper._active && doc.swiper._selectSwiperIndex === index}]" v-for="(item,index) of doc.swiper.images"
+                v-on:click="focusItem(doc.swiper);selectSwiper(index)">
                 <img :src="path + item" style="width:110px;height:90px;vertical-align: middle;">
-                <img v-if="doc.thumbnail === 'thumbnail' + item" title="列表缩略图" src="infoedit/images/icon.png"
-                style="background:white;position:absolute;top:0;right:0;width:40px;height: 40px;" />
+                <img v-if="doc.thumbnail === 'thumbnail' + item" title="列表缩略图" src="infoedit/images/icon.png" style="background:white;position:absolute;top:0;right:0;width:40px;height: 40px;" />
 
                 <div v-if="doc.swiper._active && doc.swiper._selectSwiperIndex === index" class="swiperButtons">
                     <button v-on:click="addSwiperImage">加图</button>
@@ -116,11 +116,17 @@
             </div>
         </div>
 
-        <div v-on:click="focusItem(doc._title);doc._title._editable = true" v-show="!doc._title._editable" :style="'font-weight: 400;font-size: 22px;    line-height: 1.4;margin-bottom: 14px;' + doc.titleStyle">
+        <div v-on:click="focusItem(doc._title);doc._title._editable = true" v-show="!doc._title._editable" :style="'font-weight: 400;font-size: 22px;    line-height: 22px;margin-bottom: 14px;' + doc.titleStyle">
             {{doc._title.title}}
         </div>
         <input v-on:click="focusItem(doc._title);" v-on:blur="doc._title._editable = false" v-show="doc._title._editable"
-            style="width:100%;" v-model="doc._title.title" />
+            style="width:100%;height: 22px;margin-bottom: 14px;" v-model="doc._title.title" />
+
+        <div v-on:click="focusItem(doc._address);doc._address._editable = true" v-show="!doc._address._editable" :style="'font-size: 14px;    line-height: 14px;margin-bottom: 16px;' + doc.addressStyle">
+            {{doc._address.address}}
+        </div>
+        <input v-on:click="focusItem(doc._address);" v-on:blur="doc._address._editable = false" v-show="doc._address._editable"
+            style="width:100%;height: 14px;margin-bottom: 16px;" v-model="doc._address.address" />
 
         <div v-on:click="focusItem(item)" v-for="item in doc.contents" :style="'position:relative;box-sizing: border-box;' +doc.blockStyle">
             <div v-if="item.tag === 'p'" :class="{focused:item._active}" :style="item.wrapStyle">
@@ -217,7 +223,7 @@
         }
 
 
-        let url = path + key + ".json?v" + new Date().getTime();
+        let url = path + key + ".json?v=" + new Date().getTime();
         $.getJSON(url, function (data) {
             // console.dir(data)
             buildApp(data)
@@ -231,11 +237,15 @@
             title: doc.title,
             _editable: false
         };
+        doc._address = {
+            address: doc.address,
+            _editable: false
+        };
         doc._from = {
             from: doc.from,
             _editable: false
         };
-        if(!doc.thumbnail) {
+        if (!doc.thumbnail) {
             doc.thumbnail = "";
         }
         for (let index in doc.contents) {
@@ -243,7 +253,7 @@
             item._active = false;
             item._editable = false;
         }
-        if(!doc.swiper) {
+        if (!doc.swiper) {
             doc.swiper = {
                 "autoplay": true,
                 "indicatorDots": true,
@@ -262,7 +272,7 @@
                 doc: doc
             },
             created: function () {
-                if(doc.swiper && doc.swiper.images.length === 0) {
+                if (doc.swiper && doc.swiper.images.length === 0) {
                     doc.swiper = null;
                 }
             },
@@ -424,7 +434,7 @@
                         "autoplay": true,
                         "indicatorDots": true,
                         "_selectSwiperIndex": -1,
-                        "_active":false,
+                        "_active": false,
 
                         "images": [
                             ""
@@ -438,25 +448,30 @@
                     doc.swiper._selectSwiperIndex = index;
                 },
                 doThumbnail: function (imageSrc) {
-                    if(key && key !== "intro") {
+                    if (key && key !== "intro") {
                         doc.thumbnail = "thumbnail" + imageSrc;
                         let updateData = {
                             "thumbnail": "thumbnail" + imageSrc,
                             "key": key
                         }
-                        
+
                         savePOI(updateData);
                     }
                 },
                 doSubmit: function () {
                     this.unselect();
                     let title = doc._title.title;
+                    let address = doc._address.address;
                     let from = doc._from.from;
                     let newData = regularData(doc);
                     if (title) {
                         title = $.trim(title);
                     }
                     newData.title = title;
+                    if (address) {
+                        address = $.trim(address);
+                    }
+                    newData.address = address;
                     if (from || from === "") {
                         from = $.trim(from);
                         if (from.length === 0) {
