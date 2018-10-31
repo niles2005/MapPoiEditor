@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="initial-scale = 1, user-scalable = no">
+    <script type="text/javascript" src="./js/jquery-3.3.1.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            loadAllDatas();
+        })
+
+        function loadAllDatas() {
+            $.getJSON("../service?name=datas&v=" + new Date().getTime(), function (ret) {
+                if (ret.retCode >= 0 && ret.data) {
+                    console.dir(ret.data)
+                    for(let group of ret.data.groups) {
+                        workGroup(group);
+                        // break;
+                    }
+                }
+            });
+        }
+
+        function workGroup(group) {
+            console.dir(group)
+            if(!group.isGB) {
+                for(let poi of group.pois) {
+                    if(poi.thumbnail) {
+                        workPOI(poi)
+                        // break;
+                    }
+                }
+            }
+        }
+
+        function workPOI(poi) {
+            console.dir(poi)
+            if(poi.thumbnail) {
+                $.getJSON("../" + poi.detailPath + poi.detailJson + "?v=" + new Date().getTime(), function (doc) {
+                    // console.dir(doc)
+                    if(doc.contents) {
+                        doc.thumbnail = poi.thumbnail;
+                        delete doc.meta;
+                        delete doc.audios;
+                        delete doc.images;
+                        doc.address = poi.address;
+
+                        saveDoc(doc,poi);
+                    }
+                });
+            }
+        }
+
+
+    function saveDoc(doc,poi) {
+        let fileContent = JSON.stringify(doc);
+
+        if (fileContent) {
+            let url = poi.detailPath + poi.detailJson;
+            $.ajax({
+                type: "POST",
+                url: "../service?name=filesave&path=" + url,
+                dataType: "json",
+                data: fileContent,
+                contentType: 'text/plain; charset=UTF-8',
+                cache: false,
+                success: function (ret) {
+                    if (ret.retCode === 0) {
+                        // console.log("save success!")
+                    } else {
+                        if (ret.message) {
+                            alert(ret.message)
+                        }
+                    }
+                }
+            });
+        }
+    }
+    </script>
+</head>
+
+<body>
+</body>
+</html>

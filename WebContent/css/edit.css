@@ -1,212 +1,232 @@
 @charset "utf-8";
 
-html,body {
-    height: 100%;    
+html,
+body {
+  height: 100%;
 }
 
-body,div,dl,dt,dd,ul,li,p,em,b,span,img,table,tr,td,th,form,i,h1,h2,h3,h4 {
-    border:0;
-    margin:0;
-    padding:0;
+body,
+div,
+dl,
+dt,
+dd,
+ul,
+li,
+p,
+em,
+b,
+span,
+img,
+table,
+tr,
+td,
+th,
+form,
+i,
+h1,
+h2,
+h3,
+h4 {
+  border: 0;
+  margin: 0;
+  padding: 0;
 }
 
 * {
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 .hide {
-    display: none;
+  display: none;
 }
 
-body{
-    font-family:"Microsoft Yahei",simSun,Arial;
-    font-size:12px;
-} 
-
-
-ul,dl,li,dt,dd {
-    list-style:none;
+body {
+  font-family: "Microsoft Yahei", simSun, Arial;
+  font-size: 12px;
 }
 
-img,input {
-    vertical-align:middle;
+ul,
+dl,
+li,
+dt,
+dd {
+  list-style: none;
 }
 
+img,
+input {
+  vertical-align: middle;
+}
 
 a {
-    text-decoration:none;
-    -webkit-tap-highlight-color: rgba(128,128,128,0.5);    
-    outline: none;
-    color: #0EBA85;
+  text-decoration: none;
+  -webkit-tap-highlight-color: rgba(128, 128, 128, 0.5);
+  outline: none;
+  color: #0eba85;
 }
 
 a:hover {
-    text-decoration:underline;
+  text-decoration: underline;
 }
 
-
-a:hover,a:focus {
-    color: #5a5a5a !important;
-    text-decoration: none !important;
+a:hover,
+a:focus {
+  color: #5a5a5a !important;
+  text-decoration: none !important;
 }
 
-
-img{
-	border:none;
+img {
+  border: none;
 }
 /* 解决bootstrap打开双层modal时，关闭上层modal，会使下层modal丢失滚动栏问题 */
 .my-modal-open .modal {
-    overflow-x: hidden;
-    overflow-y: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
-
 .container {
-    width: 100%;
-    max-width: 100%;
-    height: 100%;
-    margin-right: auto;
-    margin-left: auto;
-    padding-left: 0;
-    padding-right: 0;
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  margin-right: auto;
+  margin-left: auto;
+  padding-left: 0;
+  padding-right: 0;
 }
 
 .mapPanel {
-    width: 100%; 
-    height: 100%;
+  width: 100%;
+  height: 100%;
 }
 
 .popPanel {
-    position: fixed;
-    z-index: 100;
-    top: 10em;
-    right: 0;
-    left: 0;
-    margin-right: auto;
-    margin-left: auto;    
-    min-height: 10em;
-    width: 90%;
-    background-color:white;
-    display: none;
+  position: fixed;
+  z-index: 100;
+  top: 10em;
+  right: 0;
+  left: 0;
+  margin-right: auto;
+  margin-left: auto;
+  min-height: 10em;
+  width: 90%;
+  background-color: white;
+  display: none;
 }
 
 .popClose {
-    display:table-cell;
-    position:absolute;
-    right:20px;
-    z-index: 1000;
+  display: table-cell;
+  position: absolute;
+  right: 20px;
+  z-index: 1000;
 }
 
 .poiPanel {
-    padding: 10px;
-    margin-top: 10px;
+  padding: 10px;
+  margin-top: 10px;
 }
 
 .poiImage {
-    width:50px;
-    height: 38px;
+  width: 50px;
+  height: 38px;
 }
 
 .pageConfig {
-    z-index: 10; 
-    position: absolute;
-    left: 5px; 
-    top: 55px;
+  z-index: 10;
+  position: absolute;
+  left: 5px;
+  top: 55px;
 }
 
 .groupNav {
-    z-index: 10; 
-    position: absolute;
-    left: 0; 
-    top: 5px;
-    overflow-x: auto;
-    width: 100%;
+  z-index: 10;
+  position: absolute;
+  left: 0;
+  top: 5px;
+  overflow-x: auto;
+  width: 100%;
 }
 .saveAllButton {
-    z-index: 0; 
-    position: absolute;
-    left: 45px; 
-    top: 55px;
+  z-index: 0;
+  position: absolute;
+  left: 45px;
+  top: 55px;
 }
 
 .clickCreatePoiDiv {
-    z-index: 0; 
-    position: absolute; 
-    left: 5px; 
-    top: 105px;
-    background: #28a745;
-    line-height: 25px;
-    border: 4px solid #28a745;
-    border-radius: 5px;
-    font-size: 0.8rem;
-    color:white;
+  z-index: 0;
+  position: absolute;
+  left: 5px;
+  top: 105px;
+  background: #28a745;
+  line-height: 25px;
+  border: 4px solid #28a745;
+  border-radius: 5px;
+  font-size: 0.8rem;
+  color: white;
 }
-
-
 
 .browser {
-    width: 100%;
-    height: 80px;
-    overflow-x: auto;
-    background-color: lightgray;
+  width: 100%;
+  height: 80px;
+  overflow-x: auto;
+  background-color: lightgray;
 }
 .browser-item {
-    width: 100px;
-    white-space: nowrap;
-    display: table-cell;
-    border-top: solid 3px gray;
-    border-left: solid 3px gray;
-    border-right: solid 3px gray;
-    border-bottom: solid 3px gray;
-    position: relative;
+  width: 100px;
+  white-space: nowrap;
+  display: table-cell;
+  border-top: solid 3px gray;
+  border-left: solid 3px gray;
+  border-right: solid 3px gray;
+  border-bottom: solid 3px gray;
+  position: relative;
 }
-.browser-item> img {
-    width: 100%;    
-    height: 100%;
+.browser-item > img {
+  width: 100%;
+  height: 100%;
 }
-.browser-item> img.markerIcon {
-    width: auto;
-    height: 100%;
-}
-
-.browser-item> .mask {
-    position: absolute;
-    top: 0;
-    height: 100%;
-    width: 100%;    
+.browser-item > img.markerIcon {
+  width: auto;
+  height: 100%;
 }
 
-.browser-item> .mask.selected {
-    background-color: rgba(200, 10, 10, 0.5);
+.browser-item > .mask {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 100%;
+}
+
+.browser-item > .mask.selected {
+  background-color: rgba(200, 10, 10, 0.5);
 }
 
 .table thead th {
-    white-space: nowrap;
-    border: 0;
+  white-space: nowrap;
+  border: 0;
 }
 
 .mapIcon {
-    width:2em;
-    height: 3.5em;
+  width: 2em;
+  height: 3.5em;
 }
 
 .listImage {
-    width:3.5em;
-    height:3.5em;
+  width: 3.5em;
+  height: 3.5em;
 }
 #groupsTable {
-    text-align: center;
+  text-align: center;
 }
 #groupsTable tbody td {
-    white-space: nowrap;
+  white-space: nowrap;
 }
 #groupsTable tbody tr.deleted td {
-    border: 1px solid red;
+  border: 1px solid red;
 }
 
 #newGroupBG {
-    padding: 0 50px;
+  padding: 0 50px;
 }
-x
