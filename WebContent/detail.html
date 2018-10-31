@@ -106,11 +106,11 @@
                 <img v-if="doc.thumbnail === 'thumbnail' + item" title="列表缩略图" src="infoedit/images/icon.png" style="background:white;position:absolute;top:0;right:0;width:40px;height: 40px;" />
 
                 <div v-if="doc.swiper._active && doc.swiper._selectSwiperIndex === index" class="swiperButtons">
-                    <button v-on:click="addSwiperImage">加图</button>
-                    <button v-on:click="removeSwiperImage">删图</button>
-                    <button v-on:click="moveSwiper(-1)">左移</button>
-                    <button v-on:click="moveSwiper(+1)">右移</button>
-                    <button v-on:click="changeSwiperImage(index)">换图</button>
+                    <button v-on:click.stop="addSwiperImage">加图</button>
+                    <button v-on:click.stop="removeSwiperImage">删图</button>
+                    <button v-on:click.stop="moveSwiper(-1)">左移</button>
+                    <button v-on:click.stop="moveSwiper(+1)">右移</button>
+                    <button v-on:click.stop="changeSwiperImage(index)">换图</button>
                     <button v-show="path !== 'datas/intro/'" v-on:click="doThumbnail(item)">缩略图</button>
                 </div>
             </div>
@@ -165,9 +165,9 @@
                 <button v-show="item.tag === 'image'" v-on:click.stop="changeFile('image')">换图片</button>
                 <button v-show="item.tag === 'audio'" v-on:click.stop="changeFile('audio')">换音频</button>
                 <button v-show="item.tag === 'video'" v-on:click.stop="changeFile('video')">换视频</button>
-                <button v-on:click="remove">删除</button>
-                <button v-on:click="moveUp">上移</button>
-                <button v-on:click="moveDown">下移</button>
+                <button v-on:click.stop="remove">删除</button>
+                <button v-on:click.stop="moveUp">上移</button>
+                <button v-on:click.stop="moveDown">下移</button>
                 <div style="position: relative;display: inline-block;">
                     <button v-on:click="openItem">添加</button>
                     <ul id="actions" style="display: none;width:60px;padding:0;margin:25px 0 0 0;top:0;position: absolute;background: white;">
@@ -336,6 +336,7 @@
                         let upItem = doc.contents[index - 1];
                         doc.contents[index - 1] = currentItem;
                         doc.contents[index] = upItem;
+                        this.unselect();
                     }
                 },
                 moveDown: function () {
@@ -344,6 +345,7 @@
                         let downItem = doc.contents[index + 1];
                         doc.contents[index + 1] = currentItem;
                         doc.contents[index] = downItem;
+                        this.unselect();
                     }
                 },
                 openItem: function () {
