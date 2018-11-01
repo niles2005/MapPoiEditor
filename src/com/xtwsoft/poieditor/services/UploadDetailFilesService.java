@@ -1,14 +1,12 @@
 package com.xtwsoft.poieditor.services;
 
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
 import java.io.File;
 
-import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.Part;
 
 import com.xtwsoft.poieditor.utils.Guid;
+import com.xtwsoft.poieditor.utils.Utils;
 import com.xtwsoft.server.ServerConfig;
 import com.xtwsoft.server.Service;
 import com.xtwsoft.server.ServiceReturn;
@@ -29,8 +27,8 @@ public class UploadDetailFilesService extends Service {
 			for (Part part : request.getParts()) {
 				String newName = Guid.build16Guid();
 				String fileName = extractFileName(part).toLowerCase();
-				int pos = fileName.lastIndexOf(".");
 				String fileType = "";
+				int pos = fileName.lastIndexOf(".");
 				if(pos > 0) {
 					fileType = fileName.substring(pos + 1);
 					newName += fileName.substring(pos);
@@ -40,7 +38,7 @@ public class UploadDetailFilesService extends Service {
 				
 				if("jpg".equals(fileType) || "jpeg".equals(fileType) ||
 						"png".equals(fileType) || "gif".equals(fileType)) {
-					reduceImageFile(theFile,fileType);
+					Utils.reduceImageFile(theFile,fileType,500);
 				}
 			}
 			ret.setSuccess("file upload success!");
@@ -50,30 +48,6 @@ public class UploadDetailFilesService extends Service {
 		}
 	}
 	
-	private void reduceImageFile(File file,String fileType) {
-		try {
-			//对于大图片，统一缩减为宽为500px的图片
-			BufferedImage buffImage = ImageIO.read(file);
-			if(buffImage.getWidth() > 500) {
-				
-				int w = 500;
-				double ratio = 1.0 * w / buffImage.getWidth();
-				
-				int h = (int)(buffImage.getHeight() * ratio + 0.5);
-				
-				BufferedImage image = new BufferedImage(w, h,
-						BufferedImage.TYPE_INT_RGB);
-				Graphics2D g = image.createGraphics();
-				g.drawImage(buffImage, 0, 0, w, h, null);
-				g.dispose();
-				
-				//统一转成png格式，但还是使用.jpg  jped  .gif等后缀
-				ImageIO.write(image, fileType, file);
-			}
-		} catch(Exception ex) {
-			ex.printStackTrace();
-		}
-	}
 	
 	private String extractFileName(Part part) {
 		String contentDisp = part.getHeader("content-disposition");

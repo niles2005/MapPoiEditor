@@ -212,7 +212,7 @@
                             <label for="groupBG" class="col-sm-2 col-form-label">背景图层</label>
                             <div class="col-sm-10 input-group">
                                 <button type="button" class="btn btn-sm btn-primary" id="groupBG">否</button>
-                                <span>注：背景图层是不随tab切换，都会留在地图上显示图标的图层。</span>
+                                <span style="width: 100%;">注：背景图层是不随tab切换，都会留在地图上显示图标的图层。</span>
                             </div>
                         </div>
                         <div class="form-group row">
@@ -228,13 +228,24 @@
                             <div class="input-group col-sm-10 mb-3">
                                 <div tabindex="-1" class="input-group-prepend browser open-scroll" id="markerImages">
                                 </div>
-                            </div>
+                                <span>
+                                    注：此处添加删除图标，或改变图标内容并不会反应到小程序。
+                                    如需改变，需和小程序图标文件一起改变。此处只控制小程序图标的选择。
+                                </span>
+                                </div>
                         </div>
                         <div class="form-group row">
                             <label for="pictureImages" class="col-sm-2 col-form-label">列表图片</label>
                             <div class="input-group col-sm-10 mb-3">
                                 <div tabindex="-1" class="input-group-prepend browser open-scroll" id="pictureImages">
                                 </div>
+                                <span style="margin:5px 0px;" class="btn btn-sm btn-primary fileinput-button">
+                                    <i class="glyphicon glyphicon-plus"></i>
+                                    <span>上传图片</span>
+                                    <input id="fileUpload" class="fileUpload" accept="image/*" type="file" accept="aplication/zip"
+                                        name="file" path="picture">
+                                </span>
+
                             </div>
                         </div>
                         <div class="modal-footer">
@@ -276,5 +287,5 @@
 <script src="lib/jquery.fileupload.js"></script>
 <script src="lib/popper.min.js"></script>
 <script src="lib/bootstrap.min.js"></script>
-<script type="text/javascript" charset="utf-8" src="https://map.qq.com/api/js?v=2.exp"></script>
+<script type="text/javascript" charset="utf-8" src="https://map.qq.com/api/js?v=2.exp&key=4RYBZ-XDX3X-KXB4T-7IE3E-DST67-VQFL4"></script>
 <script type="text/javascript" src="lib/edit.js"></script>

@@ -149,8 +149,19 @@ $(document).ready(function() {
       poi.latitude = poi.position[1];
     }
 
-    var defaultMarkerIcon = new qq.maps.MarkerImage(
+    let defaultMarkerIcon = new qq.maps.MarkerImage(
       currentGroup.markerPath + currentGroup.markerImage,
+      null,
+      null,
+      null,
+      new qq.maps.Size(
+        currentGroup.markerImageWidth,
+        currentGroup.markerImageHeight
+      )
+    );
+
+    let focusMarkerIcon = new qq.maps.MarkerImage(
+      currentGroup.markerPath + "focus" + currentGroup.markerImage,
       null,
       null,
       null,
@@ -178,6 +189,10 @@ $(document).ready(function() {
       }
       marker.setMap(mapObj);
       qq.maps.event.addListener(marker, "click", function() {
+        if(currentMarker && currentMarker != marker) {
+          currentMarker.setIcon(defaultMarkerIcon);
+        }
+        marker.setIcon(focusMarkerIcon);
         bindPoiInfo(poi, marker);
         $("#detailSave").removeAttr("disabled");
         $("#poiModal").modal({ backdrop: "static", focus: true });
@@ -468,7 +483,7 @@ $(document).ready(function() {
         $("#groupBG").text(groupCheck);
         $("#markerImageWidth").val(poiGroup.markerImageWidth);
         $("#markerImageHeight").val(poiGroup.markerImageHeight);
-        loadPOIGroupConfigImages(poiGroup.markerImage, poiGroup.pictureImage);
+        loadPOIGroupConfigImages();
         $("#groupModal").modal({ backdrop: "static", focus: true });
       });
     }
@@ -752,7 +767,7 @@ $(document).ready(function() {
               $("#markerImageWidth").val(group.markerImageWidth);
               $("#markerImageHeight").val(group.markerImageHeight);
 
-              loadPOIGroupConfigImages(group.markerImage, group.pictureImage);
+              loadPOIGroupConfigImages();
               $("#groupModal").modal({ backdrop: "static", focus: true });
             });
 
@@ -829,7 +844,8 @@ $(document).ready(function() {
   }
 
   //处理POIGroup类型配置中（含marker和picture）,合并2次请求为1次
-  function loadPOIGroupConfigImages(markerImageName, pictureImageName) {
+  function loadPOIGroupConfigImages() {
+    let markerImageName = configGroup.markerImage;
     let $markerImages = $("#markerImages");
     let $pictureImages = $("#pictureImages");
     $markerImages.empty();
@@ -839,7 +855,6 @@ $(document).ready(function() {
       function(ret) {
         if (ret.retCode >= 0 && ret.data) {
           let marker = ret.data.marker;
-          let picture = ret.data.picture;
 
           let markerPath = marker.path;
           let markerImages = marker.images;
@@ -874,37 +889,46 @@ $(document).ready(function() {
             });
           }
 
-          let picturePath = picture.path;
-          let pictureImages = picture.images;
-          for (let image of pictureImages) {
-            let ss =
-              '<div class="browser-item">' +
-              '<img src="' +
-              picturePath +
-              "/" +
-              image +
-              '"/>' +
-              '<div class="mask" path="' +
-              picturePath +
-              '" name="' +
-              image +
-              '"></div>' +
-              "</div>";
-            let $browserItem = $(ss);
-            $pictureImages.append($browserItem);
-            if (image == pictureImageName) {
-              $browserItem.find(".mask").addClass("selected");
-            }
-
-            $browserItem.click(function() {
-              $pictureImages.find(".mask.selected").removeClass("selected");
-              $browserItem.find(".mask").addClass("selected");
-            });
-          }
+          let picture = ret.data.picture;
+          resetGroupPictures(picture);
         }
       }
     );
   }
+
+  function resetGroupPictures(picture) {
+    let pictureImageName = configGroup.pictureImage;
+    let $pictureImages = $("#pictureImages");
+    $pictureImages.empty();
+
+    let picturePath = picture.path;
+    let pictureImages = picture.images;
+    for (let image of pictureImages) {
+      let ss =
+        '<div class="browser-item">' +
+        '<img src="' +
+        picturePath +
+        "/" +
+        image +
+        '"/>' +
+        '<div class="mask" path="' +
+        picturePath +
+        '" name="' +
+        image +
+        '"></div>' +
+        "</div>";
+      let $browserItem = $(ss);
+      $pictureImages.append($browserItem);
+      if (image == pictureImageName) {
+        $browserItem.find(".mask").addClass("selected");
+      }
+
+      $browserItem.click(function() {
+        $pictureImages.find(".mask.selected").removeClass("selected");
+        $browserItem.find(".mask").addClass("selected");
+      });
+    }
+}
 
   //检查是否hasError,是时显示错误tip，否则清除错误tip（改在问题后）
   function checkError($item, hasError, err) {
@@ -954,14 +978,17 @@ $(document).ready(function() {
     $upload.fileupload({
       url: "upload?name=image&path=" + path,
       dataType: "json",
-      done: function(e, data) {
-        if (data.result.retCode === 0 && data.result.data) {
-          console.dir(data);
-        } else if (data.result.retCode < 0 && data.result.message) {
-          alert(data.result.message);
+      done: function(e, ret) {
+        if (ret.result.retCode === 0 && ret.result.data) {
+          console.dir(ret.result.data);
+          if(path === "picture") {
+            resetGroupPictures(ret.result.data)
+          }
+        } else if (ret.result.retCode < 0 && ret.result.message) {
+          alert(ret.result.message);
         }
       },
-      progressall: function(e, data) {}
+      progressall: function(e, ret) {}
     });
   });
 });

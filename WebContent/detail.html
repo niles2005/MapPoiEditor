@@ -108,9 +108,9 @@
                 <div v-if="doc.swiper._active && doc.swiper._selectSwiperIndex === index" class="swiperButtons">
                     <button v-on:click.stop="addSwiperImage">加图</button>
                     <button v-on:click.stop="removeSwiperImage">删图</button>
+                    <button v-on:click.stop="changeSwiperImage(index)">换图</button>
                     <button v-on:click.stop="moveSwiper(-1)">左移</button>
                     <button v-on:click.stop="moveSwiper(+1)">右移</button>
-                    <button v-on:click.stop="changeSwiperImage(index)">换图</button>
                     <button v-show="path !== 'datas/intro/'" v-on:click="doThumbnail(item)">缩略图</button>
                 </div>
             </div>
@@ -166,8 +166,8 @@
                 <button v-show="item.tag === 'audio'" v-on:click.stop="changeFile('audio')">换音频</button>
                 <button v-show="item.tag === 'video'" v-on:click.stop="changeFile('video')">换视频</button>
                 <button v-on:click.stop="remove">删除</button>
-                <button v-on:click.stop="moveUp">上移</button>
-                <button v-on:click.stop="moveDown">下移</button>
+                <button v-on:click.stop="moveUpDown(-1)">上移</button>
+                <button v-on:click.stop="moveUpDown(1)">下移</button>
                 <div style="position: relative;display: inline-block;">
                     <button v-on:click="openItem">添加</button>
                     <ul id="actions" style="display: none;width:60px;padding:0;margin:25px 0 0 0;top:0;position: absolute;background: white;">
@@ -330,22 +330,12 @@
                         }
                     })
                 },
-                moveUp: function () {
+                moveUpDown: function (offset) {
                     let index = doc.contents.indexOf(currentItem);
-                    if (index > 0) {
-                        let upItem = doc.contents[index - 1];
-                        doc.contents[index - 1] = currentItem;
-                        doc.contents[index] = upItem;
-                        this.unselect();
-                    }
-                },
-                moveDown: function () {
-                    let index = doc.contents.indexOf(currentItem);
-                    if (index < doc.contents.length - 1) {
-                        let downItem = doc.contents[index + 1];
-                        doc.contents[index + 1] = currentItem;
-                        doc.contents[index] = downItem;
-                        this.unselect();
+                    if (index + offset >= 0 || index + offset  <= doc.contents.length - 1) {
+                        let offsetItem = doc.contents[index + offset];
+                        Vue.set(doc.contents,index + offset,currentItem);
+                        Vue.set(doc.contents,index,offsetItem);
                     }
                 },
                 openItem: function () {
@@ -375,60 +365,40 @@
                     $.getJSON(url, function (ret) {
                         if (ret.retCode === 0 && ret.data && ret.data.length > 0) {
                             let image = doc.swiper.images[selectIndex];
-                            let index = ret.data.indexOf(image);
-                            let images = [];
-                            for (let k of doc.swiper.images) {
-                                images.push(k);
-                            }
-                            if (index >= 0) {
-                                index += 1;
-                                if (index === ret.data.length) {
+                            if(ret.data.length > 0) {
+                                let index = ret.data.indexOf(image);
+                                if (index >= 0) {
+                                    index += 1;
+                                    if (index === ret.data.length) {
+                                        index = 0;
+                                    }
+                                } else {//图片不在列表里，从0开始
                                     index = 0;
                                 }
-                                images[selectIndex] = ret.data[index];
-                            } else {
-                                images[selectIndex] = ret.data[0];
+                                Vue.set(doc.swiper.images,selectIndex,ret.data[index])
                             }
-                            doc.swiper.images = images;
                         }
                     })
                 },
                 moveSwiper: function (offset) {
                     if (doc.swiper._selectSwiperIndex + offset >= 0 && doc.swiper._selectSwiperIndex + offset <= doc.swiper.images.length - 1) {
-                        let theImage = doc.swiper.images[doc.swiper._selectSwiperIndex + offset];
-                        doc.swiper.images[doc.swiper._selectSwiperIndex + offset] = doc.swiper.images[doc.swiper._selectSwiperIndex];
-                        doc.swiper.images[doc.swiper._selectSwiperIndex] = theImage;
-
-                        let images = [];
-                        for (let k of doc.swiper.images) {
-                            images.push(k);
-                        }
+                        let currentImage = doc.swiper.images[doc.swiper._selectSwiperIndex];                        
+                        let offsetImage = doc.swiper.images[doc.swiper._selectSwiperIndex + offset];
+                        Vue.set(doc.swiper.images,doc.swiper._selectSwiperIndex,offsetImage);
+                        Vue.set(doc.swiper.images,doc.swiper._selectSwiperIndex + offset,currentImage);
                         doc.swiper._selectSwiperIndex += offset;
-                        doc.swiper.images = images;
                     }
                 },
                 addSwiperImage: function () {
                     if (doc.swiper._selectSwiperIndex >= 0 && doc.swiper._selectSwiperIndex <= doc.swiper.images.length - 1) {
                         doc.swiper.images.splice(doc.swiper._selectSwiperIndex + 1, 0, "")
-
-                        let images = [];
-                        for (let k of doc.swiper.images) {
-                            images.push(k);
-                        }
-                        doc.swiper._selectSwiperIndex = -1;
-                        doc.swiper.images = images;
                     }
                 },
                 removeSwiperImage: function () {
                     if (doc.swiper._selectSwiperIndex >= 0 && doc.swiper._selectSwiperIndex <= doc.swiper.images.length - 1) {
                         doc.swiper.images.splice(doc.swiper._selectSwiperIndex, 1)
 
-                        let images = [];
-                        for (let k of doc.swiper.images) {
-                            images.push(k);
-                        }
                         doc.swiper._selectSwiperIndex = -1;
-                        doc.swiper.images = images;
                     }
                 },
                 addSwiper: function () {

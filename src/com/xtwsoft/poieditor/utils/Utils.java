@@ -102,6 +102,37 @@ public class Utils {
 		}
 	}
 	
+	/**
+	 * 缩减图片，减少网络传输开销
+	 * @param file		
+	 * @param fileType   图片类型,如(jpg,jpeg,png,gif),暂不支持 webp
+	 * @param newWidth   缩减后新图片的宽度，高度按比例缩小
+	 */
+	public static void reduceImageFile(File file,String fileType,int newWidth) {
+		try {
+			//对于大图片，统一缩减为宽为500px的图片
+			BufferedImage buffImage = ImageIO.read(file);
+			if(buffImage.getWidth() > newWidth) {
+				
+				int w = newWidth;
+				double ratio = 1.0 * w / buffImage.getWidth();
+				
+				int h = (int)(buffImage.getHeight() * ratio + 0.5);
+				
+				BufferedImage image = new BufferedImage(w, h,
+						BufferedImage.TYPE_INT_RGB);
+				Graphics2D g = image.createGraphics();
+				g.drawImage(buffImage, 0, 0, w, h, null);
+				g.dispose();
+				
+				ImageIO.write(image, fileType, file);
+			}
+		} catch(Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+
+	
 	public static void deletePath(File path) {
 		if (path == null) {
 			return;

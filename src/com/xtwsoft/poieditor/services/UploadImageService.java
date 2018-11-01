@@ -1,7 +1,10 @@
 package com.xtwsoft.poieditor.services;
 
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 import java.io.File;
 
+import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.Part;
 
@@ -9,6 +12,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.xtwsoft.poieditor.ImagesManager;
 import com.xtwsoft.poieditor.utils.Guid;
+import com.xtwsoft.poieditor.utils.Utils;
 import com.xtwsoft.server.ServerConfig;
 import com.xtwsoft.server.Service;
 import com.xtwsoft.server.ServiceReturn;
@@ -30,13 +34,21 @@ public class UploadImageService extends Service {
 			for (Part part : request.getParts()) {
 				String newName = Guid.build16Guid();
 				String fileName = extractFileName(part).toLowerCase();
+				String fileType = "";
 				int pos = fileName.lastIndexOf(".");
 				if(pos > 0) {
+					fileType = fileName.substring(pos + 1);
 					newName += fileName.substring(pos);
 				}
 				File imageFile = new File(imagePath, newName);
 				arr.add(newName);
 				part.write(imageFile.getAbsolutePath());
+				if("picture".equals(path)) {
+					if("jpg".equals(fileType) || "jpeg".equals(fileType) ||
+							"png".equals(fileType) || "gif".equals(fileType)) {
+						Utils.reduceImageFile(imageFile,fileType,200);
+					}
+				}
 			}
 			JSONObject imagesObj = ImagesManager.getInstance().resetImagePath(path);
 			if(imagesObj == null) {
@@ -66,5 +78,4 @@ public class UploadImageService extends Service {
 		}
 		return "";
 	}
-	
 }
