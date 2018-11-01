@@ -41,8 +41,8 @@ public class UploadImageService extends Service {
 					newName += fileName.substring(pos);
 				}
 				File imageFile = new File(imagePath, newName);
-				arr.add(newName);
 				part.write(imageFile.getAbsolutePath());
+				arr.add(newName);
 				if("picture".equals(path)) {
 					if("jpg".equals(fileType) || "jpeg".equals(fileType) ||
 							"png".equals(fileType) || "gif".equals(fileType)) {

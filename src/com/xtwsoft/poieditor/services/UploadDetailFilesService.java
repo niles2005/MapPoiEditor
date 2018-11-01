@@ -5,6 +5,9 @@ import java.io.File;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.Part;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.xtwsoft.poieditor.ImagesManager;
 import com.xtwsoft.poieditor.utils.Guid;
 import com.xtwsoft.poieditor.utils.Utils;
 import com.xtwsoft.server.ServerConfig;
@@ -24,6 +27,7 @@ public class UploadDetailFilesService extends Service {
 				ret.setError("upload path is not exist！");
 				return;
 			}
+			JSONArray arr = new JSONArray();
 			for (Part part : request.getParts()) {
 				String newName = Guid.build16Guid();
 				String fileName = extractFileName(part).toLowerCase();
@@ -35,12 +39,24 @@ public class UploadDetailFilesService extends Service {
 				}
 				File theFile = new File(filePath, newName);
 				part.write(theFile.getAbsolutePath());
+				arr.add(newName);
 				
 				if("jpg".equals(fileType) || "jpeg".equals(fileType) ||
 						"png".equals(fileType) || "gif".equals(fileType)) {
 					Utils.reduceImageFile(theFile,fileType,500);
 				}
 			}
+			JSONObject imagesObj = ImagesManager.getInstance().resetImagePath(path);
+			if(imagesObj == null) {
+				imagesObj = new JSONObject();
+			}
+			if(arr.size() == 1) {
+				imagesObj.put("image", arr.getString(0));
+			} else if(arr.size() > 1) {
+				imagesObj.put("image", arr);
+			}
+			ret.setSuccess(imagesObj);
+			
 			ret.setSuccess("file upload success!");
 		} catch (Exception e) {
 			e.printStackTrace();
