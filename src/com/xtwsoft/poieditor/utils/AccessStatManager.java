@@ -42,13 +42,15 @@ public class AccessStatManager {
 		}
 	}
 
-	public void doStat() {
+	public void doStat(String yearMonth) {
 		if (m_logPath.exists()) {
 			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM");
 			Calendar cal = Calendar.getInstance();
 			long currentTimeInMillis = cal.getTimeInMillis();
 			String currentYearMonth = df.format(cal.getTime());
-
+			if (yearMonth == null || yearMonth.length() != 7) {
+				yearMonth = currentYearMonth;
+			}
 			int index = 0;
 			while (true) {
 				cal.set(Calendar.YEAR, StartYear);
@@ -57,8 +59,10 @@ public class AccessStatManager {
 
 				if (cal.getTimeInMillis() <= currentTimeInMillis) {
 					String strYearMonth = df.format(cal.getTime());
-					statMonth(df.format(cal.getTime()),
-							strYearMonth.equals(currentYearMonth));
+					if (strYearMonth.equals(yearMonth)) {
+						statMonth(yearMonth);
+						break;
+					}
 				} else {
 					break;
 				}
@@ -66,27 +70,24 @@ public class AccessStatManager {
 		}
 	}
 
-	private void statMonth(String strYearMonth, boolean isCurrentMonth) {
+	private void statMonth(String strYearMonth) {
 		String strPrevFileName = "localhost_access_log." + strYearMonth;
-		File statFile = statFile = new File(m_statPath, strYearMonth + ".json");
-		if (isCurrentMonth || !statFile.exists()) {
-			JSONArray arr = new JSONArray();
-			File[] files = m_logPath.listFiles();
-			for (int i = 0; i < files.length; i++) {
-				String fileName = files[i].getName();
-				if (fileName.startsWith(strPrevFileName)) {
-					String strDate = fileName.substring(21,
-							fileName.length() - 4);
-					JSONObject dateJson = new JSONObject();
-					dateJson.put("date", strDate);
-					int day = Integer.parseInt(strDate.substring(8));
-					dateJson.put("day", day);
-					arr.add(dateJson);
-					statFile(files[i], strDate, dateJson);
-				}
+		File statFile = new File(m_statPath, strYearMonth + ".json");
+		JSONArray arr = new JSONArray();
+		File[] files = m_logPath.listFiles();
+		for (int i = 0; i < files.length; i++) {
+			String fileName = files[i].getName();
+			if (fileName.startsWith(strPrevFileName)) {
+				String strDate = fileName.substring(21, fileName.length() - 4);
+				JSONObject dateJson = new JSONObject();
+				dateJson.put("date", strDate);
+				int day = Integer.parseInt(strDate.substring(8));
+				dateJson.put("day", day);
+				arr.add(dateJson);
+				statFile(files[i], strDate, dateJson);
 			}
-			storeJsonFile(statFile, arr);
 		}
+		storeJsonFile(statFile, arr);
 	}
 
 	private void statFile(File file, String date, JSONObject dateJson) {
@@ -123,7 +124,7 @@ public class AccessStatManager {
 		File logPath = new File(
 				"C:\\mywork\\szjt\\workspace\\yylLogs\\webapps\\yyl");
 		AccessStatManager.initInstance(logPath);
-		AccessStatManager.getInstance().doStat();
+		AccessStatManager.getInstance().doStat("2018-11");
 
 	}
 }

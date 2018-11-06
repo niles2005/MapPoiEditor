@@ -18,7 +18,8 @@ public class AccessStatService extends Service {
 	}
 
 	public void work(ServiceReturn ret, HttpServletRequest request) {
-		AccessStatManager.getInstance().doStat();
+		String yearmonth = request.getParameter("yearmonth");
+		AccessStatManager.getInstance().doStat(yearmonth);
 		ret.setSuccess("access stat success!");
 	}
 }
