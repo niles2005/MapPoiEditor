@@ -18,6 +18,7 @@
             <option value="line">线形</option>
             <option value="bar-group">柱状</option>
         </select>
+        <button id="statButton">统计数据</button>
     </div>
     <canvas id='canvas' width='800' height='500'></canvas>
 </body>
@@ -55,6 +56,16 @@
             doSelect()
         })
         doSelect()
+
+        $("#statButton").click(function() {
+            $.getJSON("service?name=accessstat&v=" + new Date().getTime(), function (data) {
+                if(data.retCode === 0) {
+                    doSelect()
+                } else if(data.message) {
+                    alert(data.message)
+                }
+            });
+        });
     });
     function getDaysInMonth(month, year) {
         return new Date(year, month, 0).getDate();
@@ -63,7 +74,7 @@
 
     function doSelect() {
         let currentMonth = $("#statMonth").val();
-        $.getJSON("stat/" + currentMonth + ".json", function (data) {
+        $.getJSON("stat/" + currentMonth + ".json?v=" + new Date().getTime(), function (data) {
             validJson(data)
             buildChart(data)
         });
