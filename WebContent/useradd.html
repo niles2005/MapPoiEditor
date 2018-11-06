@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script type="text/javascript" src="./lib/jquery-3.3.1.min.js"></script>
+    <title>add user</title>
+</head>
+
+<body>
+    新加用户:<input id="user">
+    用户密码:<input id="pass">
+
+    <div style="margin: 10px 0;">
+        校验:<textarea id="key" rows=5 cols=50></textarea>
+    </div>
+    <div>
+        <button id="confirm">确定</button>
+    </div>
+</body>
+<script>
+    $(document).ready(function () {
+        $("#confirm").click(function () {
+
+            let data = {
+                "user": $("#user").val(),
+                "pass": $("#pass").val(),
+                "key": $("#key").val()
+            }
+            $.ajax({
+                type: "POST",
+                url: "service?name=useradd&v=" + new Date().getTime(),
+                dataType: "json",
+                data: JSON.stringify(data),
+                contentType: "text/plain; charset=UTF-8",
+                cache: false,
+                success: function (ret) {
+                    if (ret.message) {
+                        alert(ret.message)
+                    }
+                }
+            });
+        });
+    })
+</script>
+
+</html>

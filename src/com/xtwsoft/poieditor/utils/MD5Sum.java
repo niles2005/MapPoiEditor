@@ -118,7 +118,7 @@ public class MD5Sum {
 		}
 	}
 
-	public static String getByteArrayMD5Sum(byte[] byteArray,int len) {
+	public static String getByteArrayMD5Sum(byte[] byteArray, int len) {
 		try {
 			if (md == null)
 				md = MessageDigest.getInstance("MD5");
@@ -159,7 +159,7 @@ public class MD5Sum {
 		}
 	}
 
-	//产生64位的Md5 sum，长度不定
+	// 产生64位的Md5 sum，长度不定
 	public static final String encode64MD5(String str) {
 		try {
 			Base64.Encoder encoder = Base64.getEncoder();
@@ -182,8 +182,10 @@ public class MD5Sum {
 	}
 
 	public static void main(String[] args) {
-		String ss = MD5Sum.encode64MD5("测试");
+		String ss = MD5Sum
+				.encode64MD5("Quis ad qui ut mollit voluptate laborum.Quis occaecat proident labore deserunt irure nostrud eu. Duis labore eiusmod aliqua irure ad nisi deserunt velit cupidatat cupidatat. In minim enim consequat Lorem ut fugiat minim proident reprehenderit cillum cupidatat anim officia sunt. Est irure sit incididunt culpa nisi dolor. Dolor quis ipsum quis deserunt exercitation ut. Anim ipsum dolor velit consectetur.");
 		System.err.println(ss);
+		ss = "UXVpcyBhZCBxdWkgdXQgbW9sbGl0IHZvbHVwdGF0ZSBsYWJvcnVtlF1aXMgb2NjYWVjYXQgcHJvaWRlbnQgbGFib3JlIGRlc2VydW50IGlydXJlIG5vc3RydWQgZXUuIER1aXMgbGFib3JlIGVpdXNtb2QgYWxpcXVhIGlydXJlIGFkIG5pc2kgZGVzZXJ1bQgdmVsaXQgY3VwaWRhdGF0IGN1cGlkYXRhdC4gSW4gbWluaW0gZW5pbSBjb25zZXF1YXQgTG9yZW0gdXQgZnVnaWF0IG1pbmltIHByb2lkZW50IHJlcHJlaGVuZGVyaXQgY2lsbHVtIGN1cGlkYXRhdCBhbmltIG9mZmljaWEgc3VudC4gRXN0IGlydXJlIHNpdCBpbmNpZGlkdW50IGN1bHBhIG5pc2kgZG9sb3IuIERvbG9yIHF1aXMgaXBzdW0gcXVpcyBkZXNlcnVudCBleGVyY2l0YXRpb24gdXQuIEFuaW0gaXBzdW0gZG9sb3IgdmVsaXQgY29uc2VjdGV0dXIu==";
 		ss = MD5Sum.decode64MD5(ss);
 		System.err.println(ss);
 

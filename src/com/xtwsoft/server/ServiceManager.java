@@ -27,6 +27,7 @@ import com.xtwsoft.poieditor.services.UpdatePOIService;
 import com.xtwsoft.poieditor.services.UploadDetailFilesService;
 import com.xtwsoft.poieditor.services.UploadImageService;
 import com.xtwsoft.poieditor.services.UploadZipService;
+import com.xtwsoft.poieditor.services.UserAddService;
 
 /**
  * 
@@ -136,6 +137,7 @@ public class ServiceManager {
 		serviceManager.addService(new PathFilesService());
 		serviceManager.addService(new AccessStatService());
 		serviceManager.addService(new ImagesService());
+		serviceManager.addService(new UserAddService());
 	}
 
 	public void registerUploadServices() {

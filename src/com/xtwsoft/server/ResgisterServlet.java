@@ -49,7 +49,8 @@ public class ResgisterServlet extends HttpServlet {
 				ServletOutputStream sos = response.getOutputStream();
 				ServiceReturn ret = new ServiceReturn();
 				if (UsersManager.getInstance().checkUserPass(account, password)) {
-					request.getSession(true);
+					HttpSession session = request.getSession(true);
+					session.setAttribute("account", account);
 					ret.setSuccess("login success!");
 				} else {
 					ret.setError("login failed!");
