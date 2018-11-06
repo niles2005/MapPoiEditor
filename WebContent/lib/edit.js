@@ -417,6 +417,10 @@ $(document).ready(function() {
     }
   });
 
+  $("#logoutButton").click(function() {
+    window.location.href = "register?action=logout&v=" + new Date().getTime();
+  });
+
   //==========================  app config start ========================
 
   $("#introEdit").click(function() {

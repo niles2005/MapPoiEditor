@@ -154,6 +154,13 @@ img {
   top: 55px;
 }
 
+.logoutButton {
+  z-index: 0;
+  position: absolute;
+  left: 152px;
+  top: 55px;
+}
+
 .clickCreatePoiDiv {
   z-index: 0;
   position: absolute;
