@@ -131,12 +131,7 @@ public class UsersManager {
 		UsersManager.initInstance(new File("."));
 		// UsersManager.getInstance().addUserPassword("gxt", "gxt12345");
 		// UsersManager.getInstance().addUserPassword("niles", "niles1");
-		UsersManager
-				.getInstance()
-				.addUserPassword(
-						"zxx",
-						"zxx",
-						"gxt",
-						"UXVpcyBhZCBxdWkgdXQgbW9sbGl0IHZvbHVwdGF0ZSBsYWJvcnVtlF1aXMgb2NjYWVjYXQgcHJvaWRlbnQgbGFib3JlIGRlc2VydW50IGlydXJlIG5vc3RydWQgZXUuIER1aXMgbGFib3JlIGVpdXNtb2QgYWxpcXVhIGlydXJlIGFkIG5pc2kgZGVzZXJ1bQgdmVsaXQgY3VwaWRhdGF0IGN1cGlkYXRhdC4gSW4gbWluaW0gZW5pbSBjb25zZXF1YXQgTG9yZW0gdXQgZnVnaWF0IG1pbmltIHByb2lkZW50IHJlcHJlaGVuZGVyaXQgY2lsbHVtIGN1cGlkYXRhdCBhbmltIG9mZmljaWEgc3VudC4gRXN0IGlydXJlIHNpdCBpbmNpZGlkdW50IGN1bHBhIG5pc2kgZG9sb3IuIERvbG9yIHF1aXMgaXBzdW0gcXVpcyBkZXNlcnVudCBleGVyY2l0YXRpb24gdXQuIEFuaW0gaXBzdW0gZG9sb3IgdmVsaXQgY29uc2VjdGV0dXIu==");
+		UsersManager.getInstance()
+				.addUserPassword("zxx", "zxx", "gxt", "xxxxx");
 	}
 }
