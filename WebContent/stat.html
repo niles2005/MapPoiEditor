@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script type="text/javascript" src="./lib/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript" src="./lib/line-chart.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        月份：<select id="statMonth">
+        </select>
+        图形：<select id="statGraph">
+            <option value="line">线形</option>
+            <option value="bar-group">柱状</option>
+        </select>
+    </div>
+    <canvas id='canvas' width='800' height='500'></canvas>
+</body>
+
+</html>
+<script>
+    $(document).ready(function () {
+        var w = $(".container").width();
+        var h = parseInt(w * 0.5);
+        $("#canvas").attr("width", w);
+        $("#canvas").attr("height", h);
+
+        var index = 0;
+        var today = new Date();
+        let theMonth = ("0" + (today.getMonth() + 1));
+        theMonth = theMonth.substring(theMonth.length - 2);
+        var strToday = today.getFullYear() + "-" + theMonth;
+        while (true) {
+            let date = new Date(2018, 9 + index++);
+            let theMonth = ("0" + (date.getMonth() + 1));
+            theMonth = theMonth.substring(theMonth.length - 2);
+
+            let strDate = date.getFullYear() + "-" + theMonth;
+            let $option = $("<option value='" + strDate + "'>" + strDate + "</option>");
+            $("#statMonth").append($option)
+            if (strDate == strToday) {
+                break;
+            }
+        }
+        $("#statMonth").val(strToday);
+        $("#statMonth").change(function () {
+            doSelect()
+        })
+        $("#statGraph").change(function () {
+            doSelect()
+        })
+        doSelect()
+    });
+    function getDaysInMonth(month, year) {
+        return new Date(year, month, 0).getDate();
+    };
+
+
+    function doSelect() {
+        let currentMonth = $("#statMonth").val();
+        $.getJSON("stat/" + currentMonth + ".json", function (data) {
+            validJson(data)
+            buildChart(data)
+        });
+    }
+
+    function validJson(json) {
+        let date = json[0].date;
+        let year = parseInt(date.substring(0, 4));
+        let month = parseInt(date.substring(5, 7));
+        let monthDays = getDaysInMonth(month, year);
+
+        json.sort((a, b) => a.day - b.day);
+        let day = json[json.length - 1].day;
+        if (day < monthDays) {
+            for (let i = day + 1; i <= monthDays; i++) {
+                json.push({ "day": i });
+            }
+        }
+        day = json[0].day;
+        if (day > 1) {
+            for (let i = day - 1; i >= 1; i--) {
+                json.unshift({ "count": 0, "day": i });
+            }
+        }
+    }
+    function buildChart(json) {
+        let max = 0;
+        for (let i = 0; i < json.length; i++) {
+            if (json[i].count > max) {
+                max = json[i].count;
+            }
+        }
+        if (max == 0) {
+            max = 100;
+        } else if (max < 100) {
+            max = 100;
+        } else if (max < 200) {
+            max = 200;
+        } else if (max < 500) {
+            max = 500;
+        } else if (max < 1000) {
+            max = 1000;
+        }
+        var chartData = {
+            "_data": { "retCode": 0, "result": json },
+            "_function": ["buildValues", "buildXAxis", "buildYAxis"],
+            "grid-margin-left": 30,
+            "grid-margin-right": 10,
+            "grid-margin-top": 20,
+            "grid-margin-bottom": 20,
+            "keys": [
+                { "colour": "#27AE60", "font-size": 20, "text": "" }
+            ],
+            "type": $("#statGraph").val(),
+            "bar-width": 0.5,
+            "stroke-weight": 2,
+            "draw-point-radius": 4,
+
+            "legend": {
+                "icon": "line-point",
+                "position": "top",
+                "visible": true
+            },
+            "x-axis": {
+                "colour": "black",
+                "pole-length": 0,
+                "pole-colour": "#1F2225",
+                "font": "24px Arial",
+                "font-scale": 0.5,
+                "offset-sub-column": false,
+                "field-name": "day",
+                "show-interval": 2
+            },
+            "y-axis": {
+                "minY": 0,
+                "maxY": max,
+                "drawLabel": true,
+                "grid-number": 10,
+                "ruler-colors": ["#0EBE11", "#A0DA49", "#EBD809", "#F79A08", "#FD414A"],
+                "grid-colour": "#CACACA",
+                "colour": "#000000",
+                "font": "30px Arial",
+                "font-scale": 0.5,
+                "field-name": ["count"]
+            }
+        };
+
+        chartwork.ChartJsonBuilder.buildChartData(chartData, chartData._data);
+        chartwork.drawChart(document.getElementById("canvas"), chartData);
+    }
+</script>
