@@ -57,11 +57,11 @@
         })
         doSelect()
 
-        $("#statButton").click(function() {
-            $.getJSON("service?name=accessstat&v=" + new Date().getTime(), function (data) {
-                if(data.retCode === 0) {
+        $("#statButton").click(function () {
+            $.getJSON("service?name=accessstat&yearmonth=" + $("#statMonth").val() + "&v=" + new Date().getTime(), function (data) {
+                if (data.retCode === 0) {
                     doSelect()
-                } else if(data.message) {
+                } else if (data.message) {
                     alert(data.message)
                 }
             });
@@ -74,6 +74,10 @@
 
     function doSelect() {
         let currentMonth = $("#statMonth").val();
+        let theData = [{ "day": 1, "date": currentMonth + "-01" }];
+        validJson(theData)
+        buildChart(theData)
+
         $.getJSON("stat/" + currentMonth + ".json?v=" + new Date().getTime(), function (data) {
             validJson(data)
             buildChart(data)
@@ -96,7 +100,7 @@
         day = json[0].day;
         if (day > 1) {
             for (let i = day - 1; i >= 1; i--) {
-                json.unshift({ "count": 0, "day": i });
+                json.unshift({ "day": i });
             }
         }
     }
