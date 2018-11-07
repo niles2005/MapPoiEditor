@@ -129,9 +129,8 @@ public class UsersManager {
 
 	public static void main(String[] args) {
 		UsersManager.initInstance(new File("."));
-		// UsersManager.getInstance().addUserPassword("gxt", "gxt12345");
-		// UsersManager.getInstance().addUserPassword("niles", "niles1");
-		UsersManager.getInstance()
-				.addUserPassword("zxx", "zxx", "gxt", "xxxxx");
+		// UsersManager.getInstance().addUserPassword("abc", "abc1");
+		UsersManager.getInstance().addUserPassword("zxx", "zxx", "admin",
+				"xxxxx");
 	}
 }
