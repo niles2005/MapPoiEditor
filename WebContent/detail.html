@@ -82,11 +82,14 @@
         .swiper-item.focused {
             border: solid 3px lightgreen;
         }
+        [v-cloak]{
+            display:none;
+        }        
     </style>
 </head>
 
 <body>
-    <div id="app" :style="'background-color: #fff;padding: 35px 16px 12px;text-align: justify;color: #333;font-size: 17px;font-family: 宋体;font-size: 14px;line-height: 1.6em;' + doc.docStyle">
+    <div id="app" v-cloak :style="'background-color: #fff;padding: 35px 16px 12px;text-align: justify;color: #333;font-size: 17px;font-family: 宋体;font-size: 14px;line-height: 1.6em;' + doc.docStyle">
         <div style="z-index:1000;top:10px;right:10px;position: fixed;">
             <button style="background:lightgreen;float:right;margin: 0 3px;" v-on:click="doSubmit">提交</button>
             <span class="fileinput-button" style="float:right;">
