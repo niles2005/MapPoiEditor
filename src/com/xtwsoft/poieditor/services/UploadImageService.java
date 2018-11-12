@@ -1,10 +1,7 @@
 package com.xtwsoft.poieditor.services;
 
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
 import java.io.File;
 
-import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.Part;
 
@@ -25,8 +22,9 @@ public class UploadImageService extends Service {
 	public void work(ServiceReturn ret, HttpServletRequest request) {
 		try {
 			String path = request.getParameter("path");
-			File imagePath = new File(ServerConfig.getInstance().getImagesPath(),path);
-			if(!imagePath.exists()) {
+			File imagePath = new File(ServerConfig.getInstance()
+					.getImagesPath(), path);
+			if (!imagePath.exists()) {
 				ret.setError("上传图片目录不存在·！");
 				return;
 			}
@@ -36,27 +34,28 @@ public class UploadImageService extends Service {
 				String fileName = extractFileName(part).toLowerCase();
 				String fileType = "";
 				int pos = fileName.lastIndexOf(".");
-				if(pos > 0) {
+				if (pos > 0) {
 					fileType = fileName.substring(pos + 1);
 					newName += fileName.substring(pos);
 				}
 				File imageFile = new File(imagePath, newName);
 				part.write(imageFile.getAbsolutePath());
 				arr.add(newName);
-				if("picture".equals(path)) {
-					if("jpg".equals(fileType) || "jpeg".equals(fileType) ||
-							"png".equals(fileType) || "gif".equals(fileType)) {
-						Utils.reduceImageFile(imageFile,fileType,200);
+				if ("picture".equals(path)) {
+					if ("jpg".equals(fileType) || "jpeg".equals(fileType)
+							|| "png".equals(fileType) || "gif".equals(fileType)) {
+						Utils.reduceImageFile(imageFile, fileType, 200);
 					}
 				}
 			}
-			JSONObject imagesObj = ImagesManager.getInstance().resetImagePath(path);
-			if(imagesObj == null) {
+			JSONObject imagesObj = ImagesManager.getInstance().resetImagePath(
+					path);
+			if (imagesObj == null) {
 				imagesObj = new JSONObject();
 			}
-			if(arr.size() == 1) {
+			if (arr.size() == 1) {
 				imagesObj.put("image", arr.getString(0));
-			} else if(arr.size() > 1) {
+			} else if (arr.size() > 1) {
 				imagesObj.put("image", arr);
 			}
 			ret.setSuccess(imagesObj);
@@ -65,7 +64,7 @@ public class UploadImageService extends Service {
 			ret.setError("上传错误:" + e.getMessage());
 		}
 	}
-	
+
 	private String extractFileName(Part part) {
 		String contentDisp = part.getHeader("content-disposition");
 		String[] items = contentDisp.split(";");

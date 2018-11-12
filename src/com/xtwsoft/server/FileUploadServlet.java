@@ -1,11 +1,6 @@
 package com.xtwsoft.server;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -14,14 +9,9 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.Part;
-
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.xtwsoft.poieditor.utils.Guid;
 
 @WebServlet(name = "FileUploadServlet", urlPatterns = { "/upload" }, loadOnStartup = 0)
-@MultipartConfig(fileSizeThreshold = 1024 * 1024 * 2, maxFileSize = 1024 * 1024 * 10, maxRequestSize = 1024 * 1024 * 50)
+@MultipartConfig(fileSizeThreshold = 1024 * 1024 * 2, maxFileSize = 1024 * 1024 * 50, maxRequestSize = 1024 * 1024 * 50)
 public class FileUploadServlet extends HttpServlet {
 	public FileUploadServlet() {
 	}
@@ -46,6 +36,5 @@ public class FileUploadServlet extends HttpServlet {
 			ex.printStackTrace();
 		}
 	}
-
 
 }

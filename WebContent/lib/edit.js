@@ -849,7 +849,10 @@ $(document).ready(function() {
 
   //处理POIGroup类型配置中（含marker和picture）,合并2次请求为1次
   function loadPOIGroupConfigImages() {
-    let markerImageName = configGroup.markerImage;
+    let markerImageName = "";
+    if(configGroup) {
+      markerImageName = configGroup.markerImage;
+    }
     let $markerImages = $("#markerImages");
     let $pictureImages = $("#pictureImages");
     $markerImages.empty();
@@ -901,7 +904,10 @@ $(document).ready(function() {
   }
 
   function resetGroupPictures(picture) {
-    let pictureImageName = configGroup.pictureImage;
+    let pictureImageName = "";
+    if(configGroup) {
+      pictureImageName = configGroup.pictureImage;
+    }
     let $pictureImages = $("#pictureImages");
     $pictureImages.empty();
 
