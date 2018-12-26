@@ -14,6 +14,7 @@ import com.xtwsoft.server.ServerConfig;
 import com.xtwsoft.server.Service;
 import com.xtwsoft.server.ServiceReturn;
 
+//过期，此接口与UploadDetailFilesService合并
 public class UploadImageService extends Service {
 	public UploadImageService() {
 		super("image");

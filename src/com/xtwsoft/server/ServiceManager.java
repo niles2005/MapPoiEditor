@@ -24,9 +24,6 @@ import com.xtwsoft.poieditor.services.SaveAllService;
 import com.xtwsoft.poieditor.services.UpdateAppService;
 import com.xtwsoft.poieditor.services.UpdateDetailService;
 import com.xtwsoft.poieditor.services.UpdatePOIService;
-import com.xtwsoft.poieditor.services.UploadDetailFilesService;
-import com.xtwsoft.poieditor.services.UploadImageService;
-import com.xtwsoft.poieditor.services.UploadZipService;
 import com.xtwsoft.poieditor.services.UserAddService;
 
 /**
@@ -38,7 +35,6 @@ import com.xtwsoft.poieditor.services.UserAddService;
  */
 public class ServiceManager {
 	private Map<String, Service> m_serviceMap = new HashMap<String, Service>();
-	private Map<String, Service> m_uploadServiceMap = new HashMap<String, Service>();
 	private static ServiceManager m_instance = null;
 
 	public static ServiceManager getInstance() {
@@ -49,7 +45,6 @@ public class ServiceManager {
 		if (m_instance == null) {
 			m_instance = new ServiceManager();
 			m_instance.registerServices();
-			m_instance.registerUploadServices();
 		}
 
 	}
@@ -61,13 +56,6 @@ public class ServiceManager {
 		String serviceName = service.getServiceName();
 		if (serviceName != null) {
 			m_serviceMap.put(serviceName, service);
-		}
-	}
-
-	private void addUploadService(Service service) {
-		String serviceName = service.getServiceName();
-		if (serviceName != null) {
-			m_uploadServiceMap.put(serviceName, service);
 		}
 	}
 
@@ -94,29 +82,6 @@ public class ServiceManager {
 		sos.write(ret.toString().getBytes("UTF-8"));
 	}
 
-	public void doUploadService(HttpServletRequest request,
-			HttpServletResponse response) throws IOException, ServletException {
-		String serviceName = request.getParameter("name");
-		ServletOutputStream sos = response.getOutputStream();
-		ServiceReturn ret = new ServiceReturn();
-
-		if (serviceName == null) {
-			ret.setError("unknown upload service!");
-		} else {
-			Service service = m_uploadServiceMap.get(serviceName);
-			if (service != null) {
-				try {
-					service.work(ret, request);
-				} catch (Exception ex) {
-					ret.setError(ex.getMessage());
-				}
-			} else {
-				ret.setError("can not find upload service:" + serviceName);
-			}
-		}
-		sos.write(ret.toString().getBytes("UTF-8"));
-	}
-
 	/**
 	 * 注册服务。在使用中可以按服务名找到对应的服务。
 	 */
@@ -138,13 +103,6 @@ public class ServiceManager {
 		serviceManager.addService(new AccessStatService());
 		serviceManager.addService(new ImagesService());
 		serviceManager.addService(new UserAddService());
-	}
-
-	public void registerUploadServices() {
-		ServiceManager serviceManager = ServiceManager.getInstance();
-		serviceManager.addUploadService(new UploadImageService());
-		serviceManager.addUploadService(new UploadZipService());
-		serviceManager.addUploadService(new UploadDetailFilesService());
 	}
 
 }

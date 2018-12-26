@@ -29,7 +29,7 @@
         }
         $('.fileUpload').click(function() {
             $('.fileUpload').fileupload({
-                url: "../upload?name=uploaddetailfiles&path=" + self._path,
+                url: "../upload?reduce=image&path=" + self._path,
                 dataType: 'json',
                 done: function (e, data) {
                     if (data.result.retCode === 0) {

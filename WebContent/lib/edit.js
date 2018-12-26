@@ -966,27 +966,15 @@ $(document).ready(function() {
     $(this).text(text);
   });
 
-  $("#introUpload").fileupload({
-    url: "introUpload",
-    dataType: "json",
-    done: function(e, data) {
-      if (data.result.retCode === 0 && data.result.data) {
-        $("#introDownload").attr("href", data.result.data.introPage + ".zip");
-        $("#introDownload").removeClass("disabled");
-        $("#introOpen").attr("href", data.result.data.introPage);
-        $("#introOpen").removeClass("disabled");
-      } else if (data.result.retCode < 0 && data.result.message) {
-        alert(data.result.message);
-      }
-    },
-    progressall: function(e, data) {}
-  });
-
   $(".fileUpload").each(function(index) {
     let $upload = $(".fileUpload").eq(index);
     let path = $upload.attr("path");
+    let url = "upload?path=images/" + path;
+    if(path === "picture") {
+      url += "&reduce=image";
+    }
     $upload.fileupload({
-      url: "upload?name=image&path=" + path,
+      url: url,
       dataType: "json",
       done: function(e, ret) {
         if (ret.result.retCode === 0 && ret.result.data) {

@@ -94,7 +94,7 @@
             <button style="background:lightgreen;float:right;margin: 0 3px;" v-on:click="doSubmit">提交</button>
             <span class="fileinput-button" style="float:right;">
                 <span class="topSpanButton">上传媒体文件</span>
-                <input v-on:click="uploadFiles" accept="image/*,audio/*,video/*" type="file" id="fileUpload">
+                <input v-on:click="uploadFiles" accept="image/*,audio/*,video/*" name="file" type="file" id="fileUpload">
             </span>
             <button style="background:lightgreen;float:right;margin: 0 3px;" v-on:click="unselect">取消选择</button>
             <button style="background:lightgreen;float:right;margin: 0 3px;" v-if="!doc.swiper" v-on:click="addSwiper">加轮播</button>
@@ -459,7 +459,7 @@
                 uploadFiles: function () {
                     let $upload = $('#fileUpload');
                     $upload.fileupload({
-                        url: "upload?name=uploaddetailfiles&path=" + path,
+                        url: "upload?reduce=image&path=" + path,
                         dataType: 'json',
                         done: function (e, ret) {
                             if (ret.result.retCode === 0) {
