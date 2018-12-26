@@ -494,7 +494,7 @@ $(document).ready(function() {
     if (currentGroup) {
       $("#groupsTable #" + currentGroup.key).addClass("table-success");
     }
-    loadCoverImages(datas.coverImage);
+    loadCoverImages();
 
     $("#appModal").modal({ backdrop: "static", focus: true });
   });
@@ -810,7 +810,7 @@ $(document).ready(function() {
   });
   //==========================  app config end ========================
 
-  function loadCoverImages(imageName) {
+  function loadCoverImages() {
     let $coverImages = $("#coverImages");
     $coverImages.empty();
     $.getJSON(
@@ -833,7 +833,7 @@ $(document).ready(function() {
               "</div>";
             let $browserItem = $(ss);
             $coverImages.append($browserItem);
-            if (path + image == imageName) {
+            if (path + image == datas.coverImage) {
               $browserItem.find(".mask").addClass("selected");
             }
 
@@ -913,30 +913,32 @@ $(document).ready(function() {
 
     let picturePath = picture.path;
     let pictureImages = picture.images;
-    for (let image of pictureImages) {
-      let ss =
-        '<div class="browser-item">' +
-        '<img src="' +
-        picturePath +
-        "/" +
-        image +
-        '"/>' +
-        '<div class="mask" path="' +
-        picturePath +
-        '" name="' +
-        image +
-        '"></div>' +
-        "</div>";
-      let $browserItem = $(ss);
-      $pictureImages.append($browserItem);
-      if (image == pictureImageName) {
-        $browserItem.find(".mask").addClass("selected");
+    if(pictureImages) {
+      for (let image of pictureImages) {
+        let ss =
+          '<div class="browser-item">' +
+          '<img src="' +
+          picturePath +
+          "/" +
+          image +
+          '"/>' +
+          '<div class="mask" path="' +
+          picturePath +
+          '" name="' +
+          image +
+          '"></div>' +
+          "</div>";
+        let $browserItem = $(ss);
+        $pictureImages.append($browserItem);
+        if (image == pictureImageName) {
+          $browserItem.find(".mask").addClass("selected");
+        }
+  
+        $browserItem.click(function() {
+          $pictureImages.find(".mask.selected").removeClass("selected");
+          $browserItem.find(".mask").addClass("selected");
+        });
       }
-
-      $browserItem.click(function() {
-        $pictureImages.find(".mask.selected").removeClass("selected");
-        $browserItem.find(".mask").addClass("selected");
-      });
     }
 }
 
@@ -978,9 +980,10 @@ $(document).ready(function() {
       dataType: "json",
       done: function(e, ret) {
         if (ret.result.retCode === 0 && ret.result.data) {
-          console.dir(ret.result.data);
           if(path === "picture") {
             resetGroupPictures(ret.result.data)
+          } else if(path === "cover") {
+            loadCoverImages();
           }
         } else if (ret.result.retCode < 0 && ret.result.message) {
           alert(ret.result.message);

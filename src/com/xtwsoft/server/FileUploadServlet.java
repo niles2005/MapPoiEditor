@@ -13,7 +13,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 
 import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.xtwsoft.poieditor.ImagesManager;
 import com.xtwsoft.poieditor.utils.Guid;
 import com.xtwsoft.poieditor.utils.Utils;
@@ -84,17 +83,13 @@ public class FileUploadServlet extends HttpServlet {
 					}
 				}
 			}
-			JSONObject imagesObj = ImagesManager.getInstance().resetImagePath(
-					path);
-			if (imagesObj == null) {
-				imagesObj = new JSONObject();
+
+			String[] pathArr = path.split("/");
+			if (pathArr.length == 2 && "images".equals(pathArr[0])) {
+				ImagesManager.getInstance().resetImageType(pathArr[1]);
+				ret.setSuccess(ImagesManager.getInstance()
+						.getImages(pathArr[1]));
 			}
-			if (arr.size() == 1) {
-				imagesObj.put("image", arr.getString(0));
-			} else if (arr.size() > 1) {
-				imagesObj.put("image", arr);
-			}
-			ret.setSuccess(imagesObj);
 
 			ret.setSuccess("file upload success!");
 		} catch (Exception e) {
