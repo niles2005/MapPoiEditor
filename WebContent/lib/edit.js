@@ -354,7 +354,7 @@ $(document).ready(function() {
       url: "service?name=updatedetail",
       dataType: "json",
       data: JSON.stringify(tempPOI),
-      contentType: "text/plain; charset=UTF-8",
+      contentType: "application/json; charset=UTF-8",
       cache: false,
       success: function(ret) {
         $("#detailSave").removeAttr("disabled");
@@ -376,7 +376,7 @@ $(document).ready(function() {
       url: "service?name=updatepoi",
       dataType: "json",
       data: JSON.stringify(poi),
-      contentType: "text/plain; charset=UTF-8",
+      contentType: "application/json; charset=UTF-8",
       cache: false,
       success: function(ret) {
         if (ret.retCode === 0) {
@@ -574,7 +574,7 @@ $(document).ready(function() {
       url: "service?name=updateapp",
       dataType: "json",
       data: JSON.stringify(appInfo),
-      contentType: "text/plain; charset=UTF-8",
+      contentType: "application/json; charset=UTF-8",
       cache: false,
       success: function(ret) {
         if (ret.retCode === 0) {

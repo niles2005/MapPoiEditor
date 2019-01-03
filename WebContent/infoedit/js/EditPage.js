@@ -312,7 +312,7 @@
                         url: "../service?name=filesave&path=" + currentPath,
                         dataType: "json",
                         data: fileContent,
-                        contentType: 'text/plain; charset=UTF-8',
+                        contentType: 'application/json; charset=UTF-8',
                         cache: false,
                         success: function (ret) {
                             if (ret.message) {

@@ -34,7 +34,7 @@
                 url: "service?name=useradd&v=" + new Date().getTime(),
                 dataType: "json",
                 data: JSON.stringify(data),
-                contentType: "text/plain; charset=UTF-8",
+                contentType: "application/json; charset=UTF-8",
                 cache: false,
                 success: function (ret) {
                     if (ret.message) {
